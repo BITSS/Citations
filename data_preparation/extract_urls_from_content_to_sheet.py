@@ -57,6 +57,16 @@ def strip_tags(html):
     s.feed(html)
     return s.get_data()
 
+
+def extract_url(text):
+    'Yield tuple of URLs and URLs with surrounding characters from text'
+    text_length = len(text)
+    for match in regex_url.finditer(text):
+        start, end = match.span()
+        start = max(0, start - char_match_pre)
+        end = min(text_length, end + char_match_post)
+        yield (match.group(), content_text[start:end])
+
 # Extracting URLs from text is non-trivial.
 # Beautify solution provided by 'dranxo' and match characters around URLs
 # for additional context.
@@ -81,8 +91,7 @@ tlds = (r'com|net|org|edu|gov|mil|aero|asia|biz|cat|coop'
         r'|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg'
         r'|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us'
         r'|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw')
-regex_url = re.compile('(.{,' + str(char_match_pre) + '})'
-                       r'((?:https?:(?:/{1,3}|[a-z0-9%])|[a-z0-9.\-]+[.]'
+regex_url = re.compile(r'((?:https?:(?:/{1,3}|[a-z0-9%])|[a-z0-9.\-]+[.]'
                        r'(?:' + tlds + ')'
                        r'/)(?:[^\s()<>{}\[\]]+'
                        r'|\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\))+'
@@ -91,7 +100,6 @@ regex_url = re.compile('(.{,' + str(char_match_pre) + '})'
                        r'|(?:(?<!@)[a-z0-9]+(?:[.\-][a-z0-9]+)*[.]'
                        r'(?:' + tlds + ')'
                        r'/?(?!@)))'
-                       '(.{,' + str(char_match_post) + '})'
                        )
 
 input_file = 'bld/ajps_articles_2003_2016.csv'
@@ -135,12 +143,9 @@ with open(input_file) as fh_in:
         # Remove HTML tags for easier extraction of url context.
         content_text = strip_tags(content_html)
 
-        urls = [match.group() for match
-                in regex_url.finditer(content_text)]
-        # urls = unique([match.group() for match
-        #                in regex_url.finditer(content_text)])
-        urls = list(filterfalse(regex_wiley.search, urls))
-        print(urls)
+        urls = list(extract_url(content_text))
+
+        urls = [url for url in urls if regex_wiley.search(url[0]) is None]
 
         title_cell = ('=HYPERLINK("' + article_url(line[ix_dict['doi']])
                       + '","' + line[ix_dict['title']] + '")')
@@ -152,17 +157,10 @@ with open(input_file) as fh_in:
         # List article URLs numerically in separate cells, as
         # Excel only allows one clickable links per cell.
         for ix, url in enumerate(urls):
-            url_cell = '=HYPERLINK("' + url + '")'
+            url_cell = '=HYPERLINK("' + url[0] + '","' + url[1] + '")'
             if ix == 0:
                 ws.append([title_cell, url_cell])
             else:
                 ws.append(['', url_cell])
-        # urls_cell = '\n'.join(['{}. {}'.format(ix+1,
-        #                                        '=HYPERLINK("' + url + '")')
-        #                        for ix, url in enumerate(urls)])
-        #
-        # ws.append([('=HYPERLINK("' + article_url(line[ix_dict['doi']])
-        #             + '","' + line[ix_dict['title']] + '")'),
-        #            urls_cell])
 
 wb.save(output_file)
