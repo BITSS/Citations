@@ -1,3 +1,8 @@
+## Project specifics:
+bld/*
+octoparse/*
+!octoparse/article_info_and_content_20_issues.otd
+
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof
