@@ -3,31 +3,18 @@
 Extract list of urls used in each article content to excel sheet.
 '''
 
-# TODO Commit to GitHub repo.
 # TODO Add non-url search parameters.
-# TODO Display parameter results in sentence context.
-# TODO Add column to indicate basis for RA's decision.
+# TODO Make sure to exclude email addresses from url match.
 
 import csv
 import sys
 import re
-from itertools import filterfalse
+
 from collections import OrderedDict
-from html.parser import HTMLParser
 
 from openpyxl import Workbook
 from openpyxl.styles import Alignment
-
-
-def unique(list):
-    'Return unique elements of a list, preserving order.'
-    output = []
-    seen = set()
-    for element in list:
-        if element not in seen:
-            output.append(element)
-            seen.add(element)
-    return output
+from tools import strip_tags, regex_url_pattern
 
 
 def article_url(doi):
@@ -35,90 +22,52 @@ def article_url(doi):
     return 'http://onlinelibrary.wiley.com/doi/' + doi + '/full'
 
 
-# Remove HTML tags.
-# Source: http://stackoverflow.com/a/925630/3435013
-class MLStripper(HTMLParser):
-    def __init__(self):
-        super().__init__()
-        self.reset()
-        self.strict = False
-        self.convert_charrefs = True
-        self.fed = []
-
-    def handle_data(self, d):
-        self.fed.append(d)
-
-    def get_data(self):
-        return ''.join(self.fed)
-
-
-def strip_tags(html):
-    s = MLStripper()
-    s.feed(html)
-    return s.get_data()
-
-
-def extract_url(text):
-    'Yield tuple of URLs and URLs with surrounding characters from text'
+def find_regex_and_context(regex, text):
+    'Yield regex match and included in surrounding context from text'
     text_length = len(text)
-    for match in regex_url.finditer(text):
+    for match in regex.finditer(text):
         start, end = match.span()
         start = max(0, start - char_match_pre)
         end = min(text_length, end + char_match_post)
-        yield (match.group(), content_text[start:end])
+        yield (match.group(), text[start:end])
 
-# Extracting URLs from text is non-trivial.
-# Beautify solution provided by 'dranxo' and match characters around URLs
-# for additional context.
-# https://stackoverflow.com/a/28552670/3435013
-char_match_pre = 100
-char_match_post = char_match_pre
-
-tlds = (r'com|net|org|edu|gov|mil|aero|asia|biz|cat|coop'
-        r'|info|int|jobs|mobi|museum|name|post|pro|tel|travel'
-        r'|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw'
-        r'|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt'
-        r'|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr'
-        r'|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh'
-        r'|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh'
-        r'|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht'
-        r'|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg'
-        r'|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt'
-        r'|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr'
-        r'|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np'
-        r'|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw'
-        r'|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja'
-        r'|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg'
-        r'|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us'
-        r'|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw')
-regex_url = re.compile(r'((?:https?:(?:/{1,3}|[a-z0-9%])|[a-z0-9.\-]+[.]'
-                       r'(?:' + tlds + ')'
-                       r'/)(?:[^\s()<>{}\[\]]+'
-                       r'|\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\))+'
-                       r'(?:\([^\s()]*?\([^\s()]+\)[^\s()]*?\)'
-                       r'''|\([^\s]+?\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’])'''
-                       r'|(?:(?<!@)[a-z0-9]+(?:[.\-][a-z0-9]+)*[.]'
-                       r'(?:' + tlds + ')'
-                       r'/?(?!@)))'
-                       )
-
-input_file = 'bld/ajps_articles_2003_2016.csv'
-output_file = 'bld/ajps_article_links.xlsx'
+regex_url = re.compile(regex_url_pattern(), re.IGNORECASE)
 
 # Assume that URLs linking to wiley are referring to article internals
 # such as graphs and figures. Exclude these.
-regex_wiley = re.compile(r'''http://(api.)?onlinelibrary.wiley.com''')
+regex_wiley = re.compile(r'''http://(api.)?onlinelibrary.wiley.com''',
+                         re.IGNORECASE)
+
+# Define search terms other than URLs to check for explicit reference to data
+# or code. Order increasingly by false positive likelihood.
+# Match all indicators only at beginning of word.
+# Use "r'string'" to stop Python from interpreting \b as backspace.
+repref_indicators = [r'\b' + x for x in
+                     [r'codes?\b', r'replicat', r'repositor', r'dataverse\b',
+                      r'archives?', r'data\b', r'availab', r'found\b',
+                      r'authors?\b', r'websites?\b', r'homepages?\b',
+                      r'webpages?\b']
+                     ]
+
+regex_repref_indicators = re.compile('(?:' + '|'.join(repref_indicators) + ')',
+                                     re.IGNORECASE)
+
+char_match_pre = 100
+char_match_post = char_match_pre
 
 # Increase field size to deal with long article contents.
 csv.field_size_limit(sys.maxsize)
 
+input_file = 'bld/ajps_articles_2003_2016.csv'
+output_file = 'bld/ajps_article_links.xlsx'
+
 # Initialize sheet.
 wb = Workbook()
 ws = wb.active
-ws.title = 'ajps_urls'
+ws.title = 'ajps_repref_coding'
 
 # Format columns to make list of URLs easier for humans to read.
-for column in ['A', 'B']:
+for column in ['B', 'D']:
     ws.column_dimensions[column].alignment = Alignment(wrapText=True)
     ws.column_dimensions[column].width = 80
 
@@ -133,34 +82,54 @@ with open(input_file) as fh_in:
         ix_dict[var] = header.index(var)
 
     # Write header.
-    ws.append(['title', 'urls', 'RepRef', 'RepFilesAv', 'CodeRepRef',
-               'CodeRepFilesAv'])
+    ws.append(['article_ix', 'title', 'match', 'context', 'RepRef',
+               'RepFilesAv', 'CodeRepRef', 'CodeRepFilesAv'])
 
     # Write rows.
-    for line in csv_reader:
-        content_html = line[ix_dict['content']]
+    for article_ix, article in enumerate(csv_reader, 1):
+        print(article_ix)
+
+        content_html = article[ix_dict['content']]
 
         # Remove HTML tags for easier extraction of url context.
         content_text = strip_tags(content_html)
 
-        urls = list(extract_url(content_text))
+        urls = list(find_regex_and_context(regex_url, content_text))
+        repref_indicators = list(find_regex_and_context
+                                 (regex_repref_indicators, content_text))
 
+        # Exclude Wiley URLs.
         urls = [url for url in urls if regex_wiley.search(url[0]) is None]
 
-        title_cell = ('=HYPERLINK("' + article_url(line[ix_dict['doi']])
-                      + '","' + line[ix_dict['title']] + '")')
+        title_cell = ('=HYPERLINK("' + article_url(article[ix_dict['doi']])
+                      + '","' + article[ix_dict['title']] + '")')
 
-        if urls == []:
-            ws.append([title_cell, '', 0, '', 0, ''])
+        if urls == [] and repref_indicators == []:
+            ws.append([article_ix, title_cell, '', 0, '', 0, ''])
             continue
 
         # List article URLs numerically in separate cells, as
         # Excel only allows one clickable links per cell.
         for ix, url in enumerate(urls):
-            url_cell = '=HYPERLINK("' + url[0] + '","' + url[1] + '")'
+            match_cell = '=HYPERLINK("' + url[0] + '")'
+            context_cell = '=HYPERLINK("' + url[0] + '","' + url[1] + '")'
             if ix == 0:
-                ws.append([title_cell, url_cell])
+                ws.append([article_ix, title_cell, match_cell, context_cell])
             else:
-                ws.append(['', url_cell])
+                ws.append(['', '', match_cell, context_cell])
+
+        # List repref indicator matches after URLs.
+        # Highlight matches in context.
+        for ix, indicator_match in enumerate(repref_indicators):
+            match_cell = indicator_match[0]
+            match_length = len(indicator_match[0])
+            context_cell = (indicator_match[1][0:char_match_pre]
+                            + indicator_match[0].upper()
+                            + indicator_match[1][char_match_pre + match_length:
+                                                 ])
+            if ix == 0 and urls == []:
+                ws.append([article_ix, title_cell, match_cell, context_cell])
+            else:
+                ws.append(['', '', match_cell, context_cell])
 
 wb.save(output_file)
