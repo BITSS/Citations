@@ -87,8 +87,8 @@ with open(input_file) as fh_in:
         ix_dict[var] = header.index(var)
 
     # Write header.
-    ws.append(['article_ix', 'title', 'match', 'context', 'RepRef',
-               'RepFilesAv', 'CodeRepRef', 'CodeRepFilesAv'])
+    ws.append(['article_ix', 'title', 'match', 'context',
+               'reference_category'])
 
     # Write rows.
     for article_ix, article in enumerate(csv_reader, 1):
@@ -113,7 +113,7 @@ with open(input_file) as fh_in:
                       + '","' + article[ix_dict['title']] + '")')
 
         if urls == [] and repref_indicators == []:
-            ws.append([article_ix, title_cell, '', 0, '', 0, ''])
+            ws.append([article_ix, title_cell, '', '', 0])
             continue
 
         # List article URLs numerically in separate cells, as
