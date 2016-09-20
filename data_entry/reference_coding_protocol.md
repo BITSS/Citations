@@ -34,4 +34,4 @@ Some examples:
 + `files_full_name`: Reference mentions a location where both, data and code, can be found, e.g. the author's website
 
 ### Tip
-For faster data entry, you can label irrelevant matches using a key close to your `enter` key, and replace that character with `0` later one.
+For faster data entry, you can label irrelevant matches using a key close to your `enter` key, and replace that character with `0` later on.
