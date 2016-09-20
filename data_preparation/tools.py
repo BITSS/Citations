@@ -2,17 +2,6 @@
 from html.parser import HTMLParser
 
 
-def unique(list):
-    'Return unique elements of a list, preserving order.'
-    output = []
-    seen = set()
-    for element in list:
-        if element not in seen:
-            output.append(element)
-            seen.add(element)
-    return output
-
-
 # Remove HTML tags.
 # Source: http://stackoverflow.com/a/925630/3435013
 class MLStripper(HTMLParser):
@@ -42,7 +31,8 @@ def regex_url_pattern():
 
     Extracting URLs from text is non-trivial.
     Beautify solution provided by 'dranxo' and match characters around URLs
-    for additional context.
+    for additional context. Also interpret URL endings '.[0-9]*' as sentence
+    delimiter or footnote numbers and hence do not make them part of the URL.
     https://stackoverflow.com/a/28552670/3435013
     '''
 
@@ -72,4 +62,4 @@ def regex_url_pattern():
             r'''|\([^\s]+?\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’])'''
             r'|(?:(?<!@)[a-z0-9]+(?:[.\-][a-z0-9]+)*[.]'
             r'(?:' + tlds + ')'
-            r'/?(?!@)))')
+            r'/?(?!@|\.[0-9]*)))')
