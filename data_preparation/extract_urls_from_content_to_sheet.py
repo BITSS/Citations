@@ -38,6 +38,11 @@ regex_url = re.compile(regex_url_pattern(), re.IGNORECASE)
 regex_wiley = re.compile(r'''http://(api.)?onlinelibrary.wiley.com''',
                          re.IGNORECASE)
 
+# Assume that URLs matches which are two words joint by '.' with first two
+# letters in mixed case are actually end and start of a sentence.
+# Exclude these.
+regex_sentence_url = re.compile(r'\s\w+\.([A-Z][a-z]|[a-z][A-Z])')
+
 # Define search terms other than URLs to check for explicit reference to data
 # or code. Order increasingly by false positive likelihood.
 # Match all indicators only at beginning of word.
@@ -98,8 +103,11 @@ with open(input_file) as fh_in:
         repref_indicators = list(find_regex_and_context
                                  (regex_repref_indicators, content_text))
 
-        # Exclude Wiley URLs.
-        urls = [url for url in urls if regex_wiley.search(url[0]) is None]
+        # Exclude URLs following set of exceptions.
+        urls = [url for url in urls if (regex_wiley.search(url[0]) is None
+                                        and
+                                        regex_sentence_url.search(url[0])
+                                        is None)]
 
         title_cell = ('=HYPERLINK("' + article_url(article[ix_dict['doi']])
                       + '","' + article[ix_dict['title']] + '")')
