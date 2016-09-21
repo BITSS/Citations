@@ -21,6 +21,7 @@ with open(input_file) as fh_in:
     with open(output_file, mode='w', newline='') as fh_out:
         csv_writer = csv.DictWriter(fh_out,
                                     fieldnames=csv_reader.fieldnames)
+        csv_writer.writeheader()
         for line in csv_reader:
             first_published = parser.parse(line['first_published'])
             if (select_after <= first_published < select_before):

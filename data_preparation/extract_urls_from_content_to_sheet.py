@@ -9,8 +9,6 @@ import csv
 import sys
 import re
 
-from collections import OrderedDict
-
 from openpyxl import Workbook
 from openpyxl.styles import Alignment
 from tools import strip_tags, regex_url_pattern
@@ -79,24 +77,17 @@ for column in ['B', 'D']:
     ws.column_dimensions[column].width = 80
 
 with open(input_file) as fh_in:
-    csv_reader = csv.reader(fh_in, strict=True)
-
-    header = [x.strip() for x in next(csv_reader)]
-
-    # Locate variable positions in input csv file.
-    ix_dict = OrderedDict()
-    for var in ['title', 'content', 'doi']:
-        ix_dict[var] = header.index(var)
+    csv_reader = csv.DictReader(fh_in)
 
     # Write header.
-    ws.append(['article_ix', 'title', 'match', 'context',
+    ws.append(['doi', 'article_ix', 'title', 'match', 'context',
                'reference_category'])
 
     # Write rows.
     for article_ix, article in enumerate(csv_reader, 1):
         print(article_ix)
 
-        content_html = article[ix_dict['content']]
+        content_html = article['content']
 
         # Remove HTML tags for easier extraction of url context.
         content_text = strip_tags(content_html)
@@ -114,11 +105,11 @@ with open(input_file) as fh_in:
                     regex_sentence_url.search(url[0]) is None and
                     regex_email_url.search(url[0]) is None)]
 
-        title_cell = ('=HYPERLINK("' + article_url(article[ix_dict['doi']])
-                      + '","' + article[ix_dict['title']] + '")')
+        title_cell = ('=HYPERLINK("' + article_url(article['doi'])
+                      + '","' + article['title'] + '")')
 
         if urls == [] and repref_indicators == []:
-            ws.append([article_ix, title_cell, '', '', 0])
+            ws.append([article['doi'], article_ix, title_cell, '', '', 0])
             continue
 
         # List article URLs numerically in separate cells, as
@@ -127,9 +118,10 @@ with open(input_file) as fh_in:
             match_cell = '=HYPERLINK("' + url[0] + '")'
             context_cell = '=HYPERLINK("' + url[0] + '","' + url[1] + '")'
             if ix == 0:
-                ws.append([article_ix, title_cell, match_cell, context_cell])
+                ws.append([article['doi'], article_ix, title_cell, match_cell,
+                           context_cell])
             else:
-                ws.append(['', '', match_cell, context_cell])
+                ws.append(['', '', '', match_cell, context_cell])
 
         # List repref indicator matches after URLs.
         # Highlight matches in context.
@@ -141,8 +133,9 @@ with open(input_file) as fh_in:
                             + indicator_match[1][char_match_pre + match_length:
                                                  ])
             if ix == 0 and urls == []:
-                ws.append([article_ix, title_cell, match_cell, context_cell])
+                ws.append([article['doi'], article_ix, title_cell, match_cell,
+                           context_cell])
             else:
-                ws.append(['', '', match_cell, context_cell])
+                ws.append(['', '', '', match_cell, context_cell])
 
 wb.save(output_file)
