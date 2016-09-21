@@ -72,7 +72,7 @@ ws = wb.active
 ws.title = 'ajps_reference_coding'
 
 # Format columns to make list of URLs easier for humans to read.
-for column in ['B', 'D']:
+for column in ['C', 'E']:
     ws.column_dimensions[column].alignment = Alignment(wrapText=True)
     ws.column_dimensions[column].width = 80
 
