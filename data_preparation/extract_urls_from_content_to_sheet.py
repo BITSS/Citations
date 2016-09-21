@@ -3,11 +3,7 @@
 Extract list of urls used in each article content to spreadsheet.
 '''
 
-# TODO Fix regex sentence exclusion.
-# re.compile(r'\s\w+\.([A-Z][a-z]|[a-z][A-Z])')
-# -> re.compile(r'\s\w+\.([A-Z][a-z]|[a-z][A-Z])\w*\s')
-# Does exclude "here www.Berkeley.edu fuond"?
-# TODO Add year (first_published), author's names
+# TODO Add doi
 
 import csv
 import sys
@@ -69,7 +65,7 @@ char_match_post = char_match_pre
 # Increase field size to deal with long article contents.
 csv.field_size_limit(sys.maxsize)
 
-input_file = 'bld/ajps_articles_2003_2016.csv'
+input_file = 'bld/ajps_articles_2006_2014.csv'
 output_file = 'bld/ajps_reference_coding_template.xlsx'
 
 # Initialize sheet.
