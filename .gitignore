@@ -3,6 +3,10 @@ bld/*
 octoparse/*
 !octoparse/article_info_and_content_20_issues.otd
 
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof
