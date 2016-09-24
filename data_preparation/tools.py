@@ -31,8 +31,7 @@ def regex_url_pattern():
 
     Extracting URLs from text is non-trivial.
     Beautify solution provided by 'dranxo' and match characters around URLs
-    for additional context. Also interpret URL endings '.[0-9]*' as sentence
-    delimiter or footnote numbers and hence do not make them part of the URL.
+    for additional context.
     https://stackoverflow.com/a/28552670/3435013
     '''
 
