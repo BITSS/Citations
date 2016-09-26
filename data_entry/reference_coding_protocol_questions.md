@@ -12,6 +12,7 @@ This is just a markdown file to record all questions that participants want to a
 ### Ravina
 
 ### Kevin
+<<<<<<< HEAD
 	1.What if the excerpt includes a reference to a URL but not the explicit URL? How would we code this? Row.283 racial predispositions. Models include control variables as discussed in text; complete results are AVAILABle from the author's web page.**p < 0.01; *p < 0.05; ?p < 0.10, two-tailed. Schools SpendingThermome
 	
 	2. Row 336-340
@@ -34,6 +35,8 @@ This is just a markdown file to record all questions that participants want to a
 	
 	How do we code self-referential excerpts?
 
+=======
+>>>>>>> BITSS/master
 
 ### Terri
 
