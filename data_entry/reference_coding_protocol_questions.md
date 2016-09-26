@@ -14,6 +14,7 @@ This is just a markdown file to record all questions that participants want to a
 ### Kevin
 
 ### Terri
+  1. There's an article that kept mentioning that additional analyses were available on the author's webpage, however there was no mention of the code or data being availble. I happened to check the journal and noticed that on the web page it says that all files can be found at that link. However, since it was written on the web page and not in the pdf, it did not show up in our file. (Journal Article #257 "What Stops the Torture").
 
 ### Rachel
   1.What if data reference is a cite of a paper? (not link/name)
