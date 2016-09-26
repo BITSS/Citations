@@ -10,6 +10,7 @@ This is just a markdown file to record all questions that participants want to a
 
 
 ### Ravina
+  1. Several articles have referred us to supporting information section on the AJPS website for code/dataset/statistical analysis. Sometimes a link or a .doc. How do we classify this? In the mean time, Terri and I have classified it as `supp_info`.
 
 ### Kevin
 
