@@ -2,7 +2,7 @@
 Version: 2016.09.29 (See [github](http://github.com/bitss/citations) for history.)
 
 ### What do I look for?
-References to the data or code used in the article.
+References to the data or code used in the article. We're not interested in additional results, or proofs, or the appendix. We're interested and data and/or code to reproduce the published paper.
 
 ### What is a reference?
 A reference has 3 dimensions:
@@ -14,7 +14,6 @@ A reference has 3 dimensions:
  + `code`
  + `files` = data + code
 
- We're not interested in additional results, or proofs, or the appendix. We're interested and data and/or code to reproduce the published paper.
 
 2. How much is referenced?
 
@@ -39,6 +38,10 @@ In total there are 13 possible values. Some selected examples:
 + `code_partial_link`: Reference provides a URL to some of the code used in the article, e.g. for code used in simulation, but not for code used in analysis
 + `files_full_name`: Reference mentions a location where both, data and code, can be found, e.g. the author's website
 + ...
+
+### How do I deal with duplicates?
+
+There are so many lines for each article! If you find a `files_full_link` (i.e., a link to a website where you can download the data and the code to reproduce the paper) mark it, and skip the rest of the lines for that article. Mark all the skipped lines with `skip` instead of the `0` that you enter for non-useful rows. This is only for `files_full_link` and not for any other reference.
 
 ### Where do I save my file?
 Start with the template in `./Shared/Data/ajps_reference_coding_template.xlsx`, create a copy, replacing 'template' with your name.
