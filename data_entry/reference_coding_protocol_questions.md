@@ -62,3 +62,5 @@ Please provide a specific article or row number as an example that illustrates y
   1.What if data reference is a cite of a paper? (not link/name)
 
   A: create a new option: paper.
+
+  Thank you for answering my questions.
