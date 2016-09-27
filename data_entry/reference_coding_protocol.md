@@ -2,7 +2,7 @@
 Version: 2016.09.29 (See [github](http://github.com/bitss/citations) for history.)
 
 ### What do I look for?
-References to the data or code used in the article.
+References to the data or code used in the article. We're not interested in additional results, or proofs, or the appendix. We're interested and data and/or code to reproduce the published paper.
 
 ### What is a reference?
 A reference has 3 dimensions:
@@ -14,7 +14,6 @@ A reference has 3 dimensions:
  + `code`
  + `files` = data + code
 
- We're not interested in additional results, or proofs, or the appendix. We're interested and data and/or code to reproduce the published paper.
 
 2. How much is referenced?
 
