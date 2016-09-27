@@ -14,6 +14,8 @@ A reference has 3 dimensions:
  + `code`
  + `files` = data + code
 
+ We're not interested in additional results, or proofs, or the appendix. We're interested and data and/or code to reproduce the published paper.
+
 2. How much is referenced?
 
   If the referenced data or code is for the entire article, it is a `full` reference. A reference for part of the data or code, e.g. only for a single variable, it is called `partial` reference.
@@ -21,7 +23,7 @@ A reference has 3 dimensions:
 3. How is it referenced?
 
  + `link`: The reference provides a URL
- + `name`: The reference mentions the name of a dataset, an institution or website without providing a URL
+ + `name`: The reference mentions the name of a dataset, an institution (such as the Census Bureau or World Bank) or website (including non-URL reference to 'author's website') without providing a URL
  + `paper`: The reference is a citation to a paper.
 
 ### How do I classify the matches?
