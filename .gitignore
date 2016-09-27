@@ -2,6 +2,7 @@
 bld/*
 octoparse/*
 !octoparse/article_info_and_content_20_issues.otd
+.~lock*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
