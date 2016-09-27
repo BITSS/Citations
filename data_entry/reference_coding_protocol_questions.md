@@ -13,7 +13,7 @@ This is just a markdown file to record all questions that participants want to a
   1. Several articles have referred us to supporting information section on the AJPS website for code/dataset/statistical analysis. Sometimes a link or a .doc. How do we classify this? In the mean time, Terri and I have classified it as `supp_info`.
 
 ### Kevin
-	1.What if the excerpt includes a reference to a URL but not the explicit URL? How would we code this? Row.283 racial predispositions. Models include control variables as discussed in text; complete results are AVAILABle from the author's web page.
+	1. What if the excerpt includes a reference to a URL but not the explicit URL? How would we code this? Row.283 racial predispositions. Models include control variables as discussed in text; complete results are AVAILABle from the author's web page.
 
 
 
