@@ -3,8 +3,6 @@
 Extract list of urls used in each article content to spreadsheet.
 '''
 
-# TODO Add doi
-
 import csv
 import sys
 import re
@@ -87,7 +85,13 @@ with open(input_file) as fh_in:
     for article_ix, article in enumerate(csv_reader, 1):
         print(article_ix)
 
-        content_html = article['content']
+        # Combine article elements into single parsable string.
+        content_html = '\n'.join([article[x] for x in ['footnote_1',
+                                                       'footnote_2',
+                                                       'authors_description',
+                                                       'biographies',
+                                                       'abstract',
+                                                       'content']])
 
         # Remove HTML tags for easier extraction of url context.
         content_text = strip_tags(content_html)
@@ -105,8 +109,8 @@ with open(input_file) as fh_in:
                     regex_sentence_url.search(url[0]) is None and
                     regex_email_url.search(url[0]) is None)]
 
-        title_cell = ('=HYPERLINK("' + article_url(article['doi'])
-                      + '","' + article['title'] + '")')
+        title_cell = ('=HYPERLINK("' + article_url(article['doi']) +
+                      '","' + article['title'] + '")')
 
         if urls == [] and repref_indicators == []:
             ws.append([article['doi'], article_ix, title_cell, '', '', 0])
@@ -128,10 +132,10 @@ with open(input_file) as fh_in:
         for ix, indicator_match in enumerate(repref_indicators):
             match_cell = indicator_match[0]
             match_length = len(indicator_match[0])
-            context_cell = (indicator_match[1][0:char_match_pre]
-                            + indicator_match[0].upper()
-                            + indicator_match[1][char_match_pre + match_length:
-                                                 ])
+            context_cell = (indicator_match[1][0:char_match_pre] +
+                            indicator_match[0].upper() +
+                            indicator_match[1][char_match_pre + match_length:])
+
             if ix == 0 and urls == []:
                 ws.append([article['doi'], article_ix, title_cell, match_cell,
                            context_cell])
