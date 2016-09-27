@@ -1,3 +1,6 @@
+## Coding Protocol for Automated Text Search
+Version: 2016.09.29 (See [github](http://github.com/bitss/citations) for history.)
+
 ### What do I look for?
 References to the data or code used in the article.
 
@@ -19,13 +22,14 @@ A reference has 3 dimensions:
 
  + `link`: The reference provides a URL
  + `name`: The reference mentions the name of a dataset, an institution or website without providing a URL
+ + `paper`: The reference is a citation to a paper.
 
 ### How do I classify the matches?
 If a match is not a reference to the data or code used in the article, it is irrelevant. We code this as `0`.
 
 If a match is a reference, classify it along the 3 dimension mentioned above using underscores `_` as separators. If a reference is partial, add `partial`.
 
-In total there are 13 possible values. Some examples:
+In total there are 13 possible values. Some selected examples:
 
 + `data_full_link`: Reference provides a URL to *all* of the data used in the article
 + `data_partial_link`: Reference provides a URL to parts of the data, e.g. certain variables, used in the article
@@ -35,7 +39,9 @@ In total there are 13 possible values. Some examples:
 + ...
 
 ### Where do I save my file?
-Starting from the template, create a copy, replacing 'template' with your name. Use LibreOffice Calc to open and save the file in `.ods` format. After a day's work upload the latest version of your file to the Box folder.
+Start with the template in `./Shared/Data/ajps_reference_coding_template.xlsx`, create a copy, replacing 'template' with your name.
+Use LibreOffice Calc to open and save the file in `.ods` format.
+After a day's work upload the latest version of your file to the Box folder. (Or use Box Sync.)
 
 ### Tip
 For faster data entry, you can label irrelevant matches using a key close to your `enter` key, and replace that character with `0` later on.
