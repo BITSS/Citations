@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 '''
-Extract list of urls used in each article content to spreadsheet.
+Extract list of urls used in each article to spreadsheet.
 '''
 
 import csv

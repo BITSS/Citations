@@ -16,14 +16,14 @@ input_files = OrderedDict(zip(urap_initials,
                               [('data_entry/ajps_reference_coding_' +
                                 initials + '.ods')
                                for initials in urap_initials]))
-output_file = 'data_entry/ajps_reference_coding_diff.ods'
+output_file = 'bld/ajps_reference_coding_diff.csv'
 
 entries = OrderedDict()
 for person, input_file in input_files.items():
     sheet = get_data(input_file)['ajps_reference_coding']
     header = sheet[0]
     content = sheet[1:]
-    entry = pd.DataFrame(data=content, columns=header)
+    entry = pd.DataFrame(columns=header, data=content)
 
     # Add article info to every row.
     for column in ['article_ix', 'doi', 'title']:
@@ -44,7 +44,6 @@ merged_entries = pd.merge(entries['KJK'], entries['rk'],
 merged_entries = pd.merge(merged_entries, entries['RP'],
                           how='outer', on=columns_merge_on,
                           indicator='KJK_rk_with_TC')
-
 
 merged_entries = pd.merge(merged_entries, entries['TC'],
                           how='outer', on=columns_merge_on,
