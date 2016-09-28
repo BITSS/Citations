@@ -49,4 +49,4 @@ Use LibreOffice Calc to open and save the file in `.ods` format.
 After a day's work upload the latest version of your file to the Box folder. (Or use Box Sync.)
 
 ### Tip
-For faster data entry, you can label irrelevant matches using a key close to your `enter` key, and replace that character with `0` later on.
+For faster data entry, you can label irrelevant matches using a key close to your `enter` key, and replace that character with `0` before you save. Please do this replacement *before* you save!
