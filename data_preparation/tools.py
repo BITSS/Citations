@@ -67,6 +67,15 @@ def regex_url_pattern():
             r'/?(?!@)))')
 
 
+def fill_columns_down(df, columns):
+    '''
+    Fill in fields from last occurence.
+    '''
+    for column in columns:
+        df[column] = df[column].replace('', np.nan)
+        df[column].fillna(method='ffill', inplace=True)
+
+
 def import_data_entries(source, target, output_file, log_file):
     '''
     Import data entries from one spreadsheet into an other.
@@ -80,10 +89,7 @@ def import_data_entries(source, target, output_file, log_file):
         content = sheet[1:]
         sheet = pd.DataFrame(columns=header, data=content)
 
-        # Add article info to every row.
-        for column in article_level_columns:
-            sheet[column] = sheet[column].replace('', np.nan)
-            sheet[column].fillna(method='ffill', inplace=True)
+        fill_columns_down(sheet, article_level_columns)
 
         # Add identifier to sheet column.
         sheet.rename(columns={'reference_category':
@@ -105,3 +111,34 @@ def import_data_entries(source, target, output_file, log_file):
     source_with_imports.loc[source_with_imports[article_level_columns].
                             duplicated(), article_level_columns] = ''
     source_with_imports.to_csv(output_file, index=False)
+
+
+def add_doi(target, source, output):
+    '''
+    Add doi column to target using information from source.
+    '''
+    matching_columns = ['title']
+    df_source = pd.read_csv(source, usecols=matching_columns + ['doi'])
+
+    sheet = get_data(target)['ajps_reference_coding']
+    header = sheet[0]
+    content = sheet[1:]
+    df_target = pd.DataFrame(columns=header, data=content)
+
+    # Add doi information only for unique articles.
+    df_target = df_target.assign(doi='', add_doi='')
+    article_start = df_target['article_ix'] != ''
+    df_target.loc[article_start, 'add_doi'] = \
+        ~df_target.loc[article_start, matching_columns].duplicated(keep=False)
+
+    # Merge doi information from source for selected articles.
+    fill_columns_down(df_target,
+                      matching_columns + ['add_doi'])
+    df_target[df_target['add_doi']] = df_target[df_target['add_doi']]. \
+        merge(df_source, how='left', on=matching_columns,
+              suffixes=('_x', '')).drop('doi_x', 1).values
+    df_target.loc[df_target[matching_columns + ['doi']].duplicated(),
+                  matching_columns + ['doi']] = ''
+    df_target = df_target[['doi', 'article_ix', 'title', 'match', 'context',
+                           'reference_category']]
+    df_target.sort_index().to_csv(output, index=None)
