@@ -8,9 +8,9 @@ Please provide a specific article or row number as an example that illustrates y
 
   A: If it's not data or code to enable one to redo the same analysis that was conducted in the paper, we're not interested. Supplementary info like extra results, extra tables, the questionnaires used for the surveys, mathematical proofs, etc. aren't what we're looking for. Just call these `link`.
   
-  2. There are a lot of Dataverse links. Are those `files` or `data`. 
+  2. There are a lot of Dataverse links. Are those `files` or `data`?
   
-  A: Those are mostly exactly what we're looking for. Unless they're quite explicit about it, it's almost certainly `files` and not just `data`. (Don't spend much time differentiating!)
+  A: Those are mostly exactly what we're looking for. Unless they're quite explicit about it, it's almost certainly `files` and not just `data`. (Don't spend much time differentiating! This will help you skip a lot.)
 
 ### Kevin
   1. What if the excerpt includes a reference to a URL but not the explicit URL? How would we code this? `Row.283 racial predispositions. Models include control variables as discussed in text; complete results are AVAILABle from the author's web page.`
@@ -52,7 +52,7 @@ Please provide a specific article or row number as an example that illustrates y
   
   2. If we find a data full link do we still have to record partials after that while we're looking for code links? (The protocol only mentions skipping after a files full link.)
   
-  A: If you find a data full link, skip all other data references. Same goes for code.
+  A: Yes. After a data_full_link, still record other data_partial_names, but note that since we assume Dataverse links are considered `files` (unless they explicitly say they don't have both) you'll still be able to skip a lot.
 
 ### Rachel
   1. What if data reference is a cite of a paper? (not link/name)
