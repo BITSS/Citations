@@ -40,7 +40,7 @@ In total there are 13 possible values. Some selected examples:
 + ...
 
 ### How do I deal with duplicates?
-There are so many lines for each article! If you find a `files_full_link` (i.e., a link to a website where you can download the data and the code to reproduce the paper) mark it, and skip the rest of the lines for that article. Mark all the skipped lines with `skip` instead of the `0` that you enter for non-useful rows. This is only for `files_full_link` and not for any other reference.
+There are so many lines for each article! If you find a `files_full_link` (i.e., a link to a website where you can download the data and the code to reproduce the paper) mark it, and skip the rest of the lines for that article. Mark all the skipped lines with `skip` instead of the `0` that you enter for non-useful rows. This is only for `files_full_link`. (Note that most, if not all Dataverse links, will have both files and code, especially if they have the word "replication" near it. Assume that Dataverse references point to `files` and move on.)
 
 ### Where do I save my file?
 Start with the template in `./Shared/Data/ajps_reference_coding_template.xlsx`, create a copy, replacing 'template' with your name.
