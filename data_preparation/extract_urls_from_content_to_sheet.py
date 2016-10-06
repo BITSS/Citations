@@ -9,12 +9,7 @@ import re
 
 from openpyxl import Workbook
 from openpyxl.styles import Alignment
-from tools import strip_tags, regex_url_pattern
-
-
-def article_url(doi):
-    'Return article url inferred from DOI.'
-    return 'http://onlinelibrary.wiley.com/doi/' + doi + '/full'
+from tools import strip_tags, regex_url_pattern, article_url
 
 
 def find_regex_and_context(regex, text):

@@ -114,6 +114,12 @@ def import_data_entries(source, target, output_file, log_file):
 
 
 def add_doi(target, source, output):
+def article_url(doi):
+    'Return article url inferred from DOI.'
+    return 'http://onlinelibrary.wiley.com/doi/' + doi + '/full'
+
+
+def add_doi(target, source, output=False):
     '''
     Add doi column to target using information from source.
     '''
@@ -141,4 +147,28 @@ def add_doi(target, source, output):
                   matching_columns + ['doi']] = ''
     df_target = df_target[['doi', 'article_ix', 'title', 'match', 'context',
                            'reference_category']]
-    df_target.sort_index().to_csv(output, index=None)
+    df_target.sort_index(inplace=True)
+    if output:
+        df_target.to_csv(output, index=None)
+    else:
+        return df_target
+
+
+def hyperlink_title(input, file_out):
+    '''
+    Make title value clickable
+    '''
+    if isinstance(input, str):
+        df_in = pd.read_csv(input)
+    else:
+        df_in = input
+    article_info = df_in['title'] != ''
+
+    df_in['hyperlink_title'] = ('=HYPERLINK("' +
+                                df_in['doi'].apply(article_url) +
+                                '","' + df_in['title'] + '")')
+
+    df_in.loc[article_info, 'title'] = df_in.loc[article_info,
+                                                 'hyperlink_title']
+    df_in.drop('hyperlink_title', axis=1, inplace=True)
+    df_in.to_csv(file_out, index=None)

@@ -7,12 +7,13 @@ a doi. Take the data entered on the outdated template and add a doi column.
 A doi is necessary to import the entered data later on.
 
 Note: This file create a csv file as output. For the data import you need to
-convert this file to ods manually using LibreOffice Calc.
+convert this file to ods manually using LibreOffice Calc, name the sheet (not
+the file) 'ajps_reference_coding'.
 """
-from tools import add_doi
+from tools import add_doi, hyperlink_title
 
-target = 'data_entry/ajps_reference_coding_rk_V1.ods'
+target = 'data_entry/ajps_reference_coding_rk_V4.ods'
 source = 'bld/ajps_articles_2003_2016.csv'
-output = 'data_entry/ajps_reference_coding_rk_V1_with_doi.csv'
+output = 'data_entry/ajps_reference_coding_rk_V4_doi_and_hyperlink.csv'
 
-add_doi(target, source, output)
+hyperlink_title(add_doi(target, source), output)
