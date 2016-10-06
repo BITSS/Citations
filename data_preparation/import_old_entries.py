@@ -13,11 +13,11 @@ imports = [{'target': 'data_entry/ajps_reference_coding_KJK_V16.ods',
             'output': 'data_entry/ajps_reference_coding' +
                       '_KJK_V16_+_V1.csv'},
            {'target': 'data_entry/ajps_reference_coding_KJK_V16_+_V1.csv',
-            'source': 'data_entry/ajps_reference_coding_KJK_V19.ods',
+            'source': 'data_entry/ajps_reference_coding_KJK_V23.ods',
             'log': 'data_entry/ajps_reference_coding' +
-                   '_KJK_V16_+_V1_+_V19.log.csv',
+                   '_KJK_V16_+_V1_+_V23.log.csv',
             'output': 'data_entry/ajps_reference_coding' +
-                   '_KJK_V16_+_V1_+_V19.csv'},
+                   '_KJK_V16_+_V1_+_V23.csv'},
            {'target': 'data_entry/ajps_reference_coding_RK_V8.ods',
             'source': 'data_entry/ajps_reference_coding' +
                       '_rk_V4_doi_and_hyperlink.ods',
