@@ -1,6 +1,6 @@
 # Various tools used in this project that can be useful otherwhere.
-import numpy as np
 import pandas as pd
+import numpy as np
 from html.parser import HTMLParser
 from pyexcel_ods3 import get_data
 
@@ -76,44 +76,93 @@ def fill_columns_down(df, columns):
         df[column].fillna(method='ffill', inplace=True)
 
 
-def import_data_entries(source, target, output_file, log_file):
+def import_data_entries(source, target, output, log=False):
     '''
     Import data entries from one spreadsheet into an other.
     '''
     sheets = {}
-    # Mark columns that have been only filled once per article.
     article_level_columns = ['article_ix', 'doi', 'title']
     for name, fh in {'source': source, 'target': target}.items():
-        sheet = get_data(fh)['ajps_reference_coding']
-        header = sheet[0]
-        content = sheet[1:]
-        sheet = pd.DataFrame(columns=header, data=content)
-
+        file_ending = fh.split('.')[-1]
+        if file_ending == 'ods':
+            sheet = get_data(fh)['ajps_reference_coding']
+            header = sheet[0]
+            content = sheet[1:]
+            sheet = pd.DataFrame(columns=header, data=content)
+        elif file_ending == 'csv':
+            sheet = pd.read_csv(fh)
+        else:
+            raise NotImplementedError('File ending {} not supported.'.
+                                      format(file_ending))
         fill_columns_down(sheet, article_level_columns)
 
-        # Add identifier to sheet column.
-        sheet.rename(columns={'reference_category':
-                              'reference_category_' + name},
-                     inplace=True)
         sheets[name] = sheet
 
-    columns_merge_on = [c for c in header if c != 'reference_category']
-    merged = pd.merge(left=sheets['target'], right=sheets['source'],
-                      how='outer', suffixes=('_target', '_source'),
-                      on=columns_merge_on, indicator='_merge')
+    # Exclude article_ix as selection of articles has changed
+    # over protocols (restriction to certain years).
+    columns_merge_on = [c for c in sheets['target'].columns
+                        if c not in ['reference_category', 'article_ix',
+                                     'import_dummy']]
 
-    merged.to_csv(log_file, index_label='row_ix')
-    source_with_imports = source
-    additional_entries = np.all(merged['_merge'] != 'right_only',
-                                merged['reference_category_target'] == '')
-    source_with_imports[additional_entries, 'reference_category'] = \
-        merged[additional_entries, 'reference_category_source']
-    source_with_imports.loc[source_with_imports[article_level_columns].
-                            duplicated(), article_level_columns] = ''
-    source_with_imports.to_csv(output_file, index=False)
+    # Import data only for empty rows with unique matching columns values.
+    sheets['target']['import_candidate'] = \
+        np.all([sheets['target']['reference_category'].isnull(),
+                ~sheets['target'].duplicated(subset=columns_merge_on,
+                                             keep=False)],
+               axis=0)
+
+    # Export data only for non-empty rows with unique matching column values.
+    sheets['source']['export_candidate'] = \
+        np.all([sheets['source']['reference_category'].notnull(),
+                ~sheets['source'].duplicated(subset=columns_merge_on,
+                                             keep=False)],
+               axis=0)
+
+    sheets['target'].index.name = 'target_row_ix'
+    sheets['target'].reset_index(inplace=True)
+    merged = sheets['target'].merge(right=sheets['source'], how='outer',
+                                    suffixes=('_target', '_source'),
+                                    on=columns_merge_on, indicator='_merge')
+
+    # Find rows whose value are imported
+    import_dummy = np.all([x.fillna(False) for x in
+                           [merged['_merge'] != 'right_only',
+                               merged['import_candidate'],
+                               merged['export_candidate']]],
+                          axis=0)
+
+    # Mark previously and newly imported entries.
+    if 'import_dummy_target' in merged.columns:
+        merged['import_dummy'] = merged['import_dummy_target']
+    merged.loc[import_dummy, 'import_dummy'] = 'imported'
+
+    # Create log file showing result from merge and data entry for both files.
+    if log:
+        merged.to_csv(log, index_label='merged_row_ix')
+
+    # Import values to reference category.
+    merged.rename(columns={'reference_category_target': 'reference_category',
+                           'article_ix_target': 'article_ix'},
+                  inplace=True)
+    merged.loc[import_dummy, 'reference_category'] = \
+        merged.loc[import_dummy, 'reference_category_source']
+
+    # For rows in target that have several matches in source, drop duplicates.
+    merged.drop_duplicates(subset='target_row_ix', inplace=True)
+    merged.set_index('target_row_ix', inplace=True, verify_integrity=True)
+
+    # Write article level information only once per article.
+    merged.loc[merged[article_level_columns].duplicated(),
+               article_level_columns] = ''
+
+    # Write resulting sheet to output.
+    merged = merged.loc[merged['_merge'] != 'right_only',
+                        [x for x in sheets['target'].columns
+                         if x not in ['import_candidate', 'target_row_ix']] +
+                        ['import_dummy']]
+    merged.to_csv(output, index=False)
 
 
-def add_doi(target, source, output):
 def article_url(doi):
     'Return article url inferred from DOI.'
     return 'http://onlinelibrary.wiley.com/doi/' + doi + '/full'
