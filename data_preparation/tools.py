@@ -158,7 +158,8 @@ def import_data_entries(source, target, output, log=False):
     # Write resulting sheet to output.
     merged = merged.loc[merged['_merge'] != 'right_only',
                         [x for x in sheets['target'].columns
-                         if x not in ['import_candidate', 'target_row_ix']] +
+                         if x not in ['import_candidate', 'target_row_ix',
+                                      'import_dummy']] +
                         ['import_dummy']]
     merged.to_csv(output, index=False)
 
