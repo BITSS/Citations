@@ -9,6 +9,11 @@ A doi is necessary to import the entered data later on.
 Note: This file create a csv file as output. For the data import you need to
 convert this file to ods manually using LibreOffice Calc, name the sheet (not
 the file) 'ajps_reference_coding'.
+
+Also this script is missing the hyperlinking of match and context of
+url matches. Implementing this logic would take extra time. Since
+hyperlinking does neither affect the entries nor their order, simply copy
+existing data entry into the correct template by hand.
 """
 from tools import add_doi, hyperlink_title
 
