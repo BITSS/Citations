@@ -60,10 +60,18 @@ if consistent_template:
 
     data_entered = merged_entries[reference_columns].notnull()
     merged_entries['number_of_entries'] = np.sum(data_entered, axis=1)
-    merged_entries['conflict'] = merged_entries[reference_columns]\
-        [data_entered].apply(pd.Series.nunique, axis=1) > 1
+    merged_entries['conflict'] = (merged_entries[reference_columns]
+                                  [data_entered].apply(pd.Series.nunique,
+                                                       axis=1) > 1)
+    merged_entries['conflict_ignore_skip'] = (merged_entries[reference_columns]
+                                              [data_entered].
+                                              replace('skip', value=np.nan).
+                                              apply(pd.Series.nunique,
+                                                    axis=1) > 1)
     bool_printing = {True: 'True', False: ''}
-    merged_entries.replace({'conflict': bool_printing}, inplace=True)
+    merged_entries.replace({'conflict': bool_printing,
+                            'conflict_ignore_skip': bool_printing},
+                           inplace=True)
 
     merged_entries.to_csv(output_file, index=None)
 
