@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-Create spreadsheets to resolve differences in data entry.
+Create sheet to manually resolve differences in data entry.
 """
 import pandas as pd
 import numpy as np
 
 input_file = 'bld/ajps_reference_coding_diff.csv'
 
-resolution_pairs = [('KJK', 'RP'), ('RK', 'TC')]
+resolution_pairs = [('KJK', 'RP'), ('RK', 'TC'), ('KJK', 'RK')]
 
-output_file_prefix = 'data_entry/ajps_reference_coding_diff_resolution'
+output_file_prefix = 'bld/ajps_reference_coding_diff_resolution'
 
 diff = pd.read_csv(input_file)
 
