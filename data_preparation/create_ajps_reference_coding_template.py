@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 '''
-Extract list of urls used in each article to spreadsheet.
+Create template for manual coding of references.
 '''
 
 import csv
