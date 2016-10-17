@@ -13,24 +13,34 @@ Every link should fall into one of the following categories:
 + `files` = `data` + `code`
 
 ### The URL looks weird
-The list of URLs was generated automatically. Sometimes, the URL detection algorithm is too greedy and thereby breaks a URL. For example `http://web.mit.edu/17.251/www/data_page.html.16Many` (does not work) should actually be `http://web.mit.edu/17.251/www/data_page.html` (does work), but the algorithm did not detect the end of the sentence after `html`.
+The list of URLs was generated automatically. Sometimes, the URL detection algorithm is too greedy and thereby breaks a URL. For example
 
-If link still seems `dead` or `redirect_to_general`, we ask you to inspect every URL for such weirdness, and manually try to find the correct URL, as follows:
+`http://web.mit.edu/17.251/www/data_page.html.16Many` (does not work)
+
+should actually be
+
+`http://web.mit.edu/17.251/www/data_page.html` (does work),
+
+but the algorithm did not detect the end of the sentence after `html`.
+
+If a link seems `dead` or `redirect_to_general`, we ask you to inspect every URL for such weirdness, and manually try to find the correct URL, as follows:
+
 1. Remove weird looking characters at the end of the URL
-2. If link still seems `dead` or `redirect_to_general`, then go up one folder (that is remove characters from the end until the next `/`) and try again.
-3. Repeat 2. until you reach the top level domain such as `.com` or `.edu`.
+2. If the link still seems `dead` or `redirect_to_general`, then go up one folder (that is remove characters from the end until the next `/`) and try again.
+3. Repeat 2. until you find a working URL or reach the top level domain such as `.com` or `.edu`.
 
-If you find a working URL with this procedure, enter the working URL into the `fixed_link` column.
+If the original link is `dead` or `redirect_to_general` and you find a working URL with this procedure, enter the working URL into the `fixed_link` column. Use the first working URL, not the URL that ultimate links to the data/code/files.
+
+Then start searching for the data/code/files starting from the working URL.
 
 #### Example
-+ `http://www.stat.washington.edu/hoff/CODE/GBME/.14We` seems `dead`.
-+ Following step 1, remove `.14We` and try `http://www.stat.washington.edu/people/pdhoff/CODE/GBME/`
-
-+ .. which also seems `dead`. Following step 2, go up one folder by removing `GBME/` and try `http://www.stat.washington.edu/people/pdhoff/CODE/`
-
-+ .. which also seems `dead`. Repeat step 2, by removing `CODE/` and try `http://www.stat.washington.edu/people/pdhoff/`
-
-+ .. which leads to a working homepage with `code` and `data` available.
++ `http://ms.cc.sunysb.edu/~mlebo/details.htm.10It` redirects to `https://sites.google.com/a/stonybrook.edu/matthew-lebo/details.htm.10It` which seems `dead`.
++ Following step 1, remove `.10It` and try `https://sites.google.com/a/stonybrook.edu/matthew-lebo/details.htm`
++ .. which also seems `dead`. Following step 2, go up one folder by removing `details.htm` and try `https://sites.google.com/a/stonybrook.edu/matthew-lebo/`
++ .. which leads to a working website that is tied to the author or paper.
++ Enter `https://sites.google.com/a/stonybrook.edu/matthew-lebo/` into `fixed_link`.
++ Look for the referenced data/code/files in `https://sites.google.com/a/stonybrook.edu/matthew-lebo/`
++ Starting from the working URL, the referenced files can be found under the `Papers` section, so code this link as `files`.
 
 ### Where do I save my file?
 Start with the template in `./Shared/Data/ajps_link_coding_template.ods`, create a copy, replacing `template` with your initials.
@@ -38,4 +48,4 @@ Use LibreOffice Calc to open and save the file in `.ods` format.
 After a day's work upload the latest version of your file to the Box folder. (Or use Box Sync.)
 
 ### Tip
-`Ctrl/⌘ + Click` on the link to open it in your browser (`Ctrl/⌘ + Click` on the title will open the article). You do not need to press `Ctrl/⌘`, if you uncheck `Ctrl-click required to follow hyperlinks` in `LibreOffice` -> `Preferences` -> `Security` -> `Options`.
+`Ctrl/⌘ + Click` on the link to open it in your browser, `Ctrl/⌘ + Click` on the article title to open the article. You do not need to press `Ctrl/⌘`, if you uncheck `Ctrl-click required to follow hyperlinks`, which you can find in `LibreOffice` -> `Preferences` -> `Security` -> `Options`.
