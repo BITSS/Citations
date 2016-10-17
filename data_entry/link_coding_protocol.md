@@ -4,8 +4,9 @@ Follow each link to look for data or code that relates to the reference mentione
 ### How do I classify the links?
 Every link should fall into one of the following categories:
 
-+ `dead`: The link leads gives you an error such as `Page not found` or `404 Error`, or does not resolve at all (in the last case double-check your internet/wifi connection!)
-+ `redirect_to_general`: The link redirects to a website **not specifically tied to the author or paper** (e.g. main university website). Such a redirect will also have a different URL.
++ `dead`: The link gives you an error such as `Page not found` or `404 Error`, or does not resolve at all (in the last case double-check your internet/WiFi connection!)
++ `redirect_to_general`: The link redirects to a website **not tied to the author or paper** (e.g. main university website). Such a redirect will also have a different URL.
++ `could_not_find`: The link leads to a website tied to the author or paper, but even after searching through this website, the mentioned data/code/files could not be found. 
 + `restricted_access`: Registration, special library access or a password is required to access the contents of the link.
 + `data`: The link leads to the data mentioned in the reference.
 + `code`: The link leads to the code mentioned in the reference.
