@@ -1,15 +1,15 @@
 ### What do I look for?
-Follow each link to look for data or code that relates to the reference mentioned in the paper.
+Follow each link to look for the data/code/files referenced in the paper.
 
 ### How do I classify the links?
 Every link should fall into one of the following categories:
 
-+ `dead`: The link gives you an error such as `Page not found` or `404 Error`, or does not resolve at all (in the last case double-check your internet/WiFi connection!)
++ `dead`: The link gives you an error such as `Page not found` or `404 Error`, or does not resolve at all (in the last case double-check your internet/WiFi connection).
 + `redirect_to_general`: The link redirects to a website **not tied to the author or paper** (e.g. main university website). Such a redirect will also have a different URL.
-+ `could_not_find`: The link leads to a website tied to the author or paper, but even after searching through this website, the mentioned data/code/files could not be found. 
-+ `restricted_access`: Registration, special library access or a password is required to access the contents of the link.
-+ `data`: The link leads to the data mentioned in the reference.
-+ `code`: The link leads to the code mentioned in the reference.
++ `could_not_find`: The link leads to a website tied to the author or paper, but even after searching through this website, the referenced data/code/files could not be found. This includes the case, where you it looks like you found the right link on the website, but that one is `dead` or does not contain any of the referenced data/code/files.
++ `restricted_access`: Registration, special library access or a password is required to access the referenced data/code/files of the link.
++ `data`: The link leads to the referenced data.
++ `code`: The link leads to the referenced code.
 + `files` = `data` + `code`
 
 ### The URL looks weird
@@ -23,15 +23,18 @@ should actually be
 
 but the algorithm did not detect the end of the sentence after `html`.
 
-If a link seems `dead` or `redirect_to_general`, we ask you to inspect every URL for such weirdness, and manually try to find the correct URL, as follows:
+### Rescue a `dead` or `redirect_to_general` link
+If and only if a link seems `dead` or `redirect_to_general`, manually try to find the correct URL, as follows:
 
 1. Remove weird looking characters at the end of the URL
 2. If the link still seems `dead` or `redirect_to_general`, then go up one folder (that is remove characters from the end until the next `/`) and try again.
 3. Repeat 2. until you find a working URL or reach the top level domain such as `.com` or `.edu`.
 
-If the original link is `dead` or `redirect_to_general` and you find a working URL with this procedure, enter the working URL into the `fixed_link` column. Use the first working URL, not the URL that ultimate links to the data/code/files.
+If you do not find a working URL with above procedure, keep the original label.
 
-Then start searching for the data/code/files starting from the working URL.
+If you do find a working URL with above procedure, enter the working URL into the `fixed_link` column. Use the first working URL, not the URL that ultimate links to the data/code/files.
+
+Then search for the data/code/files starting from the working URL.
 
 #### Example
 + `http://ms.cc.sunysb.edu/~mlebo/details.htm.10It` redirects to `https://sites.google.com/a/stonybrook.edu/matthew-lebo/details.htm.10It` which seems `dead`.
