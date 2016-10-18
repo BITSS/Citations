@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""
+'''
 Select articles first published in years 2006 to 2014.
-"""
+'''
 
 import csv
 import sys

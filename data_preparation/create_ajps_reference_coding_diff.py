@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""
+'''
 Create spreadsheet of differences in data entry.
-"""
+'''
 
 import warnings
 from collections import OrderedDict

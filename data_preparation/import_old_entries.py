@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""
+'''
 Import entries from older protocol versions.
-"""
+'''
 
 from tools import import_data_entries
 

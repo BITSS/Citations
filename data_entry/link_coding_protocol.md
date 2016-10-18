@@ -30,9 +30,9 @@ If and only if a link seems `dead` or `redirect_to_general`, manually try to fin
 2. If the link still seems `dead` or `redirect_to_general`, then go up one folder (that is remove characters from the end until the next `/`) and try again.
 3. Repeat 2. until you find a working URL or reach the top level domain such as `.com` or `.edu`.
 
-If you do not find a working URL with above procedure, keep the original label.
+If all URLs from above procedure still seem `dead` or `redirect_to_general`, keep the original label.
 
-If you do find a working URL with above procedure, enter the working URL into the `fixed_link` column. Use the first working URL, not the URL that ultimate links to the data/code/files.
+If you do find a URL from above procedure that is neither `dead` nor `redirect_to_general`, enter that working URL into the `fixed_link` column. Use the first working URL, not the URL that ultimate links to the data/code/files.
 
 Then search for the data/code/files starting from the working URL.
 

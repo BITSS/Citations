@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""
+'''
 Combine output files from Octoparse into single file with one row per article.
 
 Output files from Octoparse
 1. are seperated by year, because of memory issues
 2. have multiple rows for the same article, only differing in the content
 variable
-"""
+'''
 
 import sys
 import csv
