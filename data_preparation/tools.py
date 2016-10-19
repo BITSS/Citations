@@ -76,7 +76,7 @@ def fill_columns_down(df, columns):
         df[column].fillna(method='ffill', inplace=True)
 
 
-def import_data_entries(source, target, output, log=False):
+def import_data_entries(source, target, output, entry_column, log=False):
     '''
     Import data entries from one spreadsheet into an other.
     '''
@@ -106,19 +106,18 @@ def import_data_entries(source, target, output, log=False):
     # Exclude article_ix as selection of articles has changed
     # over protocols (restriction to certain years).
     columns_merge_on = [c for c in sheets['target'].columns
-                        if c not in ['reference_category', 'article_ix',
-                                     'import_dummy']]
+                        if c in ['doi', 'title', 'match', 'context']]
 
     # Import data only for empty rows with unique matching columns values.
     sheets['target']['import_candidate'] = \
-        np.all([sheets['target']['reference_category'].isnull(),
+        np.all([sheets['target'][entry_column].isnull(),
                 ~sheets['target'].duplicated(subset=columns_merge_on,
                                              keep=False)],
                axis=0)
 
     # Export data only for non-empty rows with unique matching column values.
     sheets['source']['export_candidate'] = \
-        np.all([sheets['source']['reference_category'].notnull(),
+        np.all([sheets['source'][entry_column].notnull(),
                 ~sheets['source'].duplicated(subset=columns_merge_on,
                                              keep=False)],
                axis=0)
@@ -146,11 +145,11 @@ def import_data_entries(source, target, output, log=False):
         merged.to_csv(log, index_label='merged_row_ix')
 
     # Import values to reference category.
-    merged.rename(columns={'reference_category_target': 'reference_category',
+    merged.rename(columns={entry_column + '_target': entry_column,
                            'article_ix_target': 'article_ix'},
                   inplace=True)
-    merged.loc[import_dummy, 'reference_category'] = \
-        merged.loc[import_dummy, 'reference_category_source']
+    merged.loc[import_dummy, entry_column] = \
+        merged.loc[import_dummy, entry_column + '_source']
 
     # For rows in target that have several matches in source, drop duplicates.
     merged.drop_duplicates(subset='target_row_ix', inplace=True)
