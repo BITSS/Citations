@@ -32,9 +32,20 @@ df = pd.read_csv(input_file)
 
 link_reference_values = ['data_full_link', 'files_full_link', 'code_full_link']
 link_reference = df['reference_category'].isin(link_reference_values)
+match_is_url = df['match'].fillna('').apply(lambda x:
+                                            regex_url.search(x) is not None)
 
-df.loc[link_reference, 'clickable_link'] = (df.loc[link_reference, 'context'].
-                                            apply(extract_clickable_url))
+match_is_link = np.all([match_is_url, link_reference], axis=0)
+context_provides_link = np.all([~match_is_url, link_reference], axis=0)
+df.loc[match_is_link, 'clickable_link'] =\
+    df.loc[match_is_link, 'match']
+
+df.loc[context_provides_link, 'clickable_link'] =\
+    df.loc[context_provides_link, 'context']
+
+df['clickable_link'] = df['clickable_link'].\
+    fillna('').apply(extract_clickable_url)
+
 df['link_category'] = np.nan
 df['fixed_link'] = np.nan
 

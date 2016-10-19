@@ -31,6 +31,7 @@ for pair in resolution_pairs:
     resolution_column = 'reference_category' + suffix + '_resolved'
 
     # Take care of encoding differences from reading from csv and ods.
+    # Assume that both files have the same (ordered) entries!
     entry_in_sync = np.all(diff[reference_columns].fillna('').astype(str) ==
                            diff_resolved[reference_columns].fillna('').
                            astype(str),

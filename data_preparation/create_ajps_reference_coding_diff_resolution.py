@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""
+'''
 Create sheet to manually resolve differences in data entry.
-"""
+'''
 import pandas as pd
 import numpy as np
 

@@ -1,5 +1,5 @@
 ### What do I look for?
-Follow each link to look for the data/code/files referenced in the paper.
+Use AutoFilter to select all references that are `data_full_link`, `code_full_link` or `files_full_link`. Follow each link to look for the data/code/files referenced in the paper.
 
 ### How do I classify the links?
 Every link should fall into one of the following categories:
