@@ -85,9 +85,14 @@ def import_data_entries(source, target, output, log=False):
     for name, fh in {'source': source, 'target': target}.items():
         file_ending = fh.split('.')[-1]
         if file_ending == 'ods':
-            sheet = get_data(fh)['ajps_reference_coding']
+            # Choose first sheet from workbook.
+            sheet = list(get_data(fh).values())[0]
             header = sheet[0]
             content = sheet[1:]
+            # Take care of completely empty trailing columns.
+            header_length = len(header)
+            content = [row + [None] * max(header_length-len(row), 0)
+                       for row in content]
             sheet = pd.DataFrame(columns=header, data=content)
         elif file_ending == 'csv':
             sheet = pd.read_csv(fh)
