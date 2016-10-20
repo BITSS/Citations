@@ -7,8 +7,6 @@ import csv
 import sys
 import re
 
-from openpyxl import Workbook
-from openpyxl.styles import Alignment
 from tools import strip_tags, regex_url_pattern, article_url
 
 
