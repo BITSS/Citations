@@ -72,6 +72,9 @@ with open(input_file) as fh_in, open(output_file, 'w', newline='') as fh_out:
         row = dict(zip(header, [article.get(x) for x in header]))
 
         # Combine article elements into single parsable string.
+        #
+        # Note that this creates duplicate entries, as sometimes the
+        # abstract is also captured as footnote or content.
         content_html = '\n'.join([article[x] for x in ['footnote_1',
                                                        'footnote_2',
                                                        'authors_description',
