@@ -55,28 +55,21 @@ char_match_post = char_match_pre
 csv.field_size_limit(sys.maxsize)
 
 input_file = 'bld/ajps_articles_2006_2014.csv'
-output_file = 'bld/ajps_reference_coding_template.xlsx'
+output_file = 'bld/ajps_reference_coding_template.csv'
 
-# Initialize sheet.
-wb = Workbook()
-ws = wb.active
-ws.title = 'ajps_reference_coding'
-
-# Format columns to make list of URLs easier for humans to read.
-for column in ['C', 'E']:
-    ws.column_dimensions[column].alignment = Alignment(wrapText=True)
-    ws.column_dimensions[column].width = 80
-
-with open(input_file) as fh_in:
+with open(input_file) as fh_in, open(output_file, 'w', newline='') as fh_out:
     csv_reader = csv.DictReader(fh_in)
 
-    # Write header.
-    ws.append(['doi', 'article_ix', 'title', 'match', 'context',
-               'reference_category'])
+    header = ['doi', 'article_ix', 'title', 'match', 'context',
+              'reference_category']
+    csv_writer = csv.DictWriter(fh_out, fieldnames=header)
 
-    # Write rows.
+    csv_writer.writeheader()
+
+    # Write matches.
     for article_ix, article in enumerate(csv_reader, 1):
         print(article_ix)
+        row = dict(zip(header, [article.get(x) for x in header]))
 
         # Combine article elements into single parsable string.
         content_html = '\n'.join([article[x] for x in ['footnote_1',
@@ -102,37 +95,35 @@ with open(input_file) as fh_in:
                     regex_sentence_url.search(url[0]) is None and
                     regex_email_url.search(url[0]) is None)]
 
-        title_cell = ('=HYPERLINK("' + article_url(article['doi']) +
-                      '","' + article['title'] + '")')
+        row['title'] = ('=HYPERLINK("' + article_url(article['doi']) +
+                        '","' + article['title'] + '")')
 
         if urls == [] and repref_indicators == []:
-            ws.append([article['doi'], article_ix, title_cell, '', '', 0])
+            row['reference_category'] = 0
+            csv_writer.writerow(row)
             continue
 
         # List article URLs numerically in separate cells, as
         # Excel only allows one clickable links per cell.
         for ix, url in enumerate(urls):
-            match_cell = '=HYPERLINK("' + url[0] + '")'
-            context_cell = '=HYPERLINK("' + url[0] + '","' + url[1] + '")'
+            row['match'] = '=HYPERLINK("' + url[0] + '")'
+            row['context'] = '=HYPERLINK("' + url[0] + '","' + url[1] + '")'
+            csv_writer.writerow(row)
+            # Write article level information only once per article.
             if ix == 0:
-                ws.append([article['doi'], article_ix, title_cell, match_cell,
-                           context_cell])
-            else:
-                ws.append(['', '', '', match_cell, context_cell])
+                row.update({'doi': '', 'article_ix': '', 'title': ''})
 
         # List repref indicator matches after URLs.
         # Highlight matches in context.
         for ix, indicator_match in enumerate(repref_indicators):
-            match_cell = indicator_match[0]
+            row['match'] = indicator_match[0]
             match_length = len(indicator_match[0])
-            context_cell = (indicator_match[1][0:char_match_pre] +
-                            indicator_match[0].upper() +
-                            indicator_match[1][char_match_pre + match_length:])
+            row['context'] = (indicator_match[1][0:char_match_pre] +
+                              indicator_match[0].upper() +
+                              indicator_match[1][char_match_pre +
+                                                 match_length:])
 
+            csv_writer.writerow(row)
+            # Write article level information only once per article.
             if ix == 0 and urls == []:
-                ws.append([article['doi'], article_ix, title_cell, match_cell,
-                           context_cell])
-            else:
-                ws.append(['', '', '', match_cell, context_cell])
-
-wb.save(output_file)
+                row.update({'doi': '', 'article_ix': '', 'title': ''})
