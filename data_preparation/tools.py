@@ -28,6 +28,17 @@ def strip_tags(html):
     return s.get_data()
 
 
+def unique_elements(list_in):
+    seen = {}
+    list_out = []
+    for element in list_in:
+        if element in seen:
+            continue
+        seen[element] = 1
+        list_out.append(element)
+    return list_out
+
+
 def regex_url_pattern():
     '''
     Return regular expression pattern that matches URLs
