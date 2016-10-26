@@ -28,13 +28,16 @@ def strip_tags(html):
     return s.get_data()
 
 
-def unique_elements(list_in):
+def unique_elements(list_in, idfun=None):
+    if idfun is None:
+        def idfun(x): return x
     seen = {}
     list_out = []
     for element in list_in:
-        if element in seen:
+        marker = idfun(element)
+        if marker in seen:
             continue
-        seen[element] = 1
+        seen[marker] = 1
         list_out.append(element)
     return list_out
 
