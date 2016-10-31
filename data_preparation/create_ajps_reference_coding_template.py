@@ -7,6 +7,7 @@ import csv
 import sys
 import re
 
+import pandas as pd
 from tools import strip_tags, regex_url_pattern, article_url
 
 
@@ -57,6 +58,9 @@ csv.field_size_limit(sys.maxsize)
 input_file = 'bld/ajps_articles_2006_2014.csv'
 output_file = 'bld/ajps_reference_coding_template.csv'
 
+uniquely_identifying_columns = ['doi', 'article_ix', 'title', 'match',
+                                'context', 'reference_category']
+
 with open(input_file) as fh_in, open(output_file, 'w', newline='') as fh_out:
     csv_reader = csv.DictReader(fh_in)
 
@@ -70,11 +74,13 @@ with open(input_file) as fh_in, open(output_file, 'w', newline='') as fh_out:
     for article_ix, article in enumerate(csv_reader, 1):
         print(article_ix)
         row = dict(zip(header, [article.get(x) for x in header]))
+        row['article_ix'] = article_ix
 
         # Combine article elements into single parsable string.
         #
         # Note that this creates duplicate entries, as sometimes the
-        # abstract is also captured as footnote or content.
+        # abstract is also captured as footnote or content. Drop these
+        # duplicates later on.
         content_html = '\n'.join([article[x] for x in ['footnote_1',
                                                        'footnote_2',
                                                        'authors_description',
@@ -98,19 +104,19 @@ with open(input_file) as fh_in, open(output_file, 'w', newline='') as fh_out:
                     regex_sentence_url.search(url[0]) is None and
                     regex_email_url.search(url[0]) is None)]
 
-        row['title'] = ('=HYPERLINK("' + article_url(article['doi']) +
-                        '","' + article['title'] + '")')
+        if article['title'] != '':
+            row['title'] = ('=HYPERLINK("' + article_url(article['doi']) +
+                            '","' + article['title'] + '")')
 
         if urls == [] and repref_indicators == []:
             row['reference_category'] = 0
             csv_writer.writerow(row)
             continue
 
-        # List article URLs numerically in separate cells, as
-        # Excel only allows one clickable links per cell.
+        # List article URLs first.
         for ix, url in enumerate(urls):
-            row['match'] = '=HYPERLINK("' + url[0] + '")'
-            row['context'] = '=HYPERLINK("' + url[0] + '","' + url[1] + '")'
+            row['match'] = url[0]
+            row['context'] = url[1]
             csv_writer.writerow(row)
             # Write article level information only once per article.
             if ix == 0:
@@ -121,12 +127,18 @@ with open(input_file) as fh_in, open(output_file, 'w', newline='') as fh_out:
         for ix, indicator_match in enumerate(repref_indicators):
             row['match'] = indicator_match[0]
             match_length = len(indicator_match[0])
+            # Strip '=' as it indicates the start of a formula in
+            # LibreCalc leading to display errors.
             row['context'] = (indicator_match[1][0:char_match_pre] +
                               indicator_match[0].upper() +
                               indicator_match[1][char_match_pre +
-                                                 match_length:])
+                                                 match_length:]).lstrip('=')
 
             csv_writer.writerow(row)
             # Write article level information only once per article.
             if ix == 0 and urls == []:
                 row.update({'doi': '', 'article_ix': '', 'title': ''})
+
+# Drop duplicate rows.
+pd.read_csv(output_file).drop_duplicates(subset=uniquely_identifying_columns).\
+    to_csv(output_file, index=None)

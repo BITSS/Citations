@@ -1,13 +1,18 @@
-# Various tools used in this project that can be useful otherwhere.
-import pandas as pd
-import numpy as np
+'''
+Functions that are used repeatedly across multiple files.
+'''
+import re
 from html.parser import HTMLParser
+
+import numpy as np
+import pandas as pd
 from pyexcel_ods3 import get_data
 
 
 # Remove HTML tags.
 # Source: http://stackoverflow.com/a/925630/3435013
 class MLStripper(HTMLParser):
+
     def __init__(self):
         super().__init__()
         self.reset()
@@ -90,7 +95,8 @@ def fill_columns_down(df, columns):
         df[column].fillna(method='ffill', inplace=True)
 
 
-def import_data_entries(source, target, output, entry_column, log=False):
+def import_data_entries(source, target, output, entry_column, log=False,
+                        files_add_hyperlink_title=[]):
     '''
     Import data entries from one spreadsheet into an other.
     '''
@@ -105,7 +111,7 @@ def import_data_entries(source, target, output, entry_column, log=False):
             content = sheet[1:]
             # Take care of completely empty trailing columns.
             header_length = len(header)
-            content = [row + [None] * max(header_length-len(row), 0)
+            content = [row + [None] * max(header_length - len(row), 0)
                        for row in content]
             sheet = pd.DataFrame(columns=header, data=content)
         elif file_ending == 'csv':
@@ -113,7 +119,12 @@ def import_data_entries(source, target, output, entry_column, log=False):
         else:
             raise NotImplementedError('File ending {} not supported.'.
                                       format(file_ending))
-        fill_columns_down(sheet, article_level_columns)
+
+        fill_columns_down(sheet,
+                          [x for x in article_level_columns if x != 'title'])
+        if name in files_add_hyperlink_title:
+            hyperlink_title(sheet)
+        fill_columns_down(sheet, ['title'])
 
         sheets[name] = sheet
 
@@ -222,9 +233,9 @@ def add_doi(target, source, output=False):
         return df_target
 
 
-def hyperlink_title(input, file_out):
+def hyperlink_title(input, file_out=None):
     '''
-    Make title value clickable
+    Make title value clickable.
     '''
     if isinstance(input, str):
         df_in = pd.read_csv(input)
@@ -239,4 +250,7 @@ def hyperlink_title(input, file_out):
     df_in.loc[article_info, 'title'] = df_in.loc[article_info,
                                                  'hyperlink_title']
     df_in.drop('hyperlink_title', axis=1, inplace=True)
+    if file_out is not None:
     df_in.to_csv(file_out, index=None)
+
+

@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 '''
 Import entries from older protocol versions.
+
+Note that importing from ods drops cell formulas. Export ods files to csv
+using 'Save cell formulas instead of calculated values' option to preserve
+formulas. Alternatively, use the files_add_hyperlink_title parameter to
+hyperlink titles.
 '''
 from os.path import isfile
 
@@ -55,6 +60,30 @@ imports = [
                    '_TC_V5_+_V3.log.csv',
             'output': 'data_entry/ajps_reference_coding' +
                       '_TC_V5_+_V3.csv'},
+    {'target': 'bld/ajps_reference_coding_template.csv',
+     'source': 'data_entry/ajps_reference_coding_RK_V23.ods',
+     'entry_column': 'reference_category',
+     'files_add_hyperlink_title': ['source'],
+     'log': 'data_entry/ajps_reference_coding_template_RK_V23.log.csv',
+     'output': 'data_entry/ajps_reference_coding_RK_V24.csv'},
+    {'target': 'bld/ajps_reference_coding_template.csv',
+     'source': 'data_entry/ajps_reference_coding_TC_V12.ods',
+     'entry_column': 'reference_category',
+     'files_add_hyperlink_title': ['source'],
+     'log': 'data_entry/ajps_reference_coding_template_TC_V12.log.csv',
+     'output': 'data_entry/ajps_reference_coding_TC_V13.csv'},
+    {'target': 'bld/ajps_reference_coding_template.csv',
+     'source': 'data_entry/ajps_reference_coding_RP_V9.ods',
+     'entry_column': 'reference_category',
+     'files_add_hyperlink_title': ['source'],
+     'log': 'data_entry/ajps_reference_coding_template_RP_V9.log.csv',
+     'output': 'data_entry/ajps_reference_coding_RP_V10.csv'},
+    {'target': 'bld/ajps_reference_coding_template.csv',
+     'source': 'data_entry/ajps_reference_coding_KJK_V33.ods',
+     'entry_column': 'reference_category',
+     'files_add_hyperlink_title': ['source'],
+     'log': 'data_entry/ajps_reference_coding_template_KJK_V33.log.csv',
+     'output': 'data_entry/ajps_reference_coding_KJK_V34.csv'},
 
            # Import entries due to changes in link coding protocol.
            {'target': 'data_entry/ajps_link_coding_RK_V2.ods',
