@@ -3,12 +3,10 @@
 Create template for author website coding.
 '''
 
-# Some buggy articles: 355, 423, 425, 563, 584, 585, empty authors
-
 import re
 
-import numpy as np
 import pandas as pd
+import numpy as np
 
 from tools import strip_tags, unique_elements
 
@@ -24,6 +22,15 @@ def extract_authors(article):
     authors = unique_elements(authors, idfun=lambda x: x.lower())
     return (pd.Series(authors, index=['author_{}'.format(i)
                                       for i in range(len(authors))]))
+
+
+def hyperlink_google_search(text):
+    '''Hyperlink to search for text with Google.
+
+    Show 15 results, and turn off personalization of results.
+    '''
+    return ('=HYPERLINK("https://google.com/search?q={x}&num=15&pws=0",'
+            '"{x}")'.format(x=text))
 
 input_file = 'bld/ajps_articles_2006_2014.csv'
 output_file = 'bld/ajps_author_website_coding_template.csv'
@@ -72,6 +79,7 @@ for column in unique_elements([x[0] for x in author_extractors]):
 
 df = pd.concat([df, df.apply(extract_authors, axis=1)], axis=1)
 
+# Convert to one row per paper*author.
 df = pd.melt(df, id_vars=input_columns + ['article_ix'],
              value_vars=[c for c in df.columns.values
                          if c.startswith('author_')],
@@ -80,4 +88,9 @@ df = pd.melt(df, id_vars=input_columns + ['article_ix'],
 df.sort_values(by=['article_ix', 'author_ix'], inplace=True)
 df.dropna(subset=['author'], inplace=True)
 df.drop('author_ix', axis=1, inplace=True)
+
+df['author'] = df['author'].apply(hyperlink_google_search)
+df['website_category'] = np.nan
+df['website'] = np.nan
+
 df.to_csv('bld/ajps_author_website_coding_template.csv', index=None)
