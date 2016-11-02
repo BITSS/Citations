@@ -95,13 +95,15 @@ def fill_columns_down(df, columns):
         df[column].fillna(method='ffill', inplace=True)
 
 
-def import_data_entries(source, target, output, entry_column, log=False,
-                        files_add_hyperlink_title=[]):
+def import_data_entries(source, target, output, entry_column, merge_on,
+                        log=False, files_add_hyperlink_title=[]):
     '''
     Import data entries from one spreadsheet into an other.
     '''
     sheets = {}
     article_level_columns = ['article_ix', 'doi', 'title']
+    # Make dtypes consistent across dataframes for merging.
+    merge_on_dtypes = dict([(column, 'str') for column in merge_on])
     for name, fh in {'source': source, 'target': target}.items():
         file_ending = fh.split('.')[-1]
         if file_ending == 'ods':
@@ -115,10 +117,15 @@ def import_data_entries(source, target, output, entry_column, log=False,
                        for row in content]
             sheet = pd.DataFrame(columns=header, data=content)
         elif file_ending == 'csv':
-            sheet = pd.read_csv(fh)
+            sheet = pd.read_csv(fh, dtype=merge_on_dtypes)
+
         else:
             raise NotImplementedError('File ending {} not supported.'.
                                       format(file_ending))
+
+        sheet[merge_on] = sheet[merge_on].fillna('')
+        for merge_column in merge_on:
+            sheet[merge_column] = sheet[merge_column].astype('str')
 
         fill_columns_down(sheet,
                           [x for x in article_level_columns if x != 'title'])
@@ -128,22 +135,19 @@ def import_data_entries(source, target, output, entry_column, log=False,
 
         sheets[name] = sheet
 
-    # Exclude article_ix as selection of articles has changed
-    # over protocols (restriction to certain years).
-    columns_merge_on = [c for c in sheets['target'].columns
-                        if c in ['doi', 'title', 'match', 'context']]
-
     # Import data only for empty rows with unique matching columns values.
     sheets['target']['import_candidate'] = \
-        np.all([sheets['target'][entry_column].isnull(),
-                ~sheets['target'].duplicated(subset=columns_merge_on,
+        np.all([np.any([sheets['target'][entry_column].isnull(),
+                        sheets['target'][entry_column] == ''], axis=0),
+                ~sheets['target'].duplicated(subset=merge_on,
                                              keep=False)],
                axis=0)
 
     # Export data only for non-empty rows with unique matching column values.
     sheets['source']['export_candidate'] = \
         np.all([sheets['source'][entry_column].notnull(),
-                ~sheets['source'].duplicated(subset=columns_merge_on,
+                sheets['source'][entry_column] != '',
+                ~sheets['source'].duplicated(subset=merge_on,
                                              keep=False)],
                axis=0)
 
@@ -151,9 +155,9 @@ def import_data_entries(source, target, output, entry_column, log=False,
     sheets['target'].reset_index(inplace=True)
     merged = sheets['target'].merge(right=sheets['source'], how='outer',
                                     suffixes=('_target', '_source'),
-                                    on=columns_merge_on, indicator='_merge')
+                                    on=merge_on, indicator='_merge')
 
-    # Find rows whose value are imported
+    # Find rows whose value are imported.
     import_dummy = np.all([x.fillna(False) for x in
                            [merged['_merge'] != 'right_only',
                                merged['import_candidate'],
@@ -251,6 +255,40 @@ def hyperlink_title(input, file_out=None):
                                                  'hyperlink_title']
     df_in.drop('hyperlink_title', axis=1, inplace=True)
     if file_out is not None:
-    df_in.to_csv(file_out, index=None)
+        df_in.to_csv(file_out, index=None)
 
 
+def remove_hyperlink_from_titlestring(titlestring):
+    pattern = '^=HYPERLINK[(]".*","(.*)")$'
+    return re.sub(pattern, '\1', titlestring, count=1)
+
+
+def read_ods(file_path, sheet_name):
+    '''
+    Return content from ods sheet as dataframe.
+    '''
+    df = (get_data(file_path)[sheet_name])
+    header = df[0]
+    content = df[1:]
+    df = pd.DataFrame(columns=header, data=content)
+    return df
+
+
+def merge_unique(left, right, on):
+    '''
+    Merge dataframes without merging duplicate entries.
+    '''
+    candidate = [~df.duplicated(subset=on, keep=False)
+                 for df in [left, right]]
+
+    left.index.name = 'left_ix'
+    left.reset_index(inplace=True)
+    right.index.name = 'right_ix'
+    right.reset_index(inplace=True)
+
+    merged = pd.merge(left=left[candidate[0]], right=right[candidate[1]],
+                      on=on)
+
+    merged = merged.append(left[~candidate[0]]).append(right[~candidate[1]])
+
+    return merged
