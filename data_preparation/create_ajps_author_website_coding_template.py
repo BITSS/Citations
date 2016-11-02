@@ -12,14 +12,7 @@ from tools import strip_tags, unique_elements
 
 
 def extract_authors(article):
-    authors = []
-    for column, regex in author_extractors:
-        matches = regex.findall(article[column])
-        if matches is not None:
-            authors.extend([m.strip() for m in matches])
-    if authors == []:
-        authors = ['']
-    authors = unique_elements(authors, idfun=lambda x: x.lower())
+    authors = [x.strip() for x in article['authors'].split(', ')]
     return (pd.Series(authors, index=['author_{}'.format(i)
                                       for i in range(len(authors))]))
 
@@ -33,12 +26,32 @@ def hyperlink_google_search(text):
             '"{x}")'.format(x=text))
 
 input_file = 'bld/ajps_articles_2006_2014.csv'
+author_file = 'bld/ajps_article_info_from_issue_toc.csv'
 output_file = 'bld/ajps_author_website_coding_template.csv'
 
 input_columns = ['doi', 'title', 'authors', 'authors_description',
                  'biographies', 'footnote_1', 'footnote_2',
                  'first_published']
-article_level_columns = ['doi', 'article_ix', 'title', 'authors']
+
+df_authors = pd.read_csv(author_file)
+df_authors['article_ix'] = df_authors.index + 1
+df_authors['authors'].fillna('', inplace=True)
+
+# Extract author names.
+df_authors['authors'] = df_authors['authors'].apply(lambda x:
+                                                    x.replace(' and ', ', '))
+df_authors = pd.concat([df_authors, df_authors.apply(extract_authors, axis=1)],
+                       axis=1)
+
+# Convert to one row per paper*author.
+df_authors = pd.melt(df_authors, id_vars=[x for x in df_authors.columns.values
+                                          if not x.startswith('author_')],
+                     value_vars=[c for c in df_authors.columns.values
+                                 if c.startswith('author_')],
+                     var_name='author_ix', value_name='author')
+df_authors.sort_values(by=['article_ix', 'author_ix'], inplace=True)
+df_authors.dropna(subset=['author'], inplace=True)
+df_authors.drop('author_ix', axis=1, inplace=True)
 
 df = pd.read_csv(input_file, header=0,
                  usecols=input_columns,
@@ -46,51 +59,13 @@ df = pd.read_csv(input_file, header=0,
                  converters={'biographies': strip_tags})
 df['article_ix'] = df.index + 1
 
-author_extractors = [('authors',
-                      re.compile('(?:^|Search for more papers by this'
-                                 ' author)(.+?),{0,1}(?:Close author notes)'
-                                 '{0,1}'
-                                 ' {13}', re.IGNORECASE)),
-                     ('authors', re.compile('(?:^|Search for more papers by'
-                                            ' this author'
-                                            '(?:\(contact author\)){0,1}'
-                                            ',{0,1})'
-                                            '(.+?)(?:Close author notes'
-                                            '|Corresponding author.*?){0,1}'
-                                            '(?: {13}.*?){0,1}'
-                                            ',',
-                                            re.IGNORECASE)),
-                     ('authors_description',
-                      re.compile('(?:\)\. |^)(.+?)'
-                                 '(?: \((?:the ){0,1}'
-                                 'corresponding author\)){0,1}'
-                                 ' is .*?',
-                                 re.IGNORECASE)),
-                     ('biographies',
-                      re.compile('(?:\)\. {0,1}|^Biograph(?:ies|y))(.+?)'
-                                 '(?= is .*?.)', re.IGNORECASE)),
-                     ('footnote_1',
-                      re.compile('(?:\)\. |^)(.+?) is .*?',
-                                 re.IGNORECASE))]
-
-# Convert np.nan to '' for regex based extraction.
-for column in unique_elements([x[0] for x in author_extractors]):
-    df[column].fillna('', inplace=True)
-
-df = pd.concat([df, df.apply(extract_authors, axis=1)], axis=1)
-
-# Convert to one row per paper*author.
-df = pd.melt(df, id_vars=input_columns + ['article_ix'],
-             value_vars=[c for c in df.columns.values
-                         if c.startswith('author_')],
-             var_name='author_ix', value_name='author')
-
-df.sort_values(by=['article_ix', 'author_ix'], inplace=True)
-df.dropna(subset=['author'], inplace=True)
-df.drop('author_ix', axis=1, inplace=True)
+df = pd.merge(left=df, right=df_authors, how='left', on='doi',
+              suffixes=('', '_from_issue_toc'))
 
 df['author'] = df['author'].apply(hyperlink_google_search)
 df['website_category'] = np.nan
 df['website'] = np.nan
 
-df.to_csv('bld/ajps_author_website_coding_template.csv', index=None)
+df.to_csv('bld/ajps_author_website_coding_template.csv',
+          columns=['article_ix', 'doi', 'title', 'authors', 'author',
+                   'website_category', 'website'], index=None)
