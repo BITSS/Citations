@@ -258,11 +258,6 @@ def hyperlink_title(input, file_out=None):
         df_in.to_csv(file_out, index=None)
 
 
-def remove_hyperlink_from_titlestring(titlestring):
-    pattern = '^=HYPERLINK[(]".*","(.*)")$'
-    return re.sub(pattern, '\1', titlestring, count=1)
-
-
 def read_ods(file_path, sheet_name):
     '''
     Return content from ods sheet as dataframe.
@@ -272,23 +267,3 @@ def read_ods(file_path, sheet_name):
     content = df[1:]
     df = pd.DataFrame(columns=header, data=content)
     return df
-
-
-def merge_unique(left, right, on):
-    '''
-    Merge dataframes without merging duplicate entries.
-    '''
-    candidate = [~df.duplicated(subset=on, keep=False)
-                 for df in [left, right]]
-
-    left.index.name = 'left_ix'
-    left.reset_index(inplace=True)
-    right.index.name = 'right_ix'
-    right.reset_index(inplace=True)
-
-    merged = pd.merge(left=left[candidate[0]], right=right[candidate[1]],
-                      on=on)
-
-    merged = merged.append(left[~candidate[0]]).append(right[~candidate[1]])
-
-    return merged
