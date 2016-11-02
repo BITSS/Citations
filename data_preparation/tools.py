@@ -1,7 +1,6 @@
 '''
 Functions that are used repeatedly across multiple files.
 '''
-import re
 from html.parser import HTMLParser
 
 import numpy as np

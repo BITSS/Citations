@@ -3,16 +3,26 @@
 Create template for author website coding.
 '''
 
+
 import re
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 from tools import strip_tags, unique_elements
 
 
 def extract_authors(article):
     authors = [x.strip() for x in article['authors'].split(', ')]
+
+    authors = [a for a in authors if a != '(contact author)']
+    name_suffixes = ['Jr', 'Jr.', 'III']
+    for ix, author in enumerate(authors):
+        if author in name_suffixes:
+            print(author)
+            authors[ix - 1] = authors[ix - 1] + ', ' + author
+    authors = [a for a in authors if a not in name_suffixes]
+
     return (pd.Series(authors, index=['author_{}'.format(i)
                                       for i in range(len(authors))]))
 
@@ -49,7 +59,8 @@ df_authors = pd.melt(df_authors, id_vars=[x for x in df_authors.columns.values
                      value_vars=[c for c in df_authors.columns.values
                                  if c.startswith('author_')],
                      var_name='author_ix', value_name='author')
-df_authors.sort_values(by=['article_ix', 'author_ix'], inplace=True)
+df_authors.sort_values(
+    by=['article_ix', 'author_ix'], inplace=True)
 df_authors.dropna(subset=['author'], inplace=True)
 df_authors.drop('author_ix', axis=1, inplace=True)
 
@@ -67,5 +78,5 @@ df['website_category'] = np.nan
 df['website'] = np.nan
 
 df.to_csv('bld/ajps_author_website_coding_template.csv',
-          columns=['article_ix', 'doi', 'title', 'authors', 'author',
+          columns=['article_ix', 'doi', 'title', 'author',
                    'website_category', 'website'], index=None)
