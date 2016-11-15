@@ -2,7 +2,7 @@
 Find out if the website of the authors' of a paper have any data, code or files that relate to it.
 
 ### How do I classify an author's website?
-1. Click on the author's name to obtain the first 15 search results from Google.
+1. Click on the author's name to obtain the first 15 search results (non-personalized) from Google.
 2. Look for the author's website among these results. The university affiliation can help you identify the author, but might also have changed after the paper's publication.
 3. If you think you found an author's website, confirm it by finding a reference to the paper. A good starting point is the CV, where many authors list their papers.
 4. If you have found and confirmed an author's website, put the URL into the `website` column. 
