@@ -12,9 +12,9 @@ import sys
 import csv
 
 input_files = ['octoparse/' + f for f in [
-    'article_info_and_content_2003_2007.txt',
-    'article_info_and_content_2008_2012.txt',
-    'article_info_and_content_2013_2016.txt']]
+    'ajps_article_content_2003_2007.txt',
+    'ajps_article_content_2008_2012.txt',
+    'ajps_article_content_2013_2016.txt']]
 output_file = 'bld/ajps_articles_2003_2016.csv'
 
 # Increase field size to deal with long article contents.

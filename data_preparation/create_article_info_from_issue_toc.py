@@ -28,7 +28,7 @@ def extract_doi(text):
         doi = doi.group(1)
     return doi.strip()
 
-input_file = 'octoparse/article_info_from_issue_toc.csv'
+input_file = 'octoparse/ajps_issue_toc.csv'
 output_file = 'bld/ajps_article_info_from_issue_toc.csv'
 
 # Increase field size to deal with long article contents.
