@@ -1,5 +1,5 @@
 ## Coding Protocol for Automated Text Search
-Version: 2016.09.29 (See [github](http://github.com/bitss/citations) for history.)
+Version: 2016.11.15 (See [github](http://github.com/bitss/citations) for history.)
 
 ### What do I look for?
 References to the data or code used in the article. We're not interested in additional results, or proofs, or the appendix. We're interested and data and/or code to reproduce the published paper.
@@ -39,8 +39,11 @@ In total there are 13 possible values. Some selected examples:
 + `files_full_name`: Reference mentions a location where both, data and code, can be found, e.g. the author's website
 + ...
 
-### How do I deal with duplicates?
+### Skipping after `files_full_link`
 There are so many lines for each article! If you find a `files_full_link` (i.e., a link to a website where you can download the data and the code to reproduce the paper) mark it, and skip the rest of the lines for that article. Mark all the skipped lines with `skip` instead of the `0` that you enter for non-useful rows. This is only for `files_full_link`. (Note that most, if not all Dataverse links, will have both files and code, especially if they have the word "replication" near it. Assume that Dataverse references point to `files` and move on.)
+
+### What do I do with non-research articles?
+Do not classify non-research articles such as *Notes from the Editors*. Leave the coding variable empty.
 
 ### Where do I save my file?
 Start with the template in `./Shared/Data/ajps_reference_coding_template.xlsx`, create a copy, replacing 'template' with your name.
