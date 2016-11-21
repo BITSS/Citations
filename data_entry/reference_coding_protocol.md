@@ -22,7 +22,7 @@ A reference has 3 dimensions:
 3. How is it referenced?
 
  + `link`: The reference provides a URL
- + `name`: The reference mentions the name of a dataset, an institution (such as the Census Bureau or World Bank) or website (including non-URL reference to 'author's website') without providing a URL
+ + `name`: The reference mentions Dataverse, the name of a dataset, an institution (such as the Census Bureau or World Bank) or website (including non-URL reference to 'author's website') without providing a URL
  + `paper`: The reference is a citation to a paper.
 
 ### How do I classify the matches?
@@ -40,7 +40,7 @@ In total there are 13 possible values. Some selected examples:
 + ...
 
 ### Skipping after `files_full_link`
-There are so many lines for each article! If you find a `files_full_link` (i.e., a link to a website where you can download the data and the code to reproduce the paper) mark it, and skip the rest of the lines for that article. Mark all the skipped lines with `skip` instead of the `0` that you enter for non-useful rows. This is only for `files_full_link`. (Note that most, if not all Dataverse links, will have both files and code, especially if they have the word "replication" near it. Assume that Dataverse references point to `files` and move on.)
+There are so many lines for each article! If you find a `files_full_link` (i.e., a link to a website where you can download the data and the code to reproduce the paper) mark it, and skip the rest of the lines for that article. Mark all the skipped lines with `skip` instead of the `0` that you enter for non-useful rows. This is only for `files_full_link` or `files_full_name` that refer to Dataverse. (Note that most, if not all Dataverse links, will have both files and code, especially if they have the word "replication" near it. Assume that Dataverse references point to `files` and move on.)
 
 ### What do I do with non-research articles?
 Do not classify non-research articles such as *Notes from the Editors*. Leave the coding variable empty.
