@@ -96,8 +96,8 @@ create_diff(input_dict=standard_entry_dict('ajps_reference_coding',
 # Diff AJPS link coding.
 create_diff(input_dict=standard_entry_dict('ajps_link_coding',
                                            'link_category'),
-            output_file='bld/ajps_reference_coding_diff.csv',
-            entry_column='reference_category',
+            output_file='bld/ajps_link_coding_diff.csv',
+            entry_column='link_category',
             columns_merge_on=['doi', 'article_ix', 'title', 'match',
                               'context'])
 
