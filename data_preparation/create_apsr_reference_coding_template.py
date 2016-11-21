@@ -29,7 +29,7 @@ def find_references(article):
         url_context_pre = url_context_pre[-min(char_match_pre,
                                                len(url_context_pre)):]
 
-        # url string will be matched again by find_all_next function. Remove
+        # URL will be matched again by find_all_next function. Remove
         # this duplicate matching.
         url_context_post = ''.join(list(tag.
                                         find_all_next(string=True,
