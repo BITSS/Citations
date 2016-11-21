@@ -51,8 +51,7 @@ def regex_url_pattern():
     Return regular expression pattern that matches URLs
 
     Extracting URLs from text is non-trivial.
-    Beautify solution provided by 'dranxo' and match characters around URLs
-    for additional context.
+    Beautify solution provided by 'dranxo'.
     https://stackoverflow.com/a/28552670/3435013
     '''
 
@@ -95,9 +94,10 @@ def fill_columns_down(df, columns):
 
 
 def import_data_entries(source, target, output, entry_column, merge_on,
-                        log=False, files_add_hyperlink_title=[]):
+                        log=False, files_add_hyperlink_title=[],
+                        deduplicate_article_info=True):
     '''
-    Import data entries from one spreadsheet into an other.
+    Import data entries from source spreadsheet into target.
     '''
     sheets = {}
     article_level_columns = ['article_ix', 'doi', 'title']
@@ -136,16 +136,14 @@ def import_data_entries(source, target, output, entry_column, merge_on,
 
     # Import data only for empty rows with unique matching columns values.
     sheets['target']['import_candidate'] = \
-        np.all([np.any([sheets['target'][entry_column].isnull(),
-                        sheets['target'][entry_column] == ''], axis=0),
+        np.all([np.any([sheets['target'][entry_column].fillna('') == ''], axis=0),
                 ~sheets['target'].duplicated(subset=merge_on,
                                              keep=False)],
                axis=0)
 
     # Export data only for non-empty rows with unique matching column values.
     sheets['source']['export_candidate'] = \
-        np.all([sheets['source'][entry_column].notnull(),
-                sheets['source'][entry_column] != '',
+        np.all([sheets['source'][entry_column].fillna('') != '',
                 ~sheets['source'].duplicated(subset=merge_on,
                                              keep=False)],
                axis=0)
@@ -153,7 +151,7 @@ def import_data_entries(source, target, output, entry_column, merge_on,
     sheets['target'].index.name = 'target_row_ix'
     sheets['target'].reset_index(inplace=True)
     merged = sheets['target'].merge(right=sheets['source'], how='outer',
-                                    suffixes=('_target', '_source'),
+                                    suffixes=('', '_source'),
                                     on=merge_on, indicator='_merge')
 
     # Find rows whose value are imported.
@@ -164,8 +162,6 @@ def import_data_entries(source, target, output, entry_column, merge_on,
                           axis=0)
 
     # Mark previously and newly imported entries.
-    if 'import_dummy_target' in merged.columns:
-        merged['import_dummy'] = merged['import_dummy_target']
     merged.loc[import_dummy, 'import_dummy'] = 'imported'
 
     # Create log file showing result from merge and data entry for both files.
@@ -173,9 +169,6 @@ def import_data_entries(source, target, output, entry_column, merge_on,
         merged.to_csv(log, index_label='merged_row_ix')
 
     # Import values to reference category.
-    merged.rename(columns={entry_column + '_target': entry_column,
-                           'article_ix_target': 'article_ix'},
-                  inplace=True)
     merged.loc[import_dummy, entry_column] = \
         merged.loc[import_dummy, entry_column + '_source']
 
@@ -184,8 +177,9 @@ def import_data_entries(source, target, output, entry_column, merge_on,
     merged.set_index('target_row_ix', inplace=True, verify_integrity=True)
 
     # Write article level information only once per article.
-    merged.loc[merged[article_level_columns].duplicated(),
-               article_level_columns] = ''
+    if deduplicate_article_info:
+        merged.loc[merged[article_level_columns].duplicated(),
+                   article_level_columns] = ''
 
     # Write resulting sheet to output.
     merged = merged.loc[merged['_merge'] != 'right_only',
