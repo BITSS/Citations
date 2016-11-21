@@ -8,11 +8,7 @@ import re
 import pandas as pd
 import numpy as np
 from bs4 import BeautifulSoup
-
-
-def apsr_article_url(doi):
-    'Return DOI URL linking to article.'
-    return 'https://doi.org/' + doi
+from tools import apsr_article_url
 
 
 def find_references(article):

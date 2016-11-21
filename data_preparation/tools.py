@@ -195,6 +195,11 @@ def article_url(doi):
     return 'http://onlinelibrary.wiley.com/doi/' + doi + '/full'
 
 
+def apsr_article_url(doi):
+    'Return DOI URL linking to article.'
+    return 'https://doi.org/' + doi
+
+
 def add_doi(target, source, output=False):
     '''
     Add doi column to target using information from source.
