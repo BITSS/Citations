@@ -13,62 +13,63 @@ from tools import import_data_entries
 
 urap_initials = ['KJK', 'rk', 'RP', 'TC']
 merge_on_reference_coding = ['doi', 'title', 'match', 'context']
+merge_on_link_coding = ['doi', 'title', 'match', 'context']
 merge_on_author_website_coding = ['article_ix', 'title', 'author']
 
 imports = [
-           # Import entries due to changes in reference coding protocol.
-           {'target': 'data_entry/ajps_reference_coding_KJK_V16.ods',
-            'source': 'data_entry/ajps_reference_coding_KJK_V1.ods',
-            'entry_column': 'reference_category',
+    # Import entries due to changes in reference coding protocol.
+    {'target': 'data_entry/ajps_reference_coding_KJK_V16.ods',
+     'source': 'data_entry/ajps_reference_coding_KJK_V1.ods',
+     'entry_column': 'reference_category',
      'merge_on': merge_on_reference_coding,
-            'log': 'data_entry/ajps_reference_coding' +
-                   '_KJK_V16_+_V1.log.csv',
-            'output': 'data_entry/ajps_reference_coding' +
-                      '_KJK_V16_+_V1.csv'},
-           {'target': 'data_entry/ajps_reference_coding_KJK_V16_+_V1.csv',
-            'source': 'data_entry/ajps_reference_coding_KJK_V23.ods',
-            'entry_column': 'reference_category',
+     'log': 'data_entry/ajps_reference_coding' +
+     '_KJK_V16_+_V1.log.csv',
+     'output': 'data_entry/ajps_reference_coding' +
+               '_KJK_V16_+_V1.csv'},
+    {'target': 'data_entry/ajps_reference_coding_KJK_V16_+_V1.csv',
+     'source': 'data_entry/ajps_reference_coding_KJK_V23.ods',
+     'entry_column': 'reference_category',
      'merge_on': merge_on_reference_coding,
-            'log': 'data_entry/ajps_reference_coding' +
-                   '_KJK_V16_+_V1_+_V23.log.csv',
-            'output': 'data_entry/ajps_reference_coding' +
-                   '_KJK_V16_+_V1_+_V23.csv'},
-           {'target': 'data_entry/ajps_reference_coding_RK_V8.ods',
-            'source': 'data_entry/ajps_reference_coding' +
-                      '_rk_V4_doi_and_hyperlink.ods',
-            'entry_column': 'reference_category',
+     'log': 'data_entry/ajps_reference_coding' +
+     '_KJK_V16_+_V1_+_V23.log.csv',
+     'output': 'data_entry/ajps_reference_coding' +
+               '_KJK_V16_+_V1_+_V23.csv'},
+    {'target': 'data_entry/ajps_reference_coding_RK_V8.ods',
+     'source': 'data_entry/ajps_reference_coding' +
+     '_rk_V4_doi_and_hyperlink.ods',
+     'entry_column': 'reference_category',
      'merge_on': merge_on_reference_coding,
-            'log': 'data_entry/ajps_reference_coding' +
-                   '_RK_V8_+' +
-                   '_rk_V4_doi_and_hyperlink.log.csv',
-            'output': 'data_entry/ajps_reference_coding' +
-                      '_RK_V8_+_rk_V4_doi_and_hyperlink.csv'},
-           {'target': 'data_entry/ajps_reference_coding' +
-                      '_RK_V8_+_rk_V4_doi_and_hyperlink.csv',
-            'source': 'data_entry/ajps_reference_coding' +
-                      '_RK_V11.ods',
-            'entry_column': 'reference_category',
+     'log': 'data_entry/ajps_reference_coding' +
+     '_RK_V8_+' +
+     '_rk_V4_doi_and_hyperlink.log.csv',
+     'output': 'data_entry/ajps_reference_coding' +
+               '_RK_V8_+_rk_V4_doi_and_hyperlink.csv'},
+    {'target': 'data_entry/ajps_reference_coding' +
+     '_RK_V8_+_rk_V4_doi_and_hyperlink.csv',
+     'source': 'data_entry/ajps_reference_coding' +
+     '_RK_V11.ods',
+     'entry_column': 'reference_category',
      'merge_on': merge_on_reference_coding,
-            'log': 'data_entry/ajps_reference_coding' +
-                   '_RK_V8_+_rk_V4_doi_and_hyperlink_+_V11.log.csv',
-            'output': 'data_entry/ajps_reference_coding' +
-                      '_RK_V8_+_rk_V4_doi_and_hyperlink_+_V11.csv'},
-           {'target': 'data_entry/ajps_reference_coding_RP_V5.ods',
-            'source': 'data_entry/ajps_reference_coding_RP_V2.ods',
-            'entry_column': 'reference_category',
+     'log': 'data_entry/ajps_reference_coding' +
+     '_RK_V8_+_rk_V4_doi_and_hyperlink_+_V11.log.csv',
+     'output': 'data_entry/ajps_reference_coding' +
+               '_RK_V8_+_rk_V4_doi_and_hyperlink_+_V11.csv'},
+    {'target': 'data_entry/ajps_reference_coding_RP_V5.ods',
+     'source': 'data_entry/ajps_reference_coding_RP_V2.ods',
+     'entry_column': 'reference_category',
      'merge_on': merge_on_reference_coding,
-            'log': 'data_entry/ajps_reference_coding' +
-                   '_RP_V5_+_V2.log.csv',
-            'output': 'data_entry/ajps_reference_coding' +
-                      '_RP_V5_+_V2.csv'},
-           {'target': 'data_entry/ajps_reference_coding_TC_V5.ods',
-            'source': 'data_entry/ajps_reference_coding_TC_V3.ods',
-            'entry_column': 'reference_category',
+     'log': 'data_entry/ajps_reference_coding' +
+     '_RP_V5_+_V2.log.csv',
+     'output': 'data_entry/ajps_reference_coding' +
+               '_RP_V5_+_V2.csv'},
+    {'target': 'data_entry/ajps_reference_coding_TC_V5.ods',
+     'source': 'data_entry/ajps_reference_coding_TC_V3.ods',
+     'entry_column': 'reference_category',
      'merge_on': merge_on_reference_coding,
-            'log': 'data_entry/ajps_reference_coding' +
-                   '_TC_V5_+_V3.log.csv',
-            'output': 'data_entry/ajps_reference_coding' +
-                      '_TC_V5_+_V3.csv'},
+     'log': 'data_entry/ajps_reference_coding' +
+     '_TC_V5_+_V3.log.csv',
+     'output': 'data_entry/ajps_reference_coding' +
+               '_TC_V5_+_V3.csv'},
     {'target': 'bld/ajps_reference_coding_template.csv',
      'source': 'data_entry/ajps_reference_coding_RK_V23.ods',
      'entry_column': 'reference_category',
@@ -121,40 +122,65 @@ imports = [
      'output': ('data_entry/ajps_reference_coding_diff_resolution'
                 '_KJK_RP_V3.csv')},
 
-           # Import entries due to changes in link coding protocol.
-           {'target': 'data_entry/ajps_link_coding_RK_V2.ods',
-            'source': 'data_entry/ajps_link_coding_RK_V1.ods',
-            'entry_column': 'link_category',
+    # Import entries due to changes in link coding protocol.
+    {'target': 'bld/ajps_link_coding_template.csv',
+     'source': 'data_entry/ajps_link_coding_KJK_V3.ods',
+     'entry_column': 'link_category',
+     'merge_on': merge_on_link_coding,
+     'files_add_hyperlink_title': ['source'],
+     'log': 'data_entry/ajps_link_coding_KJK_V3.log.csv',
+     'output': 'data_entry/ajps_link_coding_KJK_V4.csv'},
+    {'target': 'bld/ajps_link_coding_template.csv',
+     'source': 'data_entry/ajps_link_coding_RK_V3.ods',
+     'entry_column': 'link_category',
+     'merge_on': merge_on_link_coding,
+     'files_add_hyperlink_title': ['source'],
+     'log': 'data_entry/ajps_link_coding_RK_V4.log.csv',
+     'output': 'data_entry/ajps_link_coding_RK_V4.csv'},
+    {'target': 'bld/ajps_link_coding_template.csv',
+     'source': 'data_entry/ajps_link_coding_RP_V3.ods',
+     'entry_column': 'link_category',
+     'merge_on': merge_on_link_coding,
+     'files_add_hyperlink_title': ['source'],
+     'log': 'data_entry/ajps_link_coding_RP_V4.log.csv',
+     'output': 'data_entry/ajps_link_coding_RP_V4.csv'},
+    {'target': 'bld/ajps_link_coding_template.csv',
+     'source': 'data_entry/ajps_link_coding_TC_V4.ods',
+     'entry_column': 'link_category',
+     'merge_on': merge_on_link_coding,
+     'files_add_hyperlink_title': ['source'],
+     'log': 'data_entry/ajps_link_coding_TC_V5.log.csv',
+     'output': 'data_entry/ajps_link_coding_TC_V5.csv'},
 
-    # Import entries due to adding doi in APSR template.
+    # Import entries due to addition of doi in APSR template.
     {'target': 'bld/apsr_author_website_coding_template.csv',
      'source': 'data_entry/apsr_author_website_coding_KJK_V2.csv',
      'entry_column': 'website_category',
      'merge_on': merge_on_author_website_coding,
      'deduplicate_article_info': False,
      'log': 'data_entry/apsr_author_website_coding_KJK_V3.log.csv',
-            'output': 'data_entry/apsr_author_website_coding_KJK_V3.csv'},
+     'output': 'data_entry/apsr_author_website_coding_KJK_V3.csv'},
     {'target': 'bld/apsr_author_website_coding_template.csv',
      'source': 'data_entry/apsr_author_website_coding_RK_V1.csv',
      'entry_column': 'website_category',
      'merge_on': merge_on_author_website_coding,
      'deduplicate_article_info': False,
      'log': 'data_entry/apsr_author_website_coding_RK_V2.log.csv',
-            'output': 'data_entry/apsr_author_website_coding_RK_V2.csv'},
+     'output': 'data_entry/apsr_author_website_coding_RK_V2.csv'},
     {'target': 'bld/apsr_author_website_coding_template.csv',
      'source': 'data_entry/apsr_author_website_coding_RP_V1.csv',
      'entry_column': 'website_category',
      'merge_on': merge_on_author_website_coding,
      'deduplicate_article_info': False,
      'log': 'data_entry/apsr_author_website_coding_RP_V2.log.csv',
-            'output': 'data_entry/apsr_author_website_coding_RP_V2.csv'},
+     'output': 'data_entry/apsr_author_website_coding_RP_V2.csv'},
     {'target': 'bld/apsr_author_website_coding_template.csv',
      'source': 'data_entry/apsr_author_website_coding_TC_V2.csv',
      'entry_column': 'website_category',
      'merge_on': merge_on_author_website_coding,
      'deduplicate_article_info': False,
      'log': 'data_entry/apsr_author_website_coding_TC_V3.log.csv',
-            'output': 'data_entry/apsr_author_website_coding_TC_V3.csv'},
+     'output': 'data_entry/apsr_author_website_coding_TC_V3.csv'},
     {'target': 'data_entry/apsr_author_website_coding_KJK_V3.csv',
      'source': 'data_entry/apsr_author_website_coding_KJK_V2.csv',
      'entry_column': 'website',
@@ -179,7 +205,7 @@ imports = [
      'merge_on': merge_on_author_website_coding + ['website_category'],
      'deduplicate_article_info': False,
      'output': 'data_entry/apsr_author_website_coding_TC_V3.csv'}
-            ]
+]
 
 for import_action in imports:
     if isfile(import_action['target']) and isfile(import_action['source']):

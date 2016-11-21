@@ -7,7 +7,7 @@ import re
 
 import pandas as pd
 import numpy as np
-from tools import regex_url_pattern, article_url
+from tools import regex_url_pattern
 
 
 def extract_clickable_url(string):
@@ -49,9 +49,9 @@ df['clickable_link'] = df['clickable_link'].\
 df['link_category'] = np.nan
 df['fixed_link'] = np.nan
 
-# Hyperlink title to article.
-df['title'] = df.apply(lambda row: '=HYPERLINK("' +
-                       article_url(row['doi']) +
-                       '","' + row['title'] + '")', axis=1)
+# Code duplicate entries only once.
+uniquely_identifying_columns = ['doi', 'title', 'match', 'context',
+                                'reference_category']
+df.drop_duplicates(subset=uniquely_identifying_columns, inplace=True)
 
 df.to_csv(output_file, index=None)
