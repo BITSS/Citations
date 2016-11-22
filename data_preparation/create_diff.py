@@ -7,7 +7,8 @@ from collections import OrderedDict
 import numpy as np
 import pandas as pd
 
-from tools import fill_columns_down, read_ods, hyperlink
+from tools import (fill_columns_down, read_ods, hyperlink,
+                   hyperlink_google_search)
 
 
 def create_diff(input_dict, output_file, entry_column, columns_merge_on):
@@ -84,12 +85,12 @@ def standard_entry_dict(coding, entry_column):
     return entry_dict
 
 
-def hyperlink_dict(entry_dict, columns):
+def apply_func_dict(entry_dict, columns, func):
     for person, entry in entry_dict.items():
         for column in columns:
             linkable = entry[column].notnull()
             entry.loc[linkable, column] = (entry.loc[linkable, column].
-                                           apply(hyperlink))
+                                           apply(func))
     return entry_dict
 
 urap_initials = ['KJK', 'RK', 'RP', 'TC']
@@ -103,9 +104,9 @@ create_diff(input_dict=standard_entry_dict('ajps_reference_coding',
                               'context'])
 
 # Diff AJPS link coding.
-create_diff(input_dict=hyperlink_dict(standard_entry_dict('ajps_link_coding',
-                                                          'link_category'),
-                                      ['clickable_link']),
+create_diff(input_dict=apply_func_dict(standard_entry_dict('ajps_link_coding',
+                                                           'link_category'),
+                                       ['clickable_link'], hyperlink),
             output_file='bld/ajps_link_coding_diff.csv',
             entry_column='link_category',
             columns_merge_on=['doi', 'article_ix', 'title', 'match',
@@ -113,11 +114,13 @@ create_diff(input_dict=hyperlink_dict(standard_entry_dict('ajps_link_coding',
                               'clickable_link'])
 
 # Diff AJPS author website coding.
-create_diff(input_dict=standard_entry_dict('ajps_author_website_coding',
-                                           'website_category'),
-            output_file='bld/ajps_author_website_coding_diff.csv',
-            entry_column='website_category',
-            columns_merge_on=['doi', 'article_ix', 'title', 'author'])
+create_diff(input_dict=apply_func_dict(
+    standard_entry_dict('ajps_author_website_coding', 'website_category'),
+    ['author'],
+    hyperlink_google_search),
+    output_file='bld/ajps_author_website_coding_diff.csv',
+    entry_column='website_category',
+    columns_merge_on=['doi', 'article_ix', 'title', 'author'])
 
 # Diff APSR author website coding.
 create_diff(input_dict=standard_entry_dict('apsr_author_website_coding',

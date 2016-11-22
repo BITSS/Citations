@@ -7,6 +7,7 @@ from dateutil import parser
 
 import numpy as np
 import pandas as pd
+from tools import hyperlink_google_search
 
 
 def extract_authors(article):
@@ -14,14 +15,6 @@ def extract_authors(article):
     return (pd.Series(authors, index=['author_{}'.format(i)
                                       for i in range(len(authors))]))
 
-
-def hyperlink_google_search(text):
-    '''Hyperlink to search for text with Google.
-
-    Show 15 results, and turn off personalization of results.
-    '''
-    return ('=HYPERLINK("https://google.com/search?q={x}&num=15&pws=0",'
-            '"{x}")'.format(x=text))
 
 input_file = 'bld/apsr_article_info_from_issue_toc.csv'
 output_file = 'bld/apsr_author_website_coding_template.csv'

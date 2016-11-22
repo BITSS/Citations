@@ -239,6 +239,15 @@ def add_doi(target, source, output=False):
         return df_target
 
 
+def hyperlink_google_search(text):
+    '''Hyperlink to search for text with Google.
+
+    Show 15 results, and turn off personalization of results.
+    '''
+    return ('=HYPERLINK("https://google.com/search?q={x}&num=15&pws=0",'
+            '"{x}")'.format(x=text))
+
+
 def hyperlink_title(input, file_out=None):
     '''
     Make title value clickable.
