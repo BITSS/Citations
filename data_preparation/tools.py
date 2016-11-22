@@ -200,6 +200,10 @@ def apsr_article_url(doi):
     return 'https://doi.org/' + doi
 
 
+def hyperlink(string):
+    return '=HYPERLINK("{}")'.format(string)
+
+
 def add_doi(target, source, output=False):
     '''
     Add doi column to target using information from source.

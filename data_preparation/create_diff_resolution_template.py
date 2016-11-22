@@ -5,8 +5,6 @@ Create sheet to manually resolve differences in data entry.
 import pandas as pd
 import numpy as np
 
-# TODO: Rewrite diff_resolution in general format.
-
 
 def add_resolution_columns(df, entry_columns, conflict_column,
                            resolution_column):
@@ -135,20 +133,22 @@ for pair in resolution_pairs:
 
 
 # Resolve AJPS link coding diffs.
-persons = ['KJK', 'RP', 'RK', 'TC']
+urap_initials = ['KJK', 'RP', 'RK', 'TC']
 
 input_file = 'bld/ajps_link_coding_diff.csv'
 output_file = 'bld/ajps_link_coding_diff_resolution.csv'
 
-entry_columns = ['link_category_' + x for x in persons]
+entry_columns = ['link_category_' + x for x in urap_initials]
 resolution_column = 'link_category_resolved'
 conflict_column = 'conflict_ignore_skip'
-output_columns = (['article_ix', 'doi', 'title', 'match', 'context'] +
+output_columns = (['article_ix', 'doi', 'title', 'match', 'context',
+                   'reference_category', 'clickable_link'] +
                   entry_columns + [resolution_column, conflict_column])
 diff = pd.read_csv(input_file)
 
 add_resolution_columns(diff, entry_columns=entry_columns,
-                       conflict_column=conflict_column, resolution_column=resolution_column)
+                       conflict_column=conflict_column,
+                       resolution_column=resolution_column)
 
 bool_printing = {True: 'True', False: ''}
 diff.replace({conflict_column: bool_printing}, inplace=True)
