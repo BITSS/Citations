@@ -93,6 +93,31 @@ def fill_columns_down(df, columns):
         df[column].fillna(method='ffill', inplace=True)
 
 
+def read_data_entry(file_in, **pandas_kwargs):
+    '''
+    Read data from data entry in ods or csv format
+    '''
+    file_ending = file_in.split('.')[-1]
+    if file_ending == 'ods':
+        # Choose first sheet from workbook.
+        sheet = list(get_data(file_in).values())[0]
+        header = sheet[0]
+        content = sheet[1:]
+        # Take care of completely empty trailing columns.
+        header_length = len(header)
+        content = [row + [None] * max(header_length - len(row), 0)
+                   for row in content]
+        sheet = pd.DataFrame(columns=header, data=content,
+                             **pandas_kwargs)
+    elif file_ending == 'csv':
+        sheet = pd.read_csv(file_in, **pandas_kwargs)
+
+    else:
+        raise NotImplementedError('File ending {} not supported.'.
+                                  format(file_ending))
+    return sheet
+
+
 def import_data_entries(source, target, output, entry_column, merge_on,
                         log=False, files_add_hyperlink_title=[],
                         deduplicate_article_info=True):
@@ -104,24 +129,7 @@ def import_data_entries(source, target, output, entry_column, merge_on,
     # Make dtypes consistent across dataframes for merging.
     merge_on_dtypes = dict([(column, 'str') for column in merge_on])
     for name, fh in {'source': source, 'target': target}.items():
-        file_ending = fh.split('.')[-1]
-        if file_ending == 'ods':
-            # Choose first sheet from workbook.
-            sheet = list(get_data(fh).values())[0]
-            header = sheet[0]
-            content = sheet[1:]
-            # Take care of completely empty trailing columns.
-            header_length = len(header)
-            content = [row + [None] * max(header_length - len(row), 0)
-                       for row in content]
-            sheet = pd.DataFrame(columns=header, data=content)
-        elif file_ending == 'csv':
-            sheet = pd.read_csv(fh, dtype=merge_on_dtypes)
-
-        else:
-            raise NotImplementedError('File ending {} not supported.'.
-                                      format(file_ending))
-
+        sheet = read_data_entry(fh, pandas_kwargs={'dtype': merge_on_dtypes})
         sheet[merge_on] = sheet[merge_on].fillna('')
         for merge_column in merge_on:
             sheet[merge_column] = sheet[merge_column].astype('str')
