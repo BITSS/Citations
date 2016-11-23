@@ -123,8 +123,10 @@ create_diff(input_dict=apply_func_dict(
     columns_merge_on=['doi', 'article_ix', 'title', 'author'])
 
 # Diff APSR author website coding.
-create_diff(input_dict=standard_entry_dict('apsr_author_website_coding',
-                                           'website_category'),
-            output_file='bld/apsr_author_website_coding_diff.csv',
-            entry_column='website_category',
-            columns_merge_on=['doi', 'article_ix', 'title', 'author'])
+create_diff(input_dict=apply_func_dict(
+    standard_entry_dict('apsr_author_website_coding', 'website_category'),
+    ['author'],
+    hyperlink_google_search),
+    output_file='bld/apsr_author_website_coding_diff.csv',
+    entry_column='website_category',
+    columns_merge_on=['doi', 'article_ix', 'title', 'author'])
