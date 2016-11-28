@@ -154,3 +154,35 @@ bool_printing = {True: 'True', False: ''}
 diff.replace({conflict_column: bool_printing}, inplace=True)
 
 diff.to_csv(output_file, columns=output_columns, index=None)
+
+
+# Resolve APSR reference coding diffs.
+resolution_pairs = [('KJK', 'RK'), ('RP', 'TC')]
+
+input_file = 'bld/apsr_reference_coding_diff.csv'
+output_file_prefix = 'bld/apsr_reference_coding_diff_resolution'
+
+for pair in resolution_pairs:
+    diff = pd.read_csv(input_file)
+
+    suffix = '_' + '_'.join(pair)
+
+    entry_columns = ['reference_category_' + x for x in pair]
+    resolution_column = 'reference_category' + suffix + '_resolved'
+    conflict_column = 'conflict_ignore_skip' + suffix
+
+    output_columns = (['volume', 'issue', 'pages', 'publication_date', 'doi',
+                       'authors', 'authors_affiliations', 'title',
+                       'article_ix', 'reference_ix', 'match', 'context'] +
+                      entry_columns + [resolution_column,
+                                       conflict_column])
+
+    add_resolution_columns(diff, entry_columns=entry_columns,
+                           conflict_column=conflict_column,
+                           resolution_column=resolution_column)
+
+    bool_printing = {True: 'True', False: ''}
+    diff.replace({conflict_column: bool_printing}, inplace=True)
+
+    diff.to_csv(output_file_prefix + suffix + '.csv',
+                columns=output_columns, index=None)

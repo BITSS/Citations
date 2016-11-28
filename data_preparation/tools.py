@@ -208,6 +208,14 @@ def apsr_article_url(doi):
     return 'https://doi.org/' + doi
 
 
+def hyperlink_title_apsr(article):
+    if article['title'] in ['', np.nan]:
+        return article['title']
+    else:
+        return ('=HYPERLINK("' + apsr_article_url(article['doi']) +
+                '","' + article['title'] + '")')
+
+
 def hyperlink(string):
     return '=HYPERLINK("{}")'.format(string)
 

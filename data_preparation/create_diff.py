@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 
 from tools import (fill_columns_down, read_ods, hyperlink,
-                   hyperlink_google_search)
+                   hyperlink_google_search, hyperlink_title_apsr)
 
 
 def create_diff(input_dict, output_file, entry_column, columns_merge_on):
@@ -121,6 +121,19 @@ create_diff(input_dict=apply_func_dict(
     output_file='bld/ajps_author_website_coding_diff.csv',
     entry_column='website_category',
     columns_merge_on=['doi', 'article_ix', 'title', 'author'])
+
+# Diff APSR reference coding.
+apsr_dict = standard_entry_dict('apsr_reference_coding', 'reference_category')
+for entry in apsr_dict.values():
+    entry['title'] = entry.apply(hyperlink_title_apsr, axis=1)
+
+create_diff(input_dict=apsr_dict,
+            output_file='bld/apsr_reference_coding_diff.csv',
+            entry_column='reference_category',
+            columns_merge_on=['doi', 'article_ix', 'reference_ix', 'volume',
+                              'issue', 'pages', 'publication_date', 'authors',
+                              'authors_affiliations', 'title', 'match',
+                              'context'])
 
 # Diff APSR author website coding.
 create_diff(input_dict=apply_func_dict(
