@@ -208,6 +208,10 @@ def apsr_article_url(doi):
     return 'https://doi.org/' + doi
 
 
+def hyperlink(string):
+    return '=HYPERLINK("{}")'.format(string)
+
+
 def hyperlink_title_apsr(article):
     if article['title'] in ['', np.nan]:
         return article['title']
@@ -216,8 +220,13 @@ def hyperlink_title_apsr(article):
                 '","' + article['title'] + '")')
 
 
-def hyperlink(string):
-    return '=HYPERLINK("{}")'.format(string)
+def hyperlink_google_search(text):
+    '''Hyperlink to search for text with Google.
+
+    Show 15 results, and turn off personalization of results.
+    '''
+    return ('=HYPERLINK("https://google.com/search?q={x}&num=15&pws=0",'
+            '"{x}")'.format(x=text))
 
 
 def add_doi(target, source, output=False):
@@ -253,15 +262,6 @@ def add_doi(target, source, output=False):
         df_target.to_csv(output, index=None)
     else:
         return df_target
-
-
-def hyperlink_google_search(text):
-    '''Hyperlink to search for text with Google.
-
-    Show 15 results, and turn off personalization of results.
-    '''
-    return ('=HYPERLINK("https://google.com/search?q={x}&num=15&pws=0",'
-            '"{x}")'.format(x=text))
 
 
 def hyperlink_title(input, file_out=None):

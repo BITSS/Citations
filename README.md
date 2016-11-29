@@ -10,7 +10,7 @@ See https://osf.io/cdt8y/ for more info.
 ---|:---:|:---:
 References|Done|Resolve differences
 Links|Resolve differences|Wait for References
-Author websites|Harmonize|Harmonize
+Author websites|Done|Done
 Article types|Test protocol|Test protocol
 Dataverse|Not started|Not started
 Citations|Not started|Not started

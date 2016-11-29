@@ -16,6 +16,9 @@ If that also does not find you the author's website, put `could_not_find` into t
 ### Some author names look weird
 The extraction of author names is done automatically. Sometimes this will result in author names that are actually not names or repetition of names in slightly different variants (e.g. `James H. Fowler` and `James H. FowlerUniversity of California`). If an author name is clearly not a name or you have already previously looked for an author **in the same article**, you can put `skip` into the `website_category` column.
 
+### Some articles have no authors
+Mark these as `skip`.
+
 ### What if there is more than one relevant website (e.g. university and personal)?
 Search through all of them. Report the one that gives you the best reference to data, code or files into the `website` column. If more than one does, report the most personal/recent website.
 
