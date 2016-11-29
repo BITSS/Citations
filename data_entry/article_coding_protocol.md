@@ -27,5 +27,10 @@ There are four data types
 + `experimental`: The article uses experimental data from laboratory or field experiments conducted by researchers (i.e. randomized experiments, not *natural* experiments)
 + `observational`: The article uses observational data (e.g. from surveys, publicly available datasets, own collection)
 
+### What about non-articles? (e.g. front matter)
+Please put `skip` for both topic and type for lines in the spreadsheet that aren't really articles, such as front matter and some letters from the editor.
+
 ### Tip
 `Ctrl/⌘ + Click` on the article title to open the article. You do not need to press `Ctrl/⌘`, if you uncheck `Ctrl-click required to follow hyperlinks`, which you can find in `LibreOffice` -> `Preferences` -> `Security` -> `Options`.
+
+
