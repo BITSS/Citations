@@ -7,13 +7,7 @@ from dateutil import parser
 
 import numpy as np
 import pandas as pd
-from tools import hyperlink_google_search
-
-
-def extract_authors(article):
-    authors = [x.strip() for x in article['authors'].split(';')]
-    return (pd.Series(authors, index=['author_{}'.format(i)
-                                      for i in range(len(authors))]))
+from tools import hyperlink_google_search, extract_authors_apsr
 
 
 input_file = 'bld/apsr_article_info_from_issue_toc.csv'
@@ -32,7 +26,7 @@ df['article_ix'] = df.index + 1
 
 # Convert to one row per paper*author.
 df['authors'].fillna('', inplace=True)
-df = pd.concat([df, df.apply(extract_authors, axis=1)],
+df = pd.concat([df, df.apply(extract_authors_apsr, axis=1)],
                axis=1)
 df = pd.melt(df, id_vars=[x for x in df.columns.values
                           if not x.startswith('author_')],

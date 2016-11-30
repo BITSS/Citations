@@ -229,6 +229,12 @@ def hyperlink_google_search(text):
             '"{x}")'.format(x=text))
 
 
+def extract_authors_apsr(article):
+    authors = [x.strip() for x in article['authors'].split(';')]
+    return (pd.Series(authors, index=['author_{}'.format(i)
+                                      for i in range(len(authors))]))
+
+
 def add_doi(target, source, output=False):
     '''
     Add doi column to target using information from source.

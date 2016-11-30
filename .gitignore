@@ -2,6 +2,7 @@
 bld/*
 octoparse/*
 !octoparse/*.otd
+dataverse_api_token.txt
 .~lock*
 .vscode
 

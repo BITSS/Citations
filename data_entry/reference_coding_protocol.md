@@ -1,6 +1,3 @@
-## Coding Protocol for Automated Text Search
-Version: 2016.11.15 (See [github](http://github.com/bitss/citations) for history.)
-
 ### What do I look for?
 References to the data or code used in the article. We're not interested in additional results, or proofs, or the appendix. We're interested and data and/or code to reproduce the published paper.
 
