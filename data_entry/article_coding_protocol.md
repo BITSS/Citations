@@ -18,6 +18,11 @@ If you have trouble finding the correct research field for an article after abov
 
 If an article falls into multiple categories, pick the primary and secondary category. Do not assign a secondary category unless an article really does cover two topics.
 
+Classifying articles may be difficult. Read the list above. Also, from Wesleyan:
+> Political Theory is a distinct field within the discipline of political science. Political theorists tend to focus more on theoretical claims rather than empirical claims about the nature of the politics. Normative political theory is concerned with questions about such concepts as justice, equality, and rights. Historical political theory engages political philosophers from the past (e.g. Thucyides and Plato) to the present (e.g. Wendy Brown and Seyla Benahabib), and may focus on how particular philosophers engaged political problems that continue to be relevant today. While the focus has traditionally been on Western traditions, that is beginning to change in this field.
+
+So don't call everything `political_theory`--real theory will often go hand in hand with `no_data` and feature famous philosophers you may know: Marx, Locke, Mills, Rawls, etc.
+
 
 ### How do I classify an article into a data type?
 There are four data types
