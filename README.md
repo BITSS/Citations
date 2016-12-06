@@ -11,8 +11,8 @@ See https://osf.io/cdt8y/ for more info.
 References|Done|Resolve differences
 Links|Resolve differences|Wait for References
 Author websites|Done|Done
-Article types|Create template|Test protocol
-Dataverse|Not started|Template ready
+Article types|Create template|Fill template
+Dataverse|Create template|Template ready
 Citations|Not started|Not started
 
 ## Other Tasks

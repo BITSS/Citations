@@ -129,6 +129,19 @@ imports = [
              '_KJK_RP_V3.log.csv'),
      'output': ('data_entry/ajps_reference_coding_diff_resolution'
                 '_KJK_RP_V3.csv')},
+    {'target': 'bld/apsr_reference_coding_diff_resolution_RP_TC.csv',
+     'source': 'data_entry/apsr_reference_coding_diff_resolution_RP_TC_V3.ods',
+     'entry_column': 'reference_category_RP_TC_resolved',
+     'apply_functions': {'source': (lambda x: hyperlink_title(x,
+                                                              journal='apsr'),)
+                         },
+     'merge_on': merge_on_reference_coding + ['reference_category_RP',
+                                              'reference_category_TC',
+                                              'conflict_ignore_skip_RP_TC'],
+     'log': ('data_entry/apsr_reference_coding_diff_resolution'
+             '_RP_TC_V4.log.csv'),
+     'output': ('data_entry/apsr_reference_coding_diff_resolution'
+                '_RP_TC_V4.csv')},
 
     # Import entries due to changes in link coding protocol.
     {'target': 'bld/ajps_link_coding_template.csv',
