@@ -107,8 +107,17 @@ def read_data_entry(file_in, **pandas_kwargs):
         header_length = len(header)
         content = [row + [None] * max(header_length - len(row), 0)
                    for row in content]
+        # Handle 'dtypes' manually as pd.DataFrame does not accept it as a
+        # dictionary.
+        if pandas_kwargs.get('dtype', None):
+            dtypes = pandas_kwargs.pop('dtype')
         sheet = pd.DataFrame(columns=header, data=content,
                              **pandas_kwargs)
+        if dtypes:
+            string_columns = [k for k, v in dtypes.items() if v == 'str']
+            sheet[string_columns] = sheet[string_columns].fillna('')
+            sheet = sheet.astype(dtypes)
+
     elif file_ending == 'csv':
         sheet = pd.read_csv(file_in, **pandas_kwargs)
 
@@ -119,7 +128,7 @@ def read_data_entry(file_in, **pandas_kwargs):
 
 
 def import_data_entries(source, target, output, entry_column, merge_on,
-                        log=False, files_add_hyperlink_title=[],
+                        log=False, apply_functions={},
                         deduplicate_article_info=True):
     '''
     Import data entries from source spreadsheet into target.
@@ -128,19 +137,20 @@ def import_data_entries(source, target, output, entry_column, merge_on,
     article_level_columns = ['article_ix', 'doi', 'title']
     # Make dtypes consistent across dataframes for merging.
     merge_on_dtypes = dict([(column, 'str') for column in merge_on])
-    for name, fh in {'source': source, 'target': target}.items():
-        sheet = read_data_entry(fh, pandas_kwargs={'dtype': merge_on_dtypes})
+    for file_role, fh in {'source': source, 'target': target}.items():
+        sheet = read_data_entry(fh, dtype=merge_on_dtypes)
         sheet[merge_on] = sheet[merge_on].fillna('')
         for merge_column in merge_on:
             sheet[merge_column] = sheet[merge_column].astype('str')
 
         fill_columns_down(sheet,
                           [x for x in article_level_columns if x != 'title'])
-        if name in files_add_hyperlink_title:
-            hyperlink_title(sheet)
+        function_list = apply_functions.get(file_role, ())
+        for function in function_list:
+            function(sheet)
         fill_columns_down(sheet, ['title'])
 
-        sheets[name] = sheet
+        sheets[file_role] = sheet
 
     # Import data only for empty rows with unique matching columns values.
     sheets['target']['import_candidate'] = \
@@ -198,26 +208,44 @@ def import_data_entries(source, target, output, entry_column, merge_on,
     merged.to_csv(output, index=False)
 
 
-def article_url(doi):
-    'Return article url inferred from DOI.'
-    return 'http://onlinelibrary.wiley.com/doi/' + doi + '/full'
+def article_url(doi, journal):
+    if journal == 'ajps':
+        return 'http://onlinelibrary.wiley.com/doi/' + doi + '/full'
+    elif journal == 'apsr':
+        return 'https://doi.org/' + doi
+    else:
+        UserWarning.warn('{} is an unknown journal.'.format(journal) +
+                         'Could not create article url.')
 
 
-def apsr_article_url(doi):
-    'Return DOI URL linking to article.'
-    return 'https://doi.org/' + doi
+def hyperlink_title(input, journal):
+    '''
+    Link title to article url.
+    '''
+    # If input is pd.Series intrepret it as article.
+    if isinstance(input, pd.core.series.Series):
+        article = input
+        # Do not hyperlink empty cells.
+        if article['title'] in ['', np.nan]:
+            return article['title']
+        else:
+            return ('=HYPERLINK("' + article_url(article['doi'], journal) +
+                    '","' + article['title'] + '")')
+
+    # If input is a string, interpret is as file.
+    elif isinstance(input, str):
+        df_in = pd.read_csv(input)
+    # If input is a pd.DataFrame, hyperlink the 'title' column.
+    elif isinstance(input, pd.core.frame.DataFrame):
+        df_in = input
+    else:
+        UserWarning.warn('Unknown input type.')
+    df_in['title'] = df_in.apply(hyperlink_title, axis=1, journal=journal)
+    return df_in
 
 
 def hyperlink(string):
     return '=HYPERLINK("{}")'.format(string)
-
-
-def hyperlink_title_apsr(article):
-    if article['title'] in ['', np.nan]:
-        return article['title']
-    else:
-        return ('=HYPERLINK("' + apsr_article_url(article['doi']) +
-                '","' + article['title'] + '")')
 
 
 def hyperlink_google_search(text):
@@ -268,27 +296,6 @@ def add_doi(target, source, output=False):
         df_target.to_csv(output, index=None)
     else:
         return df_target
-
-
-def hyperlink_title(input, file_out=None):
-    '''
-    Make title value clickable.
-    '''
-    if isinstance(input, str):
-        df_in = pd.read_csv(input)
-    else:
-        df_in = input
-    article_info = df_in['title'] != ''
-
-    df_in['hyperlink_title'] = ('=HYPERLINK("' +
-                                df_in['doi'].apply(article_url) +
-                                '","' + df_in['title'] + '")')
-
-    df_in.loc[article_info, 'title'] = df_in.loc[article_info,
-                                                 'hyperlink_title']
-    df_in.drop('hyperlink_title', axis=1, inplace=True)
-    if file_out is not None:
-        df_in.to_csv(file_out, index=None)
 
 
 def read_ods(file_path, sheet_name):

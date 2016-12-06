@@ -35,7 +35,7 @@ for pair, article_range in urap_pairs.items():
     header = sheet[0]
     content = sheet[1:]
     entry = pd.DataFrame(columns=header, data=content)
-    hyperlink_title(entry)
+    entry = hyperlink_title(entry, 'ajps')
 
     fill_columns_down(entry, article_level_columns)
     import_entry = np.all([article_range[0] <= entry['article_ix'],

@@ -21,4 +21,4 @@ target = 'data_entry/ajps_reference_coding_rk_V4.ods'
 source = 'bld/ajps_articles_2003_2016.csv'
 output = 'data_entry/ajps_reference_coding_rk_V4_doi_and_hyperlink.csv'
 
-hyperlink_title(add_doi(target, source), output)
+hyperlink_title(add_doi(target, source), 'ajps').to_csv(output)

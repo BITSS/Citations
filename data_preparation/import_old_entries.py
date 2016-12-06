@@ -4,12 +4,12 @@ Import entries from older protocol versions.
 
 Note that importing from ods drops cell formulas. Export ods files to csv
 using 'Save cell formulas instead of calculated values' option to preserve
-formulas. Alternatively, use the files_add_hyperlink_title parameter to
+formulas. Alternatively, use the apply_functions parameter to
 hyperlink titles.
 '''
 from os.path import isfile
 
-from tools import import_data_entries
+from tools import import_data_entries, hyperlink_title
 
 urap_initials = ['KJK', 'rk', 'RP', 'TC']
 merge_on_reference_coding = ['doi', 'title', 'match', 'context']
@@ -73,28 +73,36 @@ imports = [
     {'target': 'bld/ajps_reference_coding_template.csv',
      'source': 'data_entry/ajps_reference_coding_RK_V23.ods',
      'entry_column': 'reference_category',
-     'files_add_hyperlink_title': ['source'],
+     'apply_functions': {'source': (lambda x: hyperlink_title(x,
+                                                              journal='ajps'),)
+                         },
      'merge_on': merge_on_reference_coding,
      'log': 'data_entry/ajps_reference_coding_template_RK_V23.log.csv',
      'output': 'data_entry/ajps_reference_coding_RK_V24.csv'},
     {'target': 'bld/ajps_reference_coding_template.csv',
      'source': 'data_entry/ajps_reference_coding_TC_V12.ods',
      'entry_column': 'reference_category',
-     'files_add_hyperlink_title': ['source'],
+     'apply_functions': {'source': (lambda x: hyperlink_title(x,
+                                                              journal='ajps'),)
+                         },
      'merge_on': merge_on_reference_coding,
      'log': 'data_entry/ajps_reference_coding_template_TC_V12.log.csv',
      'output': 'data_entry/ajps_reference_coding_TC_V13.csv'},
     {'target': 'bld/ajps_reference_coding_template.csv',
      'source': 'data_entry/ajps_reference_coding_RP_V9.ods',
      'entry_column': 'reference_category',
-     'files_add_hyperlink_title': ['source'],
+     'apply_functions': {'source': (lambda x: hyperlink_title(x,
+                                                              journal='ajps'),)
+                         },
      'merge_on': merge_on_reference_coding,
      'log': 'data_entry/ajps_reference_coding_template_RP_V9.log.csv',
      'output': 'data_entry/ajps_reference_coding_RP_V10.csv'},
     {'target': 'bld/ajps_reference_coding_template.csv',
      'source': 'data_entry/ajps_reference_coding_KJK_V33.ods',
      'entry_column': 'reference_category',
-     'files_add_hyperlink_title': ['source'],
+     'apply_functions': {'source': (lambda x: hyperlink_title(x,
+                                                              journal='ajps'),)
+                         },
      'merge_on': merge_on_reference_coding,
      'log': 'data_entry/ajps_reference_coding_template_KJK_V33.log.csv',
      'output': 'data_entry/ajps_reference_coding_KJK_V34.csv'},
@@ -127,28 +135,36 @@ imports = [
      'source': 'data_entry/ajps_link_coding_KJK_V3.ods',
      'entry_column': 'link_category',
      'merge_on': merge_on_link_coding,
-     'files_add_hyperlink_title': ['source'],
+     'apply_functions': {'source': (lambda x: hyperlink_title(x,
+                                                              journal='ajps'),)
+                         },
      'log': 'data_entry/ajps_link_coding_KJK_V3.log.csv',
      'output': 'data_entry/ajps_link_coding_KJK_V4.csv'},
     {'target': 'bld/ajps_link_coding_template.csv',
      'source': 'data_entry/ajps_link_coding_RK_V3.ods',
      'entry_column': 'link_category',
      'merge_on': merge_on_link_coding,
-     'files_add_hyperlink_title': ['source'],
+     'apply_functions': {'source': (lambda x: hyperlink_title(x,
+                                                              journal='ajps'),)
+                         },
      'log': 'data_entry/ajps_link_coding_RK_V4.log.csv',
      'output': 'data_entry/ajps_link_coding_RK_V4.csv'},
     {'target': 'bld/ajps_link_coding_template.csv',
      'source': 'data_entry/ajps_link_coding_RP_V3.ods',
      'entry_column': 'link_category',
      'merge_on': merge_on_link_coding,
-     'files_add_hyperlink_title': ['source'],
+     'apply_functions': {'source': (lambda x: hyperlink_title(x,
+                                                              journal='ajps'),)
+                         },
      'log': 'data_entry/ajps_link_coding_RP_V4.log.csv',
      'output': 'data_entry/ajps_link_coding_RP_V4.csv'},
     {'target': 'bld/ajps_link_coding_template.csv',
      'source': 'data_entry/ajps_link_coding_TC_V4.ods',
      'entry_column': 'link_category',
      'merge_on': merge_on_link_coding,
-     'files_add_hyperlink_title': ['source'],
+     'apply_functions': {'source': (lambda x: hyperlink_title(x,
+                                                              journal='ajps'),)
+                         },
      'log': 'data_entry/ajps_link_coding_TC_V5.log.csv',
      'output': 'data_entry/ajps_link_coding_TC_V5.csv'},
 

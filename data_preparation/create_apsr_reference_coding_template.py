@@ -8,7 +8,7 @@ import re
 import pandas as pd
 import numpy as np
 from bs4 import BeautifulSoup
-from tools import hyperlink_title_apsr
+from tools import hyperlink_title
 
 
 def find_references(article):
@@ -107,7 +107,7 @@ for ix, df in enumerate(pd.read_csv(input_file, chunksize=50)):
     df.reset_index(inplace=True)
     df['reference_ix'] = df['reference_ix'] + 1
 
-    df['title'] = df['title'].apply(hyperlink_title_apsr)
+    df = hyperlink_title(df, 'apsr')
     df['reference_category'] = np.nan
 
     if ix == 0:

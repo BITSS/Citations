@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 
 from tools import (fill_columns_down, read_ods, hyperlink,
-                   hyperlink_google_search, hyperlink_title_apsr)
+                   hyperlink_google_search, hyperlink_title)
 
 
 def create_diff(input_dict, output_file, entry_column, columns_merge_on):
@@ -125,7 +125,7 @@ create_diff(input_dict=apply_func_dict(
 # Diff APSR reference coding.
 apsr_dict = standard_entry_dict('apsr_reference_coding', 'reference_category')
 for entry in apsr_dict.values():
-    entry['title'] = entry.apply(hyperlink_title_apsr, axis=1)
+    entry = hyperlink_title(entry, 'apsr')
 
 create_diff(input_dict=apsr_dict,
             output_file='bld/apsr_reference_coding_diff.csv',
