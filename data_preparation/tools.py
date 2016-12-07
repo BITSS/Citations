@@ -109,8 +109,7 @@ def read_data_entry(file_in, **pandas_kwargs):
                    for row in content]
         # Handle 'dtypes' manually as pd.DataFrame does not accept it as a
         # dictionary.
-        if pandas_kwargs.get('dtype', None):
-            dtypes = pandas_kwargs.pop('dtype')
+        dtypes = pandas_kwargs.pop('dtype', None)
         sheet = pd.DataFrame(columns=header, data=content,
                              **pandas_kwargs)
         if dtypes:
