@@ -12,7 +12,7 @@ References|Done|Resolve differences
 Links|Resolve differences|Wait for References
 Author websites|Done|Done
 Article types|Create template|Fill template
-Dataverse|Create template|Template ready
+Dataverse|Template ready|Template ready
 Citations|Not started|Not started
 
 ## Other Tasks
