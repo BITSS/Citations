@@ -9,22 +9,7 @@ import re
 import numpy as np
 import pandas as pd
 
-from tools import strip_tags, hyperlink_google_search
-
-
-def extract_authors(article):
-    authors = [x.strip() for x in article['authors'].split(', ')]
-
-    authors = [a for a in authors if a != '(contact author)']
-    name_suffixes = ['Jr', 'Jr.', 'III']
-    for ix, author in enumerate(authors):
-        if author in name_suffixes:
-            print(author)
-            authors[ix - 1] = authors[ix - 1] + ', ' + author
-    authors = [a for a in authors if a not in name_suffixes]
-
-    return (pd.Series(authors, index=['author_{}'.format(i)
-                                      for i in range(len(authors))]))
+from tools import strip_tags, hyperlink_google_search, extract_authors_ajps
 
 
 input_file = 'bld/ajps_articles_2006_2014.csv'
@@ -42,7 +27,8 @@ df_authors['authors'].fillna('', inplace=True)
 # Extract author names.
 df_authors['authors'] = df_authors['authors'].apply(lambda x:
                                                     x.replace(' and ', ', '))
-df_authors = pd.concat([df_authors, df_authors.apply(extract_authors, axis=1)],
+df_authors = pd.concat([df_authors, df_authors.apply(extract_authors_ajps,
+                                                     axis=1)],
                        axis=1)
 
 # Convert to one row per paper*author.

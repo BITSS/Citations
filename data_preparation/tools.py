@@ -2,34 +2,11 @@
 Functions that are used repeatedly across multiple files.
 '''
 from html.parser import HTMLParser
+import re
 
 import numpy as np
 import pandas as pd
 from pyexcel_ods3 import get_data
-
-
-# Remove HTML tags.
-# Source: http://stackoverflow.com/a/925630/3435013
-class MLStripper(HTMLParser):
-
-    def __init__(self):
-        super().__init__()
-        self.reset()
-        self.strict = False
-        self.convert_charrefs = True
-        self.fed = []
-
-    def handle_data(self, d):
-        self.fed.append(d)
-
-    def get_data(self):
-        return ''.join(self.fed)
-
-
-def strip_tags(html):
-    s = MLStripper()
-    s.feed(html)
-    return s.get_data()
 
 
 def unique_elements(list_in, idfun=None):
@@ -46,44 +23,6 @@ def unique_elements(list_in, idfun=None):
     return list_out
 
 
-def regex_url_pattern():
-    '''
-    Return regular expression pattern that matches URLs
-
-    Extracting URLs from text is non-trivial.
-    Beautify solution provided by 'dranxo'.
-    https://stackoverflow.com/a/28552670/3435013
-    '''
-
-    tlds = (r'com|net|org|edu|gov|mil|aero|asia|biz|cat|coop'
-            r'|info|int|jobs|mobi|museum|name|post|pro|tel|travel'
-            r'|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw'
-            r'|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt'
-            r'|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr'
-            r'|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh'
-            r'|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh'
-            r'|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht'
-            r'|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg'
-            r'|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt'
-            r'|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr'
-            r'|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np'
-            r'|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw'
-            r'|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja'
-            r'|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg'
-            r'|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us'
-            r'|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw')
-
-    return (r'((?:https?:(?:/{1,3}|[a-z0-9%])|[a-z0-9.\-]+[.]'
-            r'(?:' + tlds + ')'
-            r'/)(?:[^\s()<>{}\[\]]+'
-            r'|\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\))+'
-            r'(?:\([^\s()]*?\([^\s()]+\)[^\s()]*?\)'
-            r'''|\([^\s]+?\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’])'''
-            r'|(?:(?<!@)[a-z0-9]+(?:[.\-][a-z0-9]+)*[.]'
-            r'(?:' + tlds + ')\b'
-            r'/?(?!@)))')
-
-
 def fill_columns_down(df, columns):
     '''
     Fill in fields from last occurence.
@@ -95,7 +34,7 @@ def fill_columns_down(df, columns):
 
 def read_data_entry(file_in, **pandas_kwargs):
     '''
-    Read data from data entry in ods or csv format
+    Read data from data entry in ods or csv format.
     '''
     file_ending = file_in.split('.')[-1]
     if file_ending == 'ods':
@@ -217,6 +156,10 @@ def article_url(doi, journal):
                          'Could not create article url.')
 
 
+def hyperlink(string):
+    return '=HYPERLINK("{}")'.format(string)
+
+
 def hyperlink_title(input, journal):
     '''
     Link title to article url.
@@ -243,10 +186,6 @@ def hyperlink_title(input, journal):
     return df_in
 
 
-def hyperlink(string):
-    return '=HYPERLINK("{}")'.format(string)
-
-
 def hyperlink_google_search(text):
     '''Hyperlink to search for text with Google.
 
@@ -256,8 +195,24 @@ def hyperlink_google_search(text):
             '"{x}")'.format(x=text))
 
 
-def extract_authors_apsr(article):
-    authors = [x.strip() for x in article['authors'].split(';')]
+def extract_authors_ajps(article, authors_column='authors'):
+    authors = [x.strip() for x in re.split('(?:, | and )',
+                                           article[authors_column])]
+
+    authors = [a for a in authors if a != '(contact author)']
+    name_suffixes = ['Jr', 'Jr.', 'III']
+    for ix, author in enumerate(authors):
+        if author in name_suffixes:
+            print(author)
+            authors[ix - 1] = authors[ix - 1] + ', ' + author
+    authors = [a for a in authors if a not in name_suffixes]
+
+    return (pd.Series(authors, index=['author_{}'.format(i)
+                                      for i in range(len(authors))]))
+
+
+def extract_authors_apsr(article, authors_column='authors'):
+    authors = [x.strip() for x in article[authors_column].split(';')]
     return (pd.Series(authors, index=['author_{}'.format(i)
                                       for i in range(len(authors))]))
 
@@ -297,12 +252,63 @@ def add_doi(target, source, output=False):
         return df_target
 
 
-def read_ods(file_path, sheet_name):
+# Remove HTML tags.
+# Source: http://stackoverflow.com/a/925630/3435013
+class MLStripper(HTMLParser):
+
+    def __init__(self):
+        super().__init__()
+        self.reset()
+        self.strict = False
+        self.convert_charrefs = True
+        self.fed = []
+
+    def handle_data(self, d):
+        self.fed.append(d)
+
+    def get_data(self):
+        return ''.join(self.fed)
+
+
+def strip_tags(html):
+    s = MLStripper()
+    s.feed(html)
+    return s.get_data()
+
+
+def regex_url_pattern():
     '''
-    Return content from ods sheet as dataframe.
+    Return regular expression pattern that matches URLs
+
+    Extracting URLs from text is non-trivial.
+    Beautify solution provided by 'dranxo'.
+    https://stackoverflow.com/a/28552670/3435013
     '''
-    df = (get_data(file_path)[sheet_name])
-    header = df[0]
-    content = df[1:]
-    df = pd.DataFrame(columns=header, data=content)
-    return df
+
+    tlds = (r'com|net|org|edu|gov|mil|aero|asia|biz|cat|coop'
+            r'|info|int|jobs|mobi|museum|name|post|pro|tel|travel'
+            r'|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw'
+            r'|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt'
+            r'|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr'
+            r'|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh'
+            r'|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh'
+            r'|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht'
+            r'|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg'
+            r'|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt'
+            r'|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr'
+            r'|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np'
+            r'|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw'
+            r'|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja'
+            r'|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg'
+            r'|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us'
+            r'|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw')
+
+    return (r'((?:https?:(?:/{1,3}|[a-z0-9%])|[a-z0-9.\-]+[.]'
+            r'(?:' + tlds + ')'
+            r'/)(?:[^\s()<>{}\[\]]+'
+            r'|\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\))+'
+            r'(?:\([^\s()]*?\([^\s()]+\)[^\s()]*?\)'
+            r'''|\([^\s]+?\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’])'''
+            r'|(?:(?<!@)[a-z0-9]+(?:[.\-][a-z0-9]+)*[.]'
+            r'(?:' + tlds + ')\b'
+            r'/?(?!@)))')
