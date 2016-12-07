@@ -8,8 +8,7 @@ from collections import OrderedDict
 
 import pandas as pd
 import numpy as np
-from pyexcel_ods3 import get_data as read_ods
-from tools import fill_columns_down, hyperlink_title
+from tools import fill_columns_down, hyperlink_title, read_data_entry
 
 input_file_template = 'bld/ajps_reference_coding_template.csv'
 input_file_data_entry_prefix = ('data_entry/' +
@@ -30,11 +29,7 @@ for pair, article_range in urap_pairs.items():
     suffix = '_' + '_'.join(pair)
     resolution_column = 'reference_category' + suffix + '_resolved'
 
-    sheet = (read_ods(input_file_data_entry_prefix + suffix + '.ods')
-             ['ajps_reference_coding'])
-    header = sheet[0]
-    content = sheet[1:]
-    entry = pd.DataFrame(columns=header, data=content)
+    entry = read_data_entry(input_file_data_entry_prefix + suffix + '.ods')
     entry = hyperlink_title(entry, 'ajps')
 
     fill_columns_down(entry, article_level_columns)

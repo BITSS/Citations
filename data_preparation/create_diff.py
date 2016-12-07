@@ -7,7 +7,7 @@ from collections import OrderedDict
 import numpy as np
 import pandas as pd
 
-from tools import (fill_columns_down, read_ods, hyperlink,
+from tools import (fill_columns_down, read_data_entry, hyperlink,
                    hyperlink_google_search, hyperlink_title)
 
 
@@ -75,7 +75,7 @@ def standard_entry_dict(coding, entry_column):
             Returning 'None' for {coding}'''.format(file=input_file,
                                                     coding=coding))
             return None
-        entry = read_ods(input_file, coding)
+        entry = read_data_entry(input_file)
         fill_columns_down(entry, [column for column in entry.columns
                                   if column in ['article_ix', 'doi',
                                                 'title']])
