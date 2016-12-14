@@ -23,6 +23,17 @@ def unique_elements(list_in, idfun=None):
     return list_out
 
 
+def apply_func_to_df(df, func_list):
+    '''Take a list of (column, function) tuples to apply function to column of
+    dataframe.'''
+    for column, func in func_list:
+        # 'None' applies function to whole dataframe.
+        if column is None:
+            df = func(df)
+        else:
+            df[column] = df[column].apply(func)
+
+
 def fill_columns_down(df, columns):
     '''
     Fill in fields from last occurence.
