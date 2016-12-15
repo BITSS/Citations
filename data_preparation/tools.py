@@ -39,8 +39,13 @@ def fill_columns_down(df, columns):
     Fill in fields from last occurence.
     '''
     for column in columns:
-        df[column] = df[column].replace('', np.nan)
+        # Replace with 'None' instead 'np.nan' to avoid upcasting of
+        # 'int' to 'float'. See
+        # http://pandas.pydata.org/pandas-docs/stable/gotchas.html#nan-integer-na-values-and-na-type-promotions
+        df[column] = df[column].replace('', None)
         df[column].fillna(method='ffill', inplace=True)
+        # If top row is na, interpret it as '' and fill it forward.
+        df[column].fillna('', inplace=True)
 
 
 def read_data_entry(file_in, **pandas_kwargs):

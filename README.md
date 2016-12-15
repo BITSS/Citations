@@ -8,8 +8,8 @@ See https://osf.io/cdt8y/ for more info.
 
 ||AJPS|APSR|
 ---|:---:|:---:
-References|Done|Resolve differences
-Links|Resolve differences|Wait for References
+References|Done|Done
+Links|Resolve differences|Create template
 Author websites|Done|Done
 Article types|Template ready|Started filling template
 Dataverse|Template ready|Template ready

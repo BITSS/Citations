@@ -11,27 +11,38 @@ from tools import (read_data_entry, hyperlink_google_search, fill_columns_down,
 def harmonize(template_file, index_column, entry_columns, merge_on_columns,
               inputs, output_file, template_apply_func=[]):
     '''
-    Combine entries into single file based on template.
+    Combine data entries into single file based on template.
     '''
     df = read_data_entry(template_file)
+    df.fillna('', inplace=True)
     apply_func_to_df(df, template_apply_func)
     template_columns = df.columns
     for import_ix, input_dict in enumerate(inputs):
         data_entry = read_data_entry(input_dict['file_in'])
         data_entry.fillna('', inplace=True)
         apply_func_to_df(data_entry, input_dict.get('input_apply_func', []))
+
         merge_indicator = '_merge_{}'.format(import_ix)
         df = pd.merge(df, data_entry, how='left', on=merge_on_columns,
                       suffixes=('', '_import'), indicator=merge_indicator)
-        importable = np.all([input_dict['index_range'][0] <= df[index_column],
-                             df[index_column] <= input_dict['index_range'][1],
-                             df[merge_indicator] == 'both'], axis=0)
+
         if np.sum(df[merge_indicator] != 'both') > 0:
             warnings.warn('Some entries of input file {} could not be found in'
                           ' or matched to template file {}.'.format(
                               input_dict['file_in'], template_file))
             print(df.loc[df[merge_indicator] != 'both', merge_on_columns +
                          [merge_indicator]])
+
+        in_index_range = np.full(shape=df.shape[0], fill_value=False,
+                                 dtype=bool)
+        for lower_bound, upper_bound in input_dict['index_ranges']:
+            in_index_range = np.any([in_index_range,
+                                     np.all([lower_bound <= df[index_column],
+                                             df[index_column] <= upper_bound],
+                                            axis=0)],
+                                    axis=0)
+        importable = np.all([in_index_range, df[merge_indicator] == 'both'],
+                            axis=0)
         df.loc[importable, entry_columns] = df.loc[
             importable, input_dict['entry_column']]
 
@@ -39,64 +50,105 @@ def harmonize(template_file, index_column, entry_columns, merge_on_columns,
 
 # Author website coding
 # AJPS
-ajps = {'template_file': 'bld/ajps_author_website_coding_template.csv',
-        'index_column': 'article_ix',
-        'entry_columns': ['website_category'],
-        'merge_on_columns': ['doi', 'title', 'author'],
-        'inputs': [{'file_in': 'data_entry/ajps_author_website_coding'
-                    '_diff_resolution_RK_TC.ods',
-                    'entry_column': 'website_category_RK_TC_resolved',
-                    'input_apply_func': [('author', hyperlink_google_search)],
-                    'index_range': (1, 304)},
-                   {'file_in': 'data_entry/ajps_author_website_coding'
-                    '_diff_resolution_KJK_RP.ods',
-                    'entry_column': 'website_category_KJK_RP_resolved',
-                    'input_apply_func': [('author', hyperlink_google_search)],
-                    'index_range': (305, 608)}],
-        'output_file': 'bld/ajps_author_website_coding_harmonized.csv'}
-harmonize(**ajps)
+author_website_ajps = \
+    {'template_file': 'bld/ajps_author_website_coding_template.csv',
+     'index_column': 'article_ix',
+     'entry_columns': ['website_category'],
+     'merge_on_columns': ['doi', 'title', 'author'],
+     'inputs': [{'file_in': 'data_entry/ajps_author_website_coding'
+                 '_diff_resolution_RK_TC.ods',
+                 'entry_column': 'website_category_RK_TC_resolved',
+                 'input_apply_func': [('author', hyperlink_google_search)],
+                 'index_ranges': [(1, 304)]},
+                {'file_in': 'data_entry/ajps_author_website_coding'
+                 '_diff_resolution_KJK_RP.ods',
+                 'entry_column': 'website_category_KJK_RP_resolved',
+                 'input_apply_func': [('author', hyperlink_google_search)],
+                 'index_ranges': [(305, 608)]}],
+     'output_file': 'bld/ajps_author_website_coding_harmonized.csv'}
+harmonize(**author_website_ajps)
 
 # APSR
-apsr = {'template_file': 'bld/apsr_author_website_coding_template.csv',
-        'index_column': 'article_ix',
-        'entry_columns': ['website_category'],
-        'merge_on_columns': ['doi', 'title', 'author'],
-        'inputs': [{'file_in': 'data_entry/apsr_author_website_coding'
-                    '_diff_resolution_RK_TC.ods',
-                    'entry_column': 'website_category_RK_TC_resolved',
-                    'input_apply_func': [('author', hyperlink_google_search)],
-                    'index_range': (252, 515)},
-                   {'file_in': 'data_entry/apsr_author_website_coding'
-                    '_diff_resolution_KJK_RP.ods',
-                    'entry_column': 'website_category_KJK_RP_resolved',
-                    'input_apply_func': [('author', hyperlink_google_search)],
-                    'index_range': (1, 251)}],
-        'output_file': 'bld/apsr_author_website_coding_harmonized.csv'}
-harmonize(**apsr)
+author_website_apsr = \
+    {'template_file': 'bld/apsr_author_website_coding_template.csv',
+     'index_column': 'article_ix',
+     'entry_columns': ['website_category'],
+     'merge_on_columns': ['doi', 'title', 'author'],
+     'inputs': [{'file_in': 'data_entry/apsr_author_website_coding'
+                 '_diff_resolution_RK_TC.ods',
+                 'entry_column': 'website_category_RK_TC_resolved',
+                 'input_apply_func': [('author', hyperlink_google_search)],
+                 'index_ranges': [(252, 515)]},
+                {'file_in': 'data_entry/apsr_author_website_coding'
+                 '_diff_resolution_KJK_RP.ods',
+                 'entry_column': 'website_category_KJK_RP_resolved',
+                 'input_apply_func': [('author', hyperlink_google_search)],
+                 'index_ranges': [(1, 251)]}],
+     'output_file': 'bld/apsr_author_website_coding_harmonized.csv'}
+harmonize(**author_website_apsr)
 
 # Reference coding
 fill_article_columns = (lambda x: fill_columns_down(x, ['doi',
                                                         'article_ix',
                                                         'title']))
 # AJPS
-ajps = {'template_file': 'bld/ajps_reference_coding_template.csv',
-        'template_apply_func': [(None, fill_article_columns)],
-        'index_column': 'article_ix',
-        'entry_columns': ['reference_category'],
-        'merge_on_columns': ['doi', 'article_ix', 'title', 'match', 'context'],
-        'inputs': [{'file_in': 'data_entry/ajps_reference_coding'
-                    '_diff_resolution_RK_TC.ods',
-                    'entry_column': 'reference_category_RK_TC_resolved',
-                    'input_apply_func': [(None, lambda x:
-                                          hyperlink_title(x, 'ajps')),
-                                         (None, fill_article_columns)],
-                    'index_range': (1, 304)},
-                   {'file_in': 'data_entry/ajps_reference_coding'
-                    '_diff_resolution_KJK_RP.ods',
-                    'entry_column': 'reference_category_KJK_RP_resolved',
-                    'input_apply_func': [(None, lambda x:
-                                          hyperlink_title(x, 'ajps')),
-                                         (None, fill_article_columns)],
-                    'index_range': (305, 608)}],
-        'output_file': 'bld/ajps_reference_coding_harmonized.csv'}
-harmonize(**ajps)
+reference_ajps = \
+    {'template_file': 'bld/ajps_reference_coding_template.csv',
+     'template_apply_func': [(None, fill_article_columns)],
+     'index_column': 'article_ix',
+     'entry_columns': ['reference_category'],
+     'merge_on_columns': ['doi', 'article_ix', 'title', 'match', 'context'],
+     'inputs': [{'file_in': 'data_entry/ajps_reference_coding'
+                 '_diff_resolution_RK_TC.ods',
+                 'entry_column': 'reference_category_RK_TC_resolved',
+                 'input_apply_func': [(None, lambda x:
+                                       hyperlink_title(x, 'ajps')),
+                                      (None, fill_article_columns)],
+                 'index_ranges': [(1, 304)]},
+                {'file_in': 'data_entry/ajps_reference_coding'
+                 '_diff_resolution_KJK_RP.ods',
+                 'entry_column': 'reference_category_KJK_RP_resolved',
+                 'input_apply_func': [(None, lambda x:
+                                       hyperlink_title(x, 'ajps')),
+                                      (None, fill_article_columns)],
+                 'index_ranges': [(305, 608)]}],
+     'output_file': 'bld/ajps_reference_coding_harmonized.csv'}
+harmonize(**reference_ajps)
+
+# APSR
+# Pages columns has entries like '133-145' and '886'. Reading these from
+# ods will make these 'string' and 'int' types, but reading from csv
+# will consistently make both 'string'. Hence convert pages column to
+# string.
+#
+# Exclude 'authors' and 'authors_affiliations' as they are sometimes
+# empty and 'fill_columns_down' would fill these fields ignoring article
+# boundaries.
+reference_apsr_article_level_merge_on_columns = \
+    ['volume', 'issue', 'pages', 'publication_date', 'doi',
+     'article_ix', 'title']
+
+reference_apsr = \
+    {'template_file': 'bld/apsr_reference_coding_template.csv',
+     'index_column': 'article_ix',
+     'entry_columns': ['reference_category'],
+     'merge_on_columns': (reference_apsr_article_level_merge_on_columns +
+                          ['reference_ix', 'match', 'context']),
+     'inputs': [{'file_in': 'data_entry/apsr_reference_coding'
+                 '_diff_resolution_RP_TC.ods',
+                 'input_apply_func':
+                 [('pages', str),
+                  (None, lambda x: hyperlink_title(x, 'apsr')),
+                  (None, lambda x: fill_columns_down(x, reference_apsr_article_level_merge_on_columns))],
+                 'entry_column': 'reference_category_RP_TC_resolved',
+                 'index_ranges': [(1, 110), (220, 319)]},
+                {'file_in': 'data_entry/apsr_reference_coding'
+                 '_diff_resolution_KJK_RK.ods',
+                 'input_apply_func':
+                 [('pages', str),
+                  (None, lambda x: hyperlink_title(x, 'apsr')),
+                  (None, lambda x: fill_columns_down(x, reference_apsr_article_level_merge_on_columns))],
+                 'entry_column': 'reference_category_KJK_RK_resolved',
+                 'index_ranges': [(111, 219), (320, 447)]}],
+        'output_file': 'bld/apsr_reference_coding_harmonized.csv'}
+harmonize(**reference_apsr)
