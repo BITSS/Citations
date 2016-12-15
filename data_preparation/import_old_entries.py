@@ -135,13 +135,13 @@ imports = [
      'apply_functions': {'source': (lambda x: hyperlink_title(x,
                                                               journal='apsr'),)
                          },
-     'merge_on': merge_on_reference_coding + ['reference_category_RP',
-                                              'reference_category_TC',
-                                              'conflict_ignore_skip_RP_TC'],
+        # TC has updated her original entry file to reflect correct values
+        # found when resolving differences with RP. Hence, do not merge on TC.
+     'merge_on': merge_on_reference_coding + ['reference_category_RP'],
      'log': ('data_entry/apsr_reference_coding_diff_resolution'
-             '_RP_TC_V4.log.csv'),
+             '_RP_TC_V5.log.csv'),
      'output': ('data_entry/apsr_reference_coding_diff_resolution'
-                '_RP_TC_V4.csv')},
+                '_RP_TC_V5.csv')},
 
     # Import entries due to changes in link coding protocol.
     {'target': 'bld/ajps_link_coding_template.csv',
