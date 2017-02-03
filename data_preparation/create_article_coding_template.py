@@ -12,7 +12,7 @@ from tools import hyperlink_title
 def create_article_coding_template(input_file, output_file, journal):
 
     output_columns = ['article_ix', 'doi', 'title', 'abstract',
-                      'article_topic', 'article_data_type']
+                      'article_topic1', 'article_topic2', 'article_data_type']
 
     # Process article content chunkwise to reduce memory usage.
     for ix, df in enumerate(pd.read_csv(input_file, chunksize=50)):
