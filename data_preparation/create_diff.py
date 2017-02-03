@@ -12,12 +12,6 @@ from tools import (fill_columns_down, read_data_entry, hyperlink,
 
 
 def create_diff(input_dict, output_file, entry_column, columns_merge_on):
-    '''
-    Create spreadsheet of differences in data entry.
-
-    input_files: Dictionary with person identifiers as keys and file paths
-    as values.
-    '''
     if not input_dict:
         return None
     persons = list(input_dict.keys())

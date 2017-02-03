@@ -25,7 +25,7 @@ def create_article_coding_template(input_file, output_file, journal):
 
         df.drop_duplicates(inplace=True)
 
-        df = hyperlink_title(df, journal)
+        df = hyperlink_title(df, journal, hyperlink_separator=';')
 
         df['article_field'] = np.nan
         df['article_data_type'] = np.nan
@@ -43,8 +43,11 @@ def extract_abstract(article, journal):
         abstract = []
         soup = BeautifulSoup(article['content'], 'html.parser')
         if journal == 'ajps':
-            abstract_tags = soup.find_all(
-                'h2', class_='article-section__header')
+            abstract_tags = [x.find_all('p') for x in soup.find_all(
+                'div', class_='article-section__content mainAbstract')]
+            # Flatten list of lists.
+            abstract_tags = [paragraph for abstract in abstract_tags
+                             for paragraph in abstract]
         elif journal == 'apsr':
             abstract_tags = soup.find_all('div', class_='abstract')
         for tag in abstract_tags:

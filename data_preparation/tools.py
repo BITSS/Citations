@@ -202,7 +202,8 @@ def hyperlink_title(input, journal, hyperlink_separator=','):
         df_in = input
     else:
         UserWarning.warn('Unknown input type.')
-    df_in['title'] = df_in.apply(hyperlink_title, axis=1, journal=journal)
+    df_in['title'] = df_in.apply(hyperlink_title, axis=1, journal=journal,
+                                 hyperlink_separator=hyperlink_separator)
     return df_in
 
 
@@ -258,7 +259,7 @@ def add_doi(target, source, output=False):
     # Merge doi information from source for selected articles.
     fill_columns_down(df_target,
                       matching_columns + ['add_doi'])
-    df_target[df_target['add_doi']] = df_target[df_target['add_doi']].
+    df_target[df_target['add_doi']] = df_target[df_target['add_doi']].\
         merge(df_source, how='left', on=matching_columns,
               suffixes=('_x', '')).drop('doi_x', 1).values
     df_target.loc[df_target[matching_columns + ['doi']].duplicated(),
