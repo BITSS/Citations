@@ -176,9 +176,13 @@ def hyperlink(string):
     return '=HYPERLINK("{}")'.format(string)
 
 
-def hyperlink_title(input, journal):
+def hyperlink_title(input, journal, hyperlink_separator=','):
     '''
     Link title to article url.
+
+    hyperlink_separator: LibreOffice has changed its format for the hyperlink
+    function from using "," to ";" as separators. This options helps maintain
+    backwards compatibility.
     '''
     # If input is pd.Series intrepret it as article.
     if isinstance(input, pd.core.series.Series):
@@ -188,7 +192,7 @@ def hyperlink_title(input, journal):
             return article['title']
         else:
             return ('=HYPERLINK("' + article_url(article['doi'], journal) +
-                    '","' + article['title'] + '")')
+                    '"' + hyperlink_separator + '"' + article['title'] + '")')
 
     # If input is a string, interpret is as file.
     elif isinstance(input, str):
@@ -248,13 +252,13 @@ def add_doi(target, source, output=False):
     # Add doi information only for unique articles.
     df_target = df_target.assign(doi='', add_doi='')
     article_start = df_target['article_ix'] != ''
-    df_target.loc[article_start, 'add_doi'] = \
-        ~df_target.loc[article_start, matching_columns].duplicated(keep=False)
+    df_target.loc[article_start, 'add_doi'] = ~df_target.loc[
+        article_start, matching_columns].duplicated(keep=False)
 
     # Merge doi information from source for selected articles.
     fill_columns_down(df_target,
                       matching_columns + ['add_doi'])
-    df_target[df_target['add_doi']] = df_target[df_target['add_doi']]. \
+    df_target[df_target['add_doi']] = df_target[df_target['add_doi']].
         merge(df_source, how='left', on=matching_columns,
               suffixes=('_x', '')).drop('doi_x', 1).values
     df_target.loc[df_target[matching_columns + ['doi']].duplicated(),
