@@ -9,7 +9,7 @@ See https://osf.io/cdt8y/ for more info.
 ||AJPS|APSR|
 ---|:---:|:---:
 References|Done|Done
-Links|Resolve differences|Template ready
+Links|Harmonize (scheduled for B+E)|Template ready
 Author websites|Done|Done
 Article types|Template ready|Started filling template
 Dataverse|Template ready|Template ready
