@@ -13,11 +13,13 @@ There are two things that you should loook for in the files:
 
 ## How do I classify an article in the cofirmed_category?
 
-1. `files`: `authors_apsr_toc` matches `dataverse_authors`, the `title` matches `dataverse_name`, and `dataverse_name` begins with "replication data for"
+1. `files`: `authors_apsr_toc` matches `dataverse_authors`and the `title` matches `dataverse_name`or `dataverse_name` begins with "replication data for"
 
-2. `data`: `authors_apsr_toc` does not match `dataverse_authors` and/or the `title` does not match `dataverse_name`, and/or `dataverse_name` does not begin with "replication data for". Categorize it as `data` after checking the dataverse link.
+2. `data`: need to check the dataverse link for this classification if `authors_apsr_toc` does not match `dataverse_authors` but the `title` matches `dataverse_name`
 
-3. `code`: `authors_apsr_toc` does not match `dataverse_authors` and/or the `title` does not match `dataverse_name`, and/or `dataverse_name` does not begin with "replication data for". Categorize it as `code` after checking the dataverse link.
+3. `code`: need to check the dataverse link for this classification if `authors_apsr_toc` does not match `dataverse_authors` but the `title` matches `dataverse_name`
+
+4. 'none': `authors_apsr_toc` does not match `dataverse_authors` and the `title`does not match `dataverse_name`
 
 
 Tip
