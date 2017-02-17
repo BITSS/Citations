@@ -19,7 +19,7 @@ There are two things that you should loook for in the files:
 
 3. If `authors_apsr_toc` matches `dataverse_authors` but the `title` does not match `dataverse_name`, follow the link. If the data and/or code there are replication data/code for the *original* intended article (not the one that comes up for whatever reason in the Dataverse search) then classify the dataverse link as `none`, `data`, `code`, or `files` according to the normal rules.
 
-4. If `authors_apsr_toc` does not match `dataverse_authors` *and* the `title`does not match `dataverse_name` *or* after following the link from one of the situations above, dataverse contains neither data nor code for the *original* article.
+4. If `authors_apsr_toc` does not match `dataverse_authors` *and* the `title`does not match `dataverse_name` *or* after following the link from one of the situations above, dataverse contains neither data nor code for the *original* article, classify the dataverse link as `none`.
 
 
 Tip
