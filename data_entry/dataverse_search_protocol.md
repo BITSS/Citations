@@ -13,13 +13,13 @@ There are two things that you should loook for in the files:
 
 ## How do I classify an article in the cofirmed_category?
 
-1. `files`: `authors_apsr_toc` matches `dataverse_authors`and the `title` matches `dataverse_name`or `dataverse_name` begins with "replication data for"
+1. If `authors_apsr_toc` matches `dataverse_authors` and the `title` matches `dataverse_name`or `dataverse_name` begins with "replication data for", then code as `files`. (Essentially there's a dataverse with the same authors and title as the paper, only a minor punctuation difference.)
 
-2. `data`: need to check the dataverse link for this classification if `authors_apsr_toc` does not match `dataverse_authors` but the `title` matches `dataverse_name`
+2. If `authors_apsr_toc` does not match `dataverse_authors` but the `title` matches `dataverse_name`, follow the link. If the data and/or code there are replication data/code for the *original* intended article (not the one that comes up for whatever reason in the Dataverse search) then classify the dataverse link as `data`, `code`, or `files` according to the normal rules.  
 
-3. `code`: need to check the dataverse link for this classification if `authors_apsr_toc` does not match `dataverse_authors` but the `title` matches `dataverse_name`
+3. If `authors_apsr_toc` does not match `dataverse_authors` but the `title` matches `dataverse_name`, follow the link. If the data and/or code there are replication data/code for the *original* intended article (not the one that comes up for whatever reason in the Dataverse search) then classify the dataverse link as `data`, `code`, or `files` according to the normal rules.
 
-4. 'none': `authors_apsr_toc` does not match `dataverse_authors` and the `title`does not match `dataverse_name`
+4. 'none': `authors_apsr_toc` does not match `dataverse_authors` and the `title`does not match `dataverse_name` OR after following the link, dataverse contains neither data nor code for the *original* article.
 
 
 Tip
