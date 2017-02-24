@@ -21,3 +21,14 @@ Citations|Not started|Not started
   + Refactor functions
   + Improve documentation
 + Update pre-analysis plan
+
+## Draft Schedule:
+Feb 10-16: Article topic & type, finish up and resolve differences
+
+Feb 17-23: T&R: APSR Link coding only 13 links
+Dataverse: AJPS (118), APSR (26-more resolution differences
+
+Feb 24: 
+Meet with Ted
+T&R-plan how to combine datasets
+E&B-code to scrape citations
