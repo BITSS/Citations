@@ -190,8 +190,9 @@ for pair in resolution_pairs:
 # Resolve APSR article coding diffs.
 resolution_pairs = [('BC', 'EH'), ('RP', 'TC')]
 
-input_file = 'bld/apsr_article_coding_diff.csv'
-output_file_prefix = 'bld/apsr_article_coding_diff_resolution'
+# Article topic 1
+input_file = 'bld/apsr_article_coding_diff_topic1.csv'
+output_file_prefix = 'bld/apsr_article_coding_diff_topic1_resolution'
 
 for pair in resolution_pairs:
     diff = pd.read_csv(input_file)
@@ -200,6 +201,60 @@ for pair in resolution_pairs:
 
     entry_columns = ['article_topic1_' + x for x in pair]
     resolution_column = 'article_topic1' + suffix + '_resolved'
+    conflict_column = 'conflict_ignore_skip' + suffix
+
+    output_columns = (['doi', 'title', 'article_ix', 'abstract'] +
+                      entry_columns + [resolution_column,
+                                       conflict_column])
+
+    add_resolution_columns(diff, entry_columns=entry_columns,
+                           conflict_column=conflict_column,
+                           resolution_column=resolution_column)
+
+    bool_printing = {True: 'True', False: ''}
+    diff.replace({conflict_column: bool_printing}, inplace=True)
+
+    diff.to_csv(output_file_prefix + suffix + '.csv',
+                columns=output_columns, index=None)
+
+# Article topic 2
+input_file = 'bld/apsr_article_coding_diff_topic2.csv'
+output_file_prefix = 'bld/apsr_article_coding_diff_topic2_resolution'
+
+for pair in resolution_pairs:
+    diff = pd.read_csv(input_file)
+
+    suffix = '_' + '_'.join(pair)
+
+    entry_columns = ['article_topic2_' + x for x in pair]
+    resolution_column = 'article_topic2' + suffix + '_resolved'
+    conflict_column = 'conflict_ignore_skip' + suffix
+
+    output_columns = (['doi', 'title', 'article_ix', 'abstract'] +
+                      entry_columns + [resolution_column,
+                                       conflict_column])
+
+    add_resolution_columns(diff, entry_columns=entry_columns,
+                           conflict_column=conflict_column,
+                           resolution_column=resolution_column)
+
+    bool_printing = {True: 'True', False: ''}
+    diff.replace({conflict_column: bool_printing}, inplace=True)
+
+    diff.to_csv(output_file_prefix + suffix + '.csv',
+                columns=output_columns, index=None)
+
+# Article data type
+input_file = 'bld/apsr_article_coding_diff_data_type.csv'
+output_file_prefix = 'bld/apsr_article_coding_diff_data_type_resolution'
+
+for pair in resolution_pairs:
+    diff = pd.read_csv(input_file)
+
+    suffix = '_' + '_'.join(pair)
+
+    entry_columns = ['article_data_type_' + x for x in pair]
+    resolution_column = 'article_data_type' + suffix + '_resolved'
     conflict_column = 'conflict_ignore_skip' + suffix
 
     output_columns = (['doi', 'title', 'article_ix', 'abstract'] +
