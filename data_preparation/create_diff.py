@@ -137,3 +137,11 @@ create_diff(input_dict=apply_func_dict(
     output_file='bld/apsr_author_website_coding_diff.csv',
     entry_column='website_category',
     columns_merge_on=['doi', 'article_ix', 'title', 'author'])
+
+# Diff APSR article coding
+urap_initials = ['BC', 'EH', 'RP', 'TC']
+create_diff(input_dict=standard_entry_dict('apsr_article_coding',
+                                           'article_topic1'),
+            output_file='bld/apsr_article_coding_diff.csv',
+            entry_column='article_topic1',
+            columns_merge_on=['article_ix', 'doi', 'title', 'abstract'])
