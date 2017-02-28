@@ -164,10 +164,19 @@ create_diff(input_dict=standard_entry_dict('ajps_dataverse',
                                            'result_category'),
             output_file='bld/ajps_dataverse_diff.csv',
             entry_column='result_category',
-            columns_merge_on=['article_ix', 'result_ix'])
+            columns_merge_on=['article_ix', 'result_ix', 'issue_date',
+                              'issue_number', 'issue_pages', 'title',
+                              'authors_ajps_toc', 'dataverse_name',
+                              'dataverse_authors', 'dataverse_description',
+                              'dataverse_query'])
 
 create_diff(input_dict=standard_entry_dict('apsr_dataverse',
                                            'result_category'),
             output_file='bld/apsr_dataverse_diff.csv',
             entry_column='result_category',
-            columns_merge_on=['article_ix', 'result_ix'])
+            columns_merge_on=['article_ix', 'result_ix', 'index',
+                              'volume', 'issue', 'issue_date',
+                              'publication_date', 'doi', 'pages',
+                              'authors_apsr_toc', 'title', 'dataverse_name',
+                              'dataverse_authors', 'dataverse_description',
+                              'dataverse_query'])

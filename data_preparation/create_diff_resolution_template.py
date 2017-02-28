@@ -285,7 +285,10 @@ for pair in resolution_pairs:
     resolution_column = 'result_category' + suffix + '_resolved'
     conflict_column = 'conflict_ignore_skip' + suffix
 
-    output_columns = (['article_ix', 'result_ix'] +
+    output_columns = (['article_ix', 'result_ix', 'issue_date', 'issue_number',
+                       'issue_pages', 'title', 'authors_ajps_toc',
+                       'dataverse_name', 'dataverse_authors',
+                       'dataverse_description', 'dataverse_query'] +
                       entry_columns + [resolution_column,
                                        conflict_column])
 
@@ -312,7 +315,11 @@ for pair in resolution_pairs:
     resolution_column = 'result_category' + suffix + '_resolved'
     conflict_column = 'conflict_ignore_skip' + suffix
 
-    output_columns = (['article_ix', 'result_ix'] +
+    output_columns = (['article_ix', 'result_ix', 'index', 'volume', 'issue',
+                       'issue_date', 'publication_date', 'doi', 'pages',
+                       'authors_apsr_toc', 'title', 'dataverse_name',
+                       'dataverse_authors', 'dataverse_description',
+                       'dataverse_query'] +
                       entry_columns + [resolution_column,
                                        conflict_column])
 
