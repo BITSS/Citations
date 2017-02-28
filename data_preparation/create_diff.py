@@ -138,22 +138,36 @@ def apply_func_dict(entry_dict, columns, func):
 #     entry_column='website_category',
 #     columns_merge_on=['doi', 'article_ix', 'title', 'author'])
 
-# Diff APSR article coding
-urap_initials = ['BC', 'EH', 'RP', 'TC']
-create_diff(input_dict=standard_entry_dict('apsr_article_coding',
-                                           'article_topic1'),
-            output_file='bld/apsr_article_coding_diff_topic1.csv',
-            entry_column='article_topic1',
-            columns_merge_on=['article_ix', 'doi', 'title', 'abstract'])
+# # Diff APSR article coding
+# urap_initials = ['BC', 'EH', 'RP', 'TC']
+# create_diff(input_dict=standard_entry_dict('apsr_article_coding',
+#                                            'article_topic1'),
+#             output_file='bld/apsr_article_coding_diff_topic1.csv',
+#             entry_column='article_topic1',
+#             columns_merge_on=['article_ix', 'doi', 'title', 'abstract'])
 
-create_diff(input_dict=standard_entry_dict('apsr_article_coding',
-                                           'article_topic2'),
-            output_file='bld/apsr_article_coding_diff_topic2.csv',
-            entry_column='article_topic2',
-            columns_merge_on=['article_ix', 'doi', 'title', 'abstract'])
+# create_diff(input_dict=standard_entry_dict('apsr_article_coding',
+#                                            'article_topic2'),
+#             output_file='bld/apsr_article_coding_diff_topic2.csv',
+#             entry_column='article_topic2',
+#             columns_merge_on=['article_ix', 'doi', 'title', 'abstract'])
 
-create_diff(input_dict=standard_entry_dict('apsr_article_coding',
-                                           'article_data_type'),
-            output_file='bld/apsr_article_coding_diff_data_type.csv',
-            entry_column='article_data_type',
-            columns_merge_on=['article_ix', 'doi', 'title', 'abstract'])
+# create_diff(input_dict=standard_entry_dict('apsr_article_coding',
+#                                            'article_data_type'),
+#             output_file='bld/apsr_article_coding_diff_data_type.csv',
+#             entry_column='article_data_type',
+#             columns_merge_on=['article_ix', 'doi', 'title', 'abstract'])
+
+# Diff Dataverse
+urap_initials = ['RP', 'TC']
+create_diff(input_dict=standard_entry_dict('ajps_dataverse',
+                                           'confirmed_category'),
+            output_file='bld/ajps_dataverse_diff.csv',
+            entry_column='confirmed_category',
+            columns_merge_on=['article_ix', 'result_ix'])
+
+create_diff(input_dict=standard_entry_dict('apsr_dataverse',
+                                           'confirmed_category'),
+            output_file='bld/apsr_dataverse_diff.csv',
+            entry_column='confirmed_category',
+            columns_merge_on=['article_ix', 'result_ix'])
