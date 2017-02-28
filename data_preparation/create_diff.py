@@ -161,13 +161,13 @@ def apply_func_dict(entry_dict, columns, func):
 # Diff Dataverse
 urap_initials = ['RP', 'TC']
 create_diff(input_dict=standard_entry_dict('ajps_dataverse',
-                                           'confirmed_category'),
+                                           'result_category'),
             output_file='bld/ajps_dataverse_diff.csv',
-            entry_column='confirmed_category',
+            entry_column='result_category',
             columns_merge_on=['article_ix', 'result_ix'])
 
 create_diff(input_dict=standard_entry_dict('apsr_dataverse',
-                                           'confirmed_category'),
+                                           'result_category'),
             output_file='bld/apsr_dataverse_diff.csv',
-            entry_column='confirmed_category',
+            entry_column='result_category',
             columns_merge_on=['article_ix', 'result_ix'])
