@@ -29,7 +29,7 @@ def add_resolution_columns(df, entry_columns, conflict_column,
                                 apply(pd.Series.nunique, axis=1))
     conflict = number_of_entries_unique > 1
 
-    skipped = df[entry_columns] == 'skip'
+    skipped = df[entry_columns].fillna('') == 'skip'
 
     for entry_column in entry_columns:
         take_it = np.all([data_entered[entry_column], ~skipped[entry_column],
@@ -270,6 +270,92 @@ for pair in resolution_pairs:
 
     diff.to_csv(output_file_prefix + suffix + '.csv',
                 columns=output_columns, index=None)
+
+
+# Resolve ajps article coding diffs.
+resolution_pairs = [('BC', 'TC'), ('EH', 'RP')]
+
+# Article topic 1
+input_file = 'bld/ajps_article_coding_diff_topic1.csv'
+output_file_prefix = 'bld/ajps_article_coding_diff_topic1_resolution'
+
+for pair in resolution_pairs:
+    diff = pd.read_csv(input_file)
+
+    suffix = '_' + '_'.join(pair)
+
+    entry_columns = ['article_topic1_' + x for x in pair]
+    resolution_column = 'article_topic1' + suffix + '_resolved'
+    conflict_column = 'conflict_ignore_skip' + suffix
+
+    output_columns = (['doi', 'title', 'article_ix', 'abstract'] +
+                      entry_columns + [resolution_column,
+                                       conflict_column])
+
+    add_resolution_columns(diff, entry_columns=entry_columns,
+                           conflict_column=conflict_column,
+                           resolution_column=resolution_column)
+
+    bool_printing = {True: 'True', False: ''}
+    diff.replace({conflict_column: bool_printing}, inplace=True)
+
+    diff.to_csv(output_file_prefix + suffix + '.csv',
+                columns=output_columns, index=None)
+
+# Article topic 2
+input_file = 'bld/ajps_article_coding_diff_topic2.csv'
+output_file_prefix = 'bld/ajps_article_coding_diff_topic2_resolution'
+
+for pair in resolution_pairs:
+    diff = pd.read_csv(input_file)
+
+    suffix = '_' + '_'.join(pair)
+
+    entry_columns = ['article_topic2_' + x for x in pair]
+    resolution_column = 'article_topic2' + suffix + '_resolved'
+    conflict_column = 'conflict_ignore_skip' + suffix
+
+    output_columns = (['doi', 'title', 'article_ix', 'abstract'] +
+                      entry_columns + [resolution_column,
+                                       conflict_column])
+
+    add_resolution_columns(diff, entry_columns=entry_columns,
+                           conflict_column=conflict_column,
+                           resolution_column=resolution_column)
+
+    bool_printing = {True: 'True', False: ''}
+    diff.replace({conflict_column: bool_printing}, inplace=True)
+
+    diff.to_csv(output_file_prefix + suffix + '.csv',
+                columns=output_columns, index=None)
+
+# Article data type
+input_file = 'bld/ajps_article_coding_diff_data_type.csv'
+output_file_prefix = 'bld/ajps_article_coding_diff_data_type_resolution'
+
+for pair in resolution_pairs:
+    diff = pd.read_csv(input_file)
+
+    suffix = '_' + '_'.join(pair)
+
+    entry_columns = ['article_data_type_' + x for x in pair]
+    resolution_column = 'article_data_type' + suffix + '_resolved'
+    conflict_column = 'conflict_ignore_skip' + suffix
+
+    output_columns = (['doi', 'title', 'article_ix', 'abstract'] +
+                      entry_columns + [resolution_column,
+                                       conflict_column])
+
+    add_resolution_columns(diff, entry_columns=entry_columns,
+                           conflict_column=conflict_column,
+                           resolution_column=resolution_column)
+
+    bool_printing = {True: 'True', False: ''}
+    diff.replace({conflict_column: bool_printing}, inplace=True)
+
+    diff.to_csv(output_file_prefix + suffix + '.csv',
+                columns=output_columns, index=None)
+
 
 # Dataverse
 resolution_pairs = [('RP', 'TC')]
