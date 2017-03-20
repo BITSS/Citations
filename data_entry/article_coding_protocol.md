@@ -14,6 +14,8 @@ There are five research fields (topics)
 
 Use the classification from [What is Political Science?](https://www.polisci.washington.edu/what-political-science) to classify each article into one of above research fields using the `article_field` column.
 
+In addition to the descriptions in the url above, american_government_and_politics should be specifically reserved for articles that emphasize only American institutions and politics. These articles can also use experimental/observational data and analysis where applicable. Political_methodlogy is concerned with developing a tool to do analysis and not just deducing causal inferences
+
 You can start by looking at an article's abstract. If the abstract alone is not sufficient to classify the article, read through the article's introduction.
 
 If you have trouble finding the correct research field for an article after above steps, leave `article_field` empty.
