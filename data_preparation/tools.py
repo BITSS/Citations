@@ -73,7 +73,7 @@ def read_data_entry(file_in, **pandas_kwargs):
             string_columns = [k for k, v in dtypes.items() if v == 'str']
             sheet[string_columns] = sheet[string_columns].fillna('')
             sheet = sheet.astype(dtypes)
-
+            sheet = sheet.dropna(0, 'all')
     elif file_ending == 'csv':
         sheet = pd.read_csv(file_in, **pandas_kwargs)
         
