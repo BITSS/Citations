@@ -42,150 +42,150 @@ def add_resolution_columns(df, entry_columns, conflict_column,
 
     df[conflict_column] = conflict
 
-# # Resolve AJPS reference coding diffs.
-# resolution_pairs = [('KJK', 'RP'), ('RK', 'TC')]
+# Resolve AJPS reference coding diffs.
+resolution_pairs = [('KJK', 'RP'), ('RK', 'TC')]
 
-# input_file = 'bld/ajps_reference_coding_diff.csv'
-# output_file_prefix = 'bld/ajps_reference_coding_diff_resolution'
+input_file = 'bld/ajps_reference_coding_diff.csv'
+output_file_prefix = 'bld/ajps_reference_coding_diff_resolution'
 
-# for pair in resolution_pairs:
-#     diff = pd.read_csv(input_file)
+for pair in resolution_pairs:
+    diff = pd.read_csv(input_file)
 
-#     suffix = '_' + '_'.join(pair)
+    suffix = '_' + '_'.join(pair)
 
-#     entry_columns = ['reference_category_' + x for x in pair]
-#     resolution_column = 'reference_category' + suffix + '_resolved'
-#     conflict_column = 'conflict_ignore_skip' + suffix
+    entry_columns = ['reference_category_' + x for x in pair]
+    resolution_column = 'reference_category' + suffix + '_resolved'
+    conflict_column = 'conflict_ignore_skip' + suffix
 
-#     output_columns = (['doi', 'article_ix', 'title', 'match', 'context'] +
-#                       entry_columns + [resolution_column,
-#                                        conflict_column])
+    output_columns = (['doi', 'article_ix', 'title', 'match', 'context'] +
+                      entry_columns + [resolution_column,
+                                       conflict_column])
 
-#     add_resolution_columns(diff, entry_columns=entry_columns,
-#                            conflict_column=conflict_column,
-#                            resolution_column=resolution_column)
+    add_resolution_columns(diff, entry_columns=entry_columns,
+                           conflict_column=conflict_column,
+                           resolution_column=resolution_column)
 
-#     bool_printing = {True: 'True', False: ''}
-#     diff.replace({conflict_column: bool_printing}, inplace=True)
+    bool_printing = {True: 'True', False: ''}
+    diff.replace({conflict_column: bool_printing}, inplace=True)
 
-#     diff.to_csv(output_file_prefix + suffix + '.csv',
-#                 columns=output_columns, index=None)
-
-
-# # Resolve AJPS author website coding diffs.
-# resolution_pairs = [('KJK', 'RP'), ('RK', 'TC')]
-
-# input_file = 'bld/ajps_author_website_coding_diff.csv'
-# output_file_prefix = 'bld/ajps_author_website_coding_diff_resolution'
-
-# for pair in resolution_pairs:
-#     diff = pd.read_csv(input_file)
-
-#     suffix = '_' + '_'.join(pair)
-
-#     entry_columns = ['website_category_' + x for x in pair]
-#     resolution_column = 'website_category' + suffix + '_resolved'
-#     conflict_column = 'conflict_ignore_skip' + suffix
-
-#     output_columns = (['article_ix', 'doi', 'title', 'author'] +
-#                       entry_columns + [resolution_column,
-#                                        conflict_column])
-
-#     add_resolution_columns(diff, entry_columns=entry_columns,
-#                            conflict_column=conflict_column,
-#                            resolution_column=resolution_column)
-
-#     bool_printing = {True: 'True', False: ''}
-#     diff.replace({conflict_column: bool_printing}, inplace=True)
-
-#     diff.to_csv(output_file_prefix + suffix + '.csv',
-#                 columns=output_columns, index=None)
+    diff.to_csv(output_file_prefix + suffix + '.csv',
+                columns=output_columns, index=None, encoding ='utf-8')
 
 
-# # Resolve ajps author website coding diffs.
-# resolution_pairs = [('KJK', 'RP'), ('RK', 'TC')]
+# Resolve AJPS author website coding diffs.
+resolution_pairs = [('KJK', 'RP'), ('RK', 'TC')]
 
-# input_file = 'bld/ajps_author_website_coding_diff.csv'
-# output_file_prefix = 'bld/ajps_author_website_coding_diff_resolution'
+input_file = 'bld/ajps_author_website_coding_diff.csv'
+output_file_prefix = 'bld/ajps_author_website_coding_diff_resolution'
 
-# for pair in resolution_pairs:
-#     diff = pd.read_csv(input_file)
+for pair in resolution_pairs:
+    diff = pd.read_csv(input_file)
 
-#     suffix = '_' + '_'.join(pair)
+    suffix = '_' + '_'.join(pair)
 
-#     entry_columns = ['website_category_' + x for x in pair]
-#     resolution_column = 'website_category' + suffix + '_resolved'
-#     conflict_column = 'conflict_ignore_skip' + suffix
+    entry_columns = ['website_category_' + x for x in pair]
+    resolution_column = 'website_category' + suffix + '_resolved'
+    conflict_column = 'conflict_ignore_skip' + suffix
 
-#     output_columns = (['article_ix', 'doi', 'title', 'author'] +
-#                       entry_columns + [resolution_column,
-#                                        conflict_column])
+    output_columns = (['article_ix', 'doi', 'title', 'author'] +
+                      entry_columns + [resolution_column,
+                                       conflict_column])
 
-#     add_resolution_columns(diff, entry_columns=entry_columns,
-#                            conflict_column=conflict_column,
-#                            resolution_column=resolution_column)
+    add_resolution_columns(diff, entry_columns=entry_columns,
+                           conflict_column=conflict_column,
+                           resolution_column=resolution_column)
 
-#     bool_printing = {True: 'True', False: ''}
-#     diff.replace({conflict_column: bool_printing}, inplace=True)
+    bool_printing = {True: 'True', False: ''}
+    diff.replace({conflict_column: bool_printing}, inplace=True)
 
-#     diff.to_csv(output_file_prefix + suffix + '.csv',
-#                 columns=output_columns, index=None)
-
-
-# # Resolve AJPS link coding diffs.
-# urap_initials = ['KJK', 'RP', 'RK', 'TC']
-
-# input_file = 'bld/ajps_link_coding_diff.csv'
-# output_file = 'bld/ajps_link_coding_diff_resolution.csv'
-
-# entry_columns = ['link_category_' + x for x in urap_initials]
-# resolution_column = 'link_category_resolved'
-# conflict_column = 'conflict_ignore_skip'
-# output_columns = (['article_ix', 'doi', 'title', 'match', 'context',
-#                    'reference_category', 'clickable_link'] +
-#                   entry_columns + [resolution_column, conflict_column])
-# diff = pd.read_csv(input_file)
-
-# add_resolution_columns(diff, entry_columns=entry_columns,
-#                        conflict_column=conflict_column,
-#                        resolution_column=resolution_column)
-
-# bool_printing = {True: 'True', False: ''}
-# diff.replace({conflict_column: bool_printing}, inplace=True)
-
-# diff.to_csv(output_file, columns=output_columns, index=None)
+    diff.to_csv(output_file_prefix + suffix + '.csv',
+                columns=output_columns, index=None, encoding ='utf-8')
 
 
-# # Resolve ajps reference coding diffs.
-# resolution_pairs = [('KJK', 'RK'), ('RP', 'TC')]
+# Resolve ajps author website coding diffs.
+resolution_pairs = [('KJK', 'RP'), ('RK', 'TC')]
 
-# input_file = 'bld/ajps_reference_coding_diff.csv'
-# output_file_prefix = 'bld/ajps_reference_coding_diff_resolution'
+input_file = 'bld/ajps_author_website_coding_diff.csv'
+output_file_prefix = 'bld/ajps_author_website_coding_diff_resolution'
 
-# for pair in resolution_pairs:
-#     diff = pd.read_csv(input_file)
+for pair in resolution_pairs:
+    diff = pd.read_csv(input_file)
 
-#     suffix = '_' + '_'.join(pair)
+    suffix = '_' + '_'.join(pair)
 
-#     entry_columns = ['reference_category_' + x for x in pair]
-#     resolution_column = 'reference_category' + suffix + '_resolved'
-#     conflict_column = 'conflict_ignore_skip' + suffix
+    entry_columns = ['website_category_' + x for x in pair]
+    resolution_column = 'website_category' + suffix + '_resolved'
+    conflict_column = 'conflict_ignore_skip' + suffix
 
-#     output_columns = (['volume', 'issue', 'pages', 'publication_date', 'doi',
-#                        'authors', 'authors_affiliations', 'title',
-#                        'article_ix', 'reference_ix', 'match', 'context'] +
-#                       entry_columns + [resolution_column,
-#                                        conflict_column])
+    output_columns = (['article_ix', 'doi', 'title', 'author'] +
+                      entry_columns + [resolution_column,
+                                       conflict_column])
 
-#     add_resolution_columns(diff, entry_columns=entry_columns,
-#                            conflict_column=conflict_column,
-#                            resolution_column=resolution_column)
+    add_resolution_columns(diff, entry_columns=entry_columns,
+                           conflict_column=conflict_column,
+                           resolution_column=resolution_column)
 
-#     bool_printing = {True: 'True', False: ''}
-#     diff.replace({conflict_column: bool_printing}, inplace=True)
+    bool_printing = {True: 'True', False: ''}
+    diff.replace({conflict_column: bool_printing}, inplace=True)
 
-#     diff.to_csv(output_file_prefix + suffix + '.csv',
-#                 columns=output_columns, index=None)
+    diff.to_csv(output_file_prefix + suffix + '.csv',
+                columns=output_columns, index=None, encoding ='utf-8')
+
+
+# Resolve AJPS link coding diffs.
+urap_initials = ['KJK', 'RP', 'RK', 'TC']
+
+input_file = 'bld/ajps_link_coding_diff.csv'
+output_file = 'bld/ajps_link_coding_diff_resolution.csv'
+
+entry_columns = ['link_category_' + x for x in urap_initials]
+resolution_column = 'link_category_resolved'
+conflict_column = 'conflict_ignore_skip'
+output_columns = (['article_ix', 'doi', 'title', 'match', 'context',
+                   'reference_category', 'clickable_link'] +
+                  entry_columns + [resolution_column, conflict_column])
+diff = pd.read_csv(input_file)
+
+add_resolution_columns(diff, entry_columns=entry_columns,
+                       conflict_column=conflict_column,
+                       resolution_column=resolution_column)
+
+bool_printing = {True: 'True', False: ''}
+diff.replace({conflict_column: bool_printing}, inplace=True)
+
+diff.to_csv(output_file, columns=output_columns, index=None, encoding ='utf-8')
+
+
+# Resolve ajps reference coding diffs.
+resolution_pairs = [('KJK', 'RK'), ('RP', 'TC')]
+
+input_file = 'bld/ajps_reference_coding_diff.csv'
+output_file_prefix = 'bld/ajps_reference_coding_diff_resolution'
+
+for pair in resolution_pairs:
+    diff = pd.read_csv(input_file)
+
+    suffix = '_' + '_'.join(pair)
+
+    entry_columns = ['reference_category_' + x for x in pair]
+    resolution_column = 'reference_category' + suffix + '_resolved'
+    conflict_column = 'conflict_ignore_skip' + suffix
+
+    output_columns = (['volume', 'issue', 'pages', 'publication_date', 'doi',
+                       'authors', 'authors_affiliations', 'title',
+                       'article_ix', 'reference_ix', 'match', 'context'] +
+                      entry_columns + [resolution_column,
+                                       conflict_column])
+
+    add_resolution_columns(diff, entry_columns=entry_columns,
+                           conflict_column=conflict_column,
+                           resolution_column=resolution_column)
+
+    bool_printing = {True: 'True', False: ''}
+    diff.replace({conflict_column: bool_printing}, inplace=True)
+
+    diff.to_csv(output_file_prefix + suffix + '.csv',
+                columns=output_columns, index=None, encoding ='utf-8')
 
 # Resolve ajps article coding diffs.
 ajps_resolution_pairs = [('BC', 'TC'), ('RP', 'EH')]
@@ -215,7 +215,7 @@ for pair in ajps_resolution_pairs:
     diff.replace({conflict_column: bool_printing}, inplace=True)
 
     diff.to_csv(output_file_prefix + suffix + '.csv',
-                columns=output_columns, index=None)
+                columns=output_columns, index=None, encoding ='utf-8')
 
 # Article topic 2
 input_file = 'bld/ajps_article_coding_diff_topic2.csv'
@@ -242,7 +242,7 @@ for pair in ajps_resolution_pairs:
     diff.replace({conflict_column: bool_printing}, inplace=True)
 
     diff.to_csv(output_file_prefix + suffix + '.csv',
-                columns=output_columns, index=None)
+                columns=output_columns, index=None, encoding ='utf-8')
 
 # Article data type
 input_file = 'bld/ajps_article_coding_diff_data_type.csv'
@@ -269,7 +269,7 @@ for pair in ajps_resolution_pairs:
     diff.replace({conflict_column: bool_printing}, inplace=True)
 
     diff.to_csv(output_file_prefix + suffix + '.csv',
-                columns=output_columns, index=None)
+                columns=output_columns, index=None, encoding ='utf-8')
 
 
 # Resolve apsr article coding diffs.
@@ -300,7 +300,7 @@ for pair in apsr_resolution_pairs:
     diff.replace({conflict_column: bool_printing}, inplace=True)
 
     diff.to_csv(output_file_prefix + suffix + '.csv',
-                columns=output_columns, index=None)
+                columns=output_columns, index=None, encoding ='utf-8')
 
 # Article topic 2
 input_file = 'bld/apsr_article_coding_diff_topic2.csv'
@@ -327,7 +327,7 @@ for pair in apsr_resolution_pairs:
     diff.replace({conflict_column: bool_printing}, inplace=True)
 
     diff.to_csv(output_file_prefix + suffix + '.csv',
-                columns=output_columns, index=None)
+                columns=output_columns, index=None, encoding ='utf-8')
 
 # Article data type
 input_file = 'bld/apsr_article_coding_diff_data_type.csv'
@@ -354,4 +354,4 @@ for pair in apsr_resolution_pairs:
     diff.replace({conflict_column: bool_printing}, inplace=True)
 
     diff.to_csv(output_file_prefix + suffix + '.csv',
-                columns=output_columns, index=None)
+                columns=output_columns, index=None, encoding ='utf-8')
