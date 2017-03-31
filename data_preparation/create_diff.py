@@ -116,27 +116,27 @@ def apply_func_dict(entry_dict, columns, func):
 #     entry_column='website_category',
 #     columns_merge_on=['doi', 'article_ix', 'title', 'author'])
 
-# # Diff ajps reference coding.
-# ajps_dict = standard_entry_dict('ajps_reference_coding', 'reference_category')
-# for entry in ajps_dict.values():
-#     entry = hyperlink_title(entry, 'ajps')
+# # Diff APSR reference coding.
+# apsr_dict = standard_entry_dict('apsr_reference_coding', 'reference_category')
+# for entry in apsr_dict.values():
+#     entry = hyperlink_title(entry, 'apsr')
 
-# create_diff(input_dict=ajps_dict,
-#             output_file='bld/ajps_reference_coding_diff.csv',
+# create_diff(input_dict=apsr_dict,
+#             output_file='bld/apsr_reference_coding_diff.csv',
 #             entry_column='reference_category',
 #             columns_merge_on=['doi', 'article_ix', 'reference_ix', 'volume',
 #                               'issue', 'pages', 'publication_date', 'authors',
 #                               'authors_affiliations', 'title', 'match',
 #                               'context'])
 
-# # Diff ajps author website coding.
+# # Diff APSR author website coding.
 # create_diff(input_dict=apply_func_dict(
-#     standard_entry_dict('ajps_author_website_coding', 'website_category'),
+#     standard_entry_dict('apsr_author_website_coding', 'website_category'),
 #     ['author'],
 #     hyperlink_google_search),
-#     output_file='bld/ajps_author_website_coding_diff.csv',
+#     output_file='bld/apsr_author_website_coding_diff.csv',
 #     entry_column='website_category',
-# #     columns_merge_on=['doi', 'article_ix', 'title', 'author'])
+# #     columns_merge_on=['doi', 'article_ix', 'title', 'author']
 
 # # Diff APSR article coding
 # urap_initials = ['BC', 'EH', 'RP', 'TC']
