@@ -51,13 +51,13 @@ def create_diff(input_dict, output_file, entry_column, columns_merge_on):
         merged_entries.replace({'conflict': bool_printing,
                                 'conflict_ignore_skip': bool_printing},
                                inplace=True)
-
-        merged_entries.to_csv(output_file, index=None)
+        merged_entries.to_csv(output_file, index=None, encoding='utf-8')
 
     else:
         warnings.warn('Some lines could not be matched consistently across' +
                       ' files.\nPlease investigate output file.')
-        merged_entries.to_csv(output_file, index_label='row_ix')
+        merged_entries.to_csv(output_file, index_label='row_ix', encoding='utf-8')
+
 
 
 def standard_entry_dict(coding, entry_column):
@@ -136,8 +136,7 @@ def apply_func_dict(entry_dict, columns, func):
 #     hyperlink_google_search),
 #     output_file='bld/apsr_author_website_coding_diff.csv',
 #     entry_column='website_category',
-# #     columns_merge_on=['doi', 'article_ix', 'title', 'author'])
-
+# #     columns_merge_on=['doi', 'article_ix', 'title', 'author']
 
 # # Diff APSR article coding
 # urap_initials = ['BC', 'EH', 'RP', 'TC']
@@ -187,6 +186,7 @@ def apply_func_dict(entry_dict, columns, func):
 
 # Diff AJPS article coding
 urap_initials = ['BC', 'EH', 'RP', 'TC']
+
 create_diff(input_dict=standard_entry_dict('ajps_article_coding',
                                            'article_topic1'),
             output_file='bld/ajps_article_coding_diff_topic1.csv',
@@ -200,6 +200,25 @@ create_diff(input_dict=standard_entry_dict('ajps_article_coding',
             columns_merge_on=['article_ix', 'doi', 'title', 'abstract'])
 
 create_diff(input_dict=standard_entry_dict('ajps_article_coding',
+                                           'article_data_type'),
+            output_file='bld/ajps_article_coding_diff_data_type.csv',
+            entry_column='article_data_type',
+            columns_merge_on=['article_ix', 'doi', 'title', 'abstract'])
+
+# Diff APSR article coding
+create_diff(input_dict=standard_entry_dict('apsr_article_coding',
+                                           'article_topic1'),
+            output_file='bld/apsr_article_coding_diff_topic1.csv',
+            entry_column='article_topic1',
+            columns_merge_on=['article_ix', 'doi', 'title', 'abstract'])
+
+create_diff(input_dict=standard_entry_dict('apsr_article_coding',
+                                           'article_topic2'),
+            output_file='bld/ajps_article_coding_diff_topic2.csv',
+            entry_column='article_topic2',
+            columns_merge_on=['article_ix', 'doi', 'title', 'abstract'])
+
+create_diff(input_dict=standard_entry_dict('apsr_article_coding',
                                            'article_data_type'),
             output_file='bld/ajps_article_coding_diff_data_type.csv',
             entry_column='article_data_type',
