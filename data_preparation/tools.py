@@ -166,9 +166,9 @@ def import_data_entries(source, target, output, entry_column, merge_on,
 
 def article_url(doi, journal):
     if journal == 'ajps':
-        return 'http://onlinelibrary.wiley.com/doi/' + doi + '/full'
+        return 'http://onlinelibrary.wiley.com/doi/' + str(doi) + '/full'
     elif journal == 'apsr':
-        return 'https://doi.org/' + doi
+        return 'https://doi.org/' + str(doi)
     else:
         UserWarning.warn('{} is an unknown journal.'.format(journal) +
                          'Could not create article url.')
