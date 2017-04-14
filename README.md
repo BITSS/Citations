@@ -6,14 +6,14 @@ See https://osf.io/cdt8y/ for more info.
 # Project Status
 ## Data Collection
 
-||AJPS|APSR|QJE|AER
----|:---:|:---:||
-References|Done|Done||
-Links|Harmonize (scheduled for B+E)|Template ready (13 full links)||
-Author websites|Done|Done||
-Article types|Started coding (B+T: 152-304, 456-608. E+R: 1-151, 305-455) |Started coding (T+R: ~~113-224~~, ~~337-448~~. B+E: 1-112, 225-336)||
-Dataverse|Template ready (117)|Template ready (26)||
-Citations|Not started|Not started||
+| |AJPS|APSR|QJE|AER|
+|---|:---:|:---:|||
+|References|Done|Done|||
+|Links|Harmonize (scheduled for B+E)|Template ready (13 full links)|||
+|Author websites|Done|Done|||
+|Article types|Started coding (B+T: 152-304, 456-608. E+R: 1-151, 305-455) |Started coding (T+R: ~~113-224~~, ~~337-448~~. B+E: 1-112, 225-336)|||
+|Dataverse|Template ready (117)|Template ready (26)|||
+|Citations|Not started|Not started|||
 
 ## Other Tasks
 + Define final file format for collected data
