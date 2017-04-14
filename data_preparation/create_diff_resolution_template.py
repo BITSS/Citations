@@ -457,7 +457,7 @@ for pair in resolution_pairs:
     conflict_column = 'conflict_ignore_skip' + suffix
 
     output_columns = (['article_ix', 'result_ix', 'issue_date', 'issue_number',
-                       'issue_pages', 'title', 'authors_ajps_toc',
+                       'issue_pages', 'doi', 'title', 'authors_ajps_toc',
                        'dataverse_name', 'dataverse_authors',
                        'dataverse_description', 'dataverse_query'] +
                       entry_columns + [resolution_column,

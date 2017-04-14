@@ -167,7 +167,7 @@ def apply_func_dict(entry_dict, columns, func):
 #             output_file='bld/ajps_dataverse_diff.csv',
 #             entry_column='result_category',
 #             columns_merge_on=['article_ix', 'result_ix', 'issue_date',
-#                               'issue_number', 'issue_pages', 'title',
+#                               'issue_number', 'issue_pages', 'title', 'doi',
 #                               'authors_ajps_toc', 'dataverse_name',
 #                               'dataverse_authors', 'dataverse_description',
 #                               'dataverse_query'])
