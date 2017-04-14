@@ -7,8 +7,8 @@ See https://osf.io/cdt8y/ for more info.
 ## Data Collection
 
 | |AJPS|APSR|QJE|AER|
-|---|:---:|:---:|||
-|References|Done|Done|||
+|---|:---:|:---:|---|---|
+|References|Done|Done|Not started |Not started |
 |Links|Harmonize (scheduled for B+E)|Template ready (13 full links)|||
 |Author websites|Done|Done|||
 |Article types|Started coding (B+T: 152-304, 456-608. E+R: 1-151, 305-455) |Started coding (T+R: ~~113-224~~, ~~337-448~~. B+E: 1-112, 225-336)|||
