@@ -70,7 +70,7 @@ ajps_new$citation2<-NULL
 ajps_na<- subset(ajps_new, ajps_new$citation=="NA")
 
 write.csv(ajps_new, file="ajps_2ndCheck.csv")
-write.csv(ajps_new, file="ajps_handsearch.csv")
+write.csv(ajps_na, file="ajps_handsearch.csv")
 
 ap_output <- lapply(apsr_na$title, search)
 apsr_na$citation2<-ap_output
