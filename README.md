@@ -3,6 +3,8 @@ Testing for Causal Evidence on Data Sharing and Citations
 
 See https://osf.io/cdt8y/ for more info.
 
+To update the research log, click [here](https://docs.google.com/a/berkeley.edu/document/d/1XC20bRYeNCIrH-XqrU8tqs2K5fdqaGenZ41ZlpTg2QM/edit?usp=sharing).
+
 # Project Status
 ## Data Collection
 
