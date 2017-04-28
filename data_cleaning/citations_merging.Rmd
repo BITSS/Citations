@@ -1,11 +1,22 @@
+---
+title: "citations_merging_ajps_apsr"
+author: "Teresita Cruz and Ravina Pattni"
+date: "April 21, 2017"
+output: pdf_document
+---
 
+```{r setup, include=FALSE}
+library(dplyr)
+library(tidyr)
+knitr::opts_chunk$set(echo = TRUE)
+```
+ 
+Article Topic and Type 
+```{r}
 ajps_type_topic <- read.csv("../../URAPshared/Data/ajps_article_coding_harmonized.csv")
 
 apsr_type_topic <- read.csv("../../URAPshared/Data/apsr_article_coding_harmonized.csv")
 
-#binding the apsr and ajps files onto a df
-library(dplyr)
-library(tidyr)
 main.df <- bind_rows(ajps_type_topic, apsr_type_topic)
 
 #changing levels
@@ -16,35 +27,61 @@ topic_levels <- c("political_theory","american_government_and_politics",
 main.df$article_topic1 <- factor(main.df$article_topic1, levels = topic_levels)
 
 data_type_levels <- c("experimental", "observational", "simulations", "")
+
 main.df$article_data_type <- factor(main.df$article_data_type)
 
+```
 
-#data availability 
+Author Website Coding
+```{r}
 ajps_author_website <- read.csv("../../URAPshared/Data/ajps_author_website_coding_harmonized.csv")
 apsr_author_website <- read.csv("../../URAPshared/Data/apsr_author_website_coding_harmonized.csv")
 
 # # # ##author_web <- bind_rows(ajps_author_website, apsr_author_website)
 
+# # # AJPS
+ajps_web <- ajps_author_website %>%
+  mutate(data.avail = ajps_author_website$website_category == "data",
+         code.avail = ajps_author_website$website_category == "code",
+         files.avail = ajps_author_website$website_category == "files")
 
-# combining factor levels 
-author_web <- author_web %>%
-  mutate(data.avail = author_web$website_category == "data",
-         code.avail = author_web$website_category == "code",
-         files.avail = author_web$website_category == "files") 
+ajps_web$data.avail <- as.numeric(ajps_web$data.avail)
+ajps_web$code.avail <- as.numeric(ajps_web$code.avail)
+ajps_web$files.avail <- as.numeric(ajps_web$files.avail)
 
-author_web$data.avail <- as.numeric(author_web$data.avail)
-author_web$code.avail <- as.numeric(author_web$code.avail)
-author_web$files.avail <- as.numeric(author_web$files.avail)
 
-# getting an observation per article
-author_web_data <- author_web %>%
+ajps_web <- ajps_web %>%
   group_by(doi) %>%
   summarize(data_web = max(data.avail),
             code_web = max(code.avail),
             files_web = max(files.avail))
 
+# # # # # APSR 
+apsr_web <- apsr_author_website %>%
+  mutate(data.avail = apsr_author_website$website_category == "data",
+         code.avail = apsr_author_website$website_category == "code",
+         files.avail = apsr_author_website$website_category == "files")
+
+aps_rweb$data.avail <- as.numeric(apsr_web$data.avail)
+apsr_web$code.avail <- as.numeric(apsr_web$code.avail)
+apsr_web$files.avail <- as.numeric(apsr_web$files.avail)
+
+apsr_web_sum <- apsr_web %>%
+  group_by(doi) %>%
+  summarize(title = first(title),
+            data_web = max(data.avail),
+            code_web = max(code.avail),
+            files_web = max(files.avail)) %>%
+  anti_join(apsr_type_topic, by='doi') %>% View()
+
+## checking for "extra" articles in test_apsrweb with apsr_type_topic by doi 
+apsr_diff <- anti_join(apsr_web_sum, apsr_type_topic, by = "doi")
+
+
+# DO NOT RUN
 # adding data, code and files availability to the main data frame
 main.df <- right_join(main.df, author_web_data, by = "doi")
+
 
 # this was an erratum on an erratum == "files" were available for the paper, but this here was 
 # a clarification on that paper. 
@@ -59,7 +96,10 @@ main.df$code_web[main.df$files_web == 1] <- "1"
 main.df$files_web[main.df$data_web == 1 & main.df$code_web ==1] <- "1"
 
 
-# uploading and binding ajps and apsr dataverse
+```
+
+Dataverse 
+```{r}
 ajps_dataverse <- read.csv("../../URAPshared/Data/ajps_dataverse_diff_resolution_RP_TC.csv")
 
 apsr_dataverse <- read.csv("../../URAPshared/Data/apsr_dataverse_diff_resolution_RP_TC.csv")
@@ -95,6 +135,10 @@ main.df$data_dataverse[main.df$files_dataverse == 1] <- "1"
 main.df$code_dataverse[main.df$files_dataverse == 1] <- "1"
 
 
+```
+
+Links 
+```{r}
 # uploading and binding ajps and apsr links
 ajps_links <- read.csv("../../URAPshared/Data/ajps_link_coding_diff_resolution.csv")
 
@@ -133,6 +177,11 @@ links$code_link <- as.numeric(links$code_link)
 # Append links to main.df
 main.df <- left_join(main.df, links, by="doi")
 
+```
+
+
+Reference Coding
+```{r}
 # # # # # Reference Coding 
 ajps_references <- read.csv("../../URAPshared/Data/ajps_reference_coding_harmonized.csv")
 apsr_references <- read.csv("../../URAPshared/Data/apsr_reference_coding_harmonized.csv")
@@ -154,58 +203,10 @@ ref <- references %>%
             data_references = max(data_full_name),
             code_references = max(code_full_name))
 
-  
+```
 
-
-# # # #TESTING 
-# # # AJPS
-test_ajpsweb <- ajps_author_website %>%
-  mutate(data.avail = ajps_author_website$website_category == "data",
-         code.avail = ajps_author_website$website_category == "code",
-         files.avail = ajps_author_website$website_category == "files")
-
-test_ajpsweb$data.avail <- as.numeric(test_ajpsweb$data.avail)
-test_ajpsweb$code.avail <- as.numeric(test_ajpsweb$code.avail)
-test_ajpsweb$files.avail <- as.numeric(test_ajpsweb$files.avail)
-
-
-test_ajpsweb <- test_ajpsweb %>%
-  group_by(doi) %>%
-  summarize(data_web = max(data.avail),
-            code_web = max(code.avail),
-            files_web = max(files.avail))
-
-# # # # # APSR 
-test_apsrweb <- apsr_author_website %>%
-  mutate(data.avail = apsr_author_website$website_category == "data",
-         code.avail = apsr_author_website$website_category == "code",
-         files.avail = apsr_author_website$website_category == "files")
-
-test_apsrweb$data.avail <- as.numeric(test_apsrweb$data.avail)
-test_apsrweb$code.avail <- as.numeric(test_apsrweb$code.avail)
-test_apsrweb$files.avail <- as.numeric(test_apsrweb$files.avail)
-
-test_apsrweb %>%
-  group_by(doi) %>%
-  summarize(title = first(title),
-            data_web = max(data.avail),
-            code_web = max(code.avail),
-            files_web = max(files.avail)) %>%
-  anti_join(apsr_type_topic, by='doi') %>% View()
-  summarize(distinct_title = n_distinct(title))
-
-## checking for "extra" articles in test_apsrweb with apsr_type_topic by doi 
-apsr_diff <- anti_join(test_apsrweb, apsr_type_topic, by = "doi")
-
-
-
-
-
-
-
-
-
-
+Reference CHECK
+```{r}
 # # # # Reference coding check
 ajps_references <- read.csv("../../URAPshared/Data/ajps_reference_coding_harmonized.csv")
 apsr_references <- read.csv("../../URAPshared/Data/apsr_reference_coding_harmonized.csv")
@@ -243,3 +244,103 @@ test_apsrref <- apsr_references %>%
 
 ###### TEST FOR EACH MERGER ##########
 anti_join(dv, main, by = 'doi') %>% nrows
+
+
+
+
+```
+Adding volume,issue, pulbication date, author, author affiliation columns to the main dataframe
+```{r}
+apsr_template <- read.csv("../../URAPshared/Data/apsr_reference_coding_template.csv")
+
+apsr_template <- apsr_template %>%
+  select(volume, issue, pages, publication_date, doi) %>%
+  distinct
+
+main.df <- right_join(main.df, apsr_template, by = "doi")
+
+ajps_template <- read.csv("../../URAPshared/Data/ajps_article_info_from_issue_toc.csv")
+
+ajps_template <- ajps_template %>%
+  select(issue_number,issue_pages, doi) %>%
+  distinct
+
+main.df <- right_join(main.df, ajps_template, by="doi")
+
+```
+Apsr centennial issue - references
+```{r}
+apsr_centennial_ref <- read.csv("../../URAPshared/Data/..")
+
+apsr_centennial_ref <- apsr_centennial_ref %>%
+  mutate(files_full_name = reference_category == "files_full_name",
+         data_full_name = reference_category == "data_full_name",
+         code_full_name = reference_category == "code_full_name")
+
+apsr_centennial_ref$files_full_name <- as.numeric(apsr_centennial_ref$files_full_name)
+apsr_centennial_ref$data_full_name <- as.numeric(apsr_centennial_ref$data_full_name)
+apsr_centennial_ref$code_full_name <- as.numeric(apsr_centennial_ref$code_full_name)
+
+apsr_centennial_ref <- apsr_centennial_ref %>%
+  group_by(doi) %>%
+  summarise(files_references = max(files_full_name),
+            data_references = max(data_full_name),
+            code_references = max(code_full_name))
+
+main.df <- left_join(main.df, apsr_centennial_ref, by="doi")
+
+```
+Apsr centennial issue - links
+```{r}
+# uploading and binding apsr centennial links
+
+apsr_cent_links <- read.csv("../../URAPshared/Data/..")
+
+# create variables: files_link, data_link and code_link. Note: only consider full file, data and code
+apsr_cent_links <- apsr_cent_links %>% 
+  mutate(files_link = apsr_cent_links$link_category_resolved == "files",
+         data_link = apsr_cent_links$link_category_resolved == "data",
+         code_link = apsr_cent_links$link_category_resolved == "code")
+
+apsr_cent_links$files_link <- as.numeric(apsr_cent_links$files_link)
+apsr_cent_links$data_link <- as.numeric(apsr_cent_links$data_link)
+apsr_cent_links$code_link <- as.numeric(apsr_cent_links$code_link)
+
+apsr_cent_links <- apsr_cent_links %>%
+  group_by(doi) %>%
+  summarize(files_link = max(files_link),
+            data_link = max(data_link),
+            code_link = max(code_link))
+
+# If files = 1 then data = 1 and code = 1
+apsr_cent_links$data_link[apsr_cent_links$files_link == 1] <- "1"
+apsr_cent_links$code_link[apsr_cent_links$files_link == 1] <- "1"
+
+# If data = 1 and code = 1 then files = 1
+apsr_cent_links$files_link[apsr_cent_links$data_link == 1 & apsr_cent_links$code_link == 1] <- "1"
+
+# Make files_link, data_link and code_link numeric
+apsr_cent_links$files_link <- as.numeric(apsr_cent_links$files_link)
+apsr_cent_links$data_link <- as.numeric(apsr_cent_links$data_link)
+apsr_cent_links$code_link <- as.numeric(apsr_cent_links$code_link)
+
+# Append centennial links to main.df
+main.df <- left_join(main.df, apsr_cent_links, by="doi")
+
+```
+Apsr centennial article topic and type
+```{r}
+apsr_cent_topic_type <- read.csv("../../URAPshared/Data/")
+
+
+#changing levels
+topic_levels1 <- c("political_theory","american_government_and_politics",
+                  "political_methodology","international_relations",
+                  "comparative_politics")
+
+main.df$article_topic <- factor(main.df$article_topic, levels = topic_levels)
+
+data_type_levels1 <- c("experimental", "observational", "simulations", "")
+
+main.df$article_data_type1 <- factor(main.df$article_data_type1)
+```
