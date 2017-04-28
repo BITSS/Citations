@@ -78,6 +78,9 @@ char_match_post = char_match_pre
 
 input_file = 'bld/apsr_article_content_2006_2014.csv'
 output_file = 'bld/apsr_reference_coding_template.csv'
+# # Centennial Issue
+# input_file = 'bld/apsr_centennial_article_content.csv'
+# output_file = 'bld/apsr_centennial_reference_coding.csv'
 
 output_columns = ['volume', 'issue', 'pages', 'publication_date', 'doi',
                   'authors', 'authors_affiliations', 'title', 'article_ix',
@@ -107,7 +110,7 @@ for ix, df in enumerate(pd.read_csv(input_file, chunksize=50)):
     df.reset_index(inplace=True)
     df['reference_ix'] = df['reference_ix'] + 1
 
-    df = hyperlink_title(df, 'apsr')
+    df = hyperlink_title(df, 'apsr', hyperlink_separator=';')
     df['reference_category'] = np.nan
 
     if ix == 0:

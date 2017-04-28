@@ -72,3 +72,9 @@ input_file = 'bld/apsr_article_content_2006_2014.csv'
 output_file = 'bld/apsr_article_coding_template.csv'
 
 create_article_coding_template(input_file, output_file, 'apsr')
+
+# APSR Centennial Issue
+input_file = 'bld/apsr_centennial_article_content.csv'
+output_file = 'bld/apsr_centennial_article_coding_template.csv'
+
+create_article_coding_template(input_file, output_file, 'apsr')
