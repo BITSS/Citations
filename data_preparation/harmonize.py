@@ -7,6 +7,7 @@ import numpy as np
 from tools import (read_data_entry, hyperlink_google_search, fill_columns_down,
                    apply_func_to_df, hyperlink_title)
 
+
 def harmonize(template_file, index_column, entry_columns, merge_on_columns,
               inputs, output_file, template_apply_func=[]):
     '''
@@ -152,9 +153,9 @@ reference_apsr = \
         'output_file': 'bld/apsr_reference_coding_harmonized.csv'}
 harmonize(**reference_apsr)
 
-#AJPS article type coding 
+# AJPS article type coding
 ajps_article_level_merge_on_columns = \
-    ['doi','article_ix']
+    ['doi', 'article_ix']
 
 ajps_article_topic_coding = \
     {'template_file': 'bld/ajps_article_coding_template.csv',
@@ -196,9 +197,9 @@ ajps_data_type_coding = \
                  'output_file': 'bld/ajps_article_data_type_coding_harmonized.csv'}
 harmonize(**ajps_data_type_coding)
 
-#APSR article type coding 
+# APSR article type coding
 apsr_article_level_merge_on_columns = \
-    ['doi','article_ix']
+    ['doi', 'article_ix']
 
 apsr_article_topic_coding = \
     {'template_file': 'bld/apsr_article_coding_template.csv',
@@ -240,12 +241,17 @@ apsr_data_type_coding = \
                  'output_file': 'bld/apsr_article_data_type_coding_harmonized.csv'}
 harmonize(**apsr_data_type_coding)
 
-#Merge article type coding files
+# Merge article type coding files
+
+
 def merge_info(data_type_file, topic_type_file, output_file):
-    data_type = pd.read_csv(data_type_file, sep = ',', engine = 'python')
-    topic_type = pd.read_csv(topic_type_file,sep=',', engine = 'python')
-    harmonized = pd.merge(topic_type.loc[:,('article_ix','doi','title','abstract','article_topic1')], data_type.loc[:,('article_ix','article_data_type')] , on = "article_ix")
+    data_type = pd.read_csv(data_type_file, sep=',', engine='python')
+    topic_type = pd.read_csv(topic_type_file, sep=',', engine='python')
+    harmonized = pd.merge(topic_type.loc[:, ('article_ix', 'doi', 'title', 'abstract', 'article_topic1')], data_type.loc[
+                          :, ('article_ix', 'article_data_type')], on="article_ix")
     return harmonized.to_csv(output_file, columns=harmonized.columns, index=None, encoding='utf-8')
 
-merge_info('bld/apsr_article_data_type_coding_harmonized.csv','bld/apsr_article_topic_coding_harmonized.csv','bld/apsr_article_coding_harmonized.csv')
-merge_info('bld/ajps_article_data_type_coding_harmonized.csv','bld/ajps_article_topic_coding_harmonized.csv','bld/ajps_article_coding_harmonized.csv')
+merge_info('bld/apsr_article_data_type_coding_harmonized.csv',
+           'bld/apsr_article_topic_coding_harmonized.csv', 'bld/apsr_article_coding_harmonized.csv')
+merge_info('bld/ajps_article_data_type_coding_harmonized.csv',
+           'bld/ajps_article_topic_coding_harmonized.csv', 'bld/ajps_article_coding_harmonized.csv')

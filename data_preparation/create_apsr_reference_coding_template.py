@@ -16,7 +16,7 @@ def find_references(article):
     soup = BeautifulSoup(article['content'], 'html.parser')
 
     # Find all URLs that are hyperlinked by APSR website.
-    for tag in soup.find_all('a', class_='uri simple'):
+    for tag in soup.find_all('a', class_=re.compile('(url)|(uri simple)')):
         url = tag.string
 
         url_context_pre = ''.join(tag.find_all_previous(string=True,
@@ -76,11 +76,11 @@ regex_reference_indicators = re.compile('(?:' +
 char_match_pre = 100
 char_match_post = char_match_pre
 
-input_file = 'bld/apsr_article_content_2006_2014.csv'
-output_file = 'bld/apsr_reference_coding_template.csv'
+# input_file = 'bld/apsr_article_content_2006_2014.csv'
+# output_file = 'bld/apsr_reference_coding_template.csv'
 # # Centennial Issue
-# input_file = 'bld/apsr_centennial_article_content.csv'
-# output_file = 'bld/apsr_centennial_reference_coding_template.csv'
+input_file = 'bld/apsr_centennial_article_content.csv'
+output_file = 'bld/apsr_centennial_reference_coding_template.csv'
 
 output_columns = ['volume', 'issue', 'pages', 'publication_date', 'doi',
                   'authors', 'authors_affiliations', 'title', 'article_ix',

@@ -56,7 +56,8 @@ def create_diff(input_dict, output_file, entry_column, columns_merge_on):
     else:
         warnings.warn('Some lines could not be matched consistently across' +
                       ' files.\nPlease investigate output file.')
-        merged_entries.to_csv(output_file, index_label='row_ix', encoding='utf-8')
+        merged_entries.to_csv(
+            output_file, index_label='row_ix', encoding='utf-8')
 
 
 
