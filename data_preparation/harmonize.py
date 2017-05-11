@@ -244,14 +244,26 @@ harmonize(**apsr_data_type_coding)
 # Merge article type coding files
 
 
-def merge_info(data_type_file, topic_type_file, output_file):
-    data_type = pd.read_csv(data_type_file, sep=',', engine='python')
-    topic_type = pd.read_csv(topic_type_file, sep=',', engine='python')
-    harmonized = pd.merge(topic_type.loc[:, ('article_ix', 'doi', 'title', 'abstract', 'article_topic1')], data_type.loc[
-                          :, ('article_ix', 'article_data_type')], on="article_ix")
-    return harmonized.to_csv(output_file, columns=harmonized.columns, index=None, encoding='utf-8')
+# Dataverse
+dataverse_merge_on_columns = ['article_ix', 'result_ix', 'dataverse_name']
+apsr_dataverse = \
+    {'template_file': 'bld/apsr_dataverse_search.ods',
+     'index_column': 'article_ix',
+     'entry_columns': ['result_category'],
+     'merge_on_columns': (dataverse_merge_on_columns),
+     'inputs': [{'file_in': 'data_entry/apsr_dataverse_diff_resolution_RP_TC.ods',
+                 'entry_column': 'result_category_RP_TC_resolved',
+                 'index_ranges': [(1, 1000)]}],
+     'output_file': 'bld/apsr_dataverse_harmonized.csv'}
+harmonize(**apsr_dataverse)
 
-merge_info('bld/apsr_article_data_type_coding_harmonized.csv',
-           'bld/apsr_article_topic_coding_harmonized.csv', 'bld/apsr_article_coding_harmonized.csv')
-merge_info('bld/ajps_article_data_type_coding_harmonized.csv',
-           'bld/ajps_article_topic_coding_harmonized.csv', 'bld/ajps_article_coding_harmonized.csv')
+ajps_dataverse = \
+    {'template_file': 'bld/ajps_dataverse_search.ods',
+     'index_column': 'article_ix',
+     'entry_columns': ['result_category'],
+     'merge_on_columns': (dataverse_merge_on_columns),
+     'inputs': [{'file_in': 'data_entry/ajps_dataverse_diff_resolution_RP_TC.ods',
+                 'entry_column': 'result_category_RP_TC_resolved',
+                 'index_ranges': [(1, 1000)]}],
+     'output_file': 'bld/ajps_dataverse_harmonized.csv'}
+harmonize(**ajps_dataverse)

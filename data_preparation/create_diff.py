@@ -60,7 +60,6 @@ def create_diff(input_dict, output_file, entry_column, columns_merge_on):
             output_file, index_label='row_ix', encoding='utf-8')
 
 
-
 def standard_entry_dict(coding, entry_column):
     entry_dict = OrderedDict()
     for person in urap_initials:

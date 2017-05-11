@@ -1,4 +1,5 @@
 ajps_article_coding_*.ods
+ajps_article_coding_*.csv
 ajps_author_website_coding_*.ods
 ajps_author_website_coding_*.csv
 ajps_dataverse_*.ods
@@ -8,9 +9,12 @@ ajps_link_coding_*.csv
 ajps_reference_coding_*.ods
 ajps_reference_coding_*.csv
 apsr_article_coding_*.ods
+apsr_article_coding_*.csv
 apsr_author_website_coding_*.ods
 apsr_author_website_coding_*.csv
 apsr_dataverse_*.ods
+apsr_link_coding_*.ods
+apsr_link_coding_*.csv
 apsr_reference_coding_*.ods
 apsr_reference_coding_*.csv
 apsr_centennial_reference_coding_*.ods
