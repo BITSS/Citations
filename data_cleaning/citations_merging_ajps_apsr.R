@@ -1,5 +1,6 @@
 # Setup
 library(tidyverse)
+library(forcats)
 library(stringr)
 library(rprojroot) # find project root
 setwd(find_root('README.md'))
@@ -40,6 +41,7 @@ article_topic_levels <- c(
   'political_theory',
   'skip'
 )
+
 article_data_type_levels <- c(
   'experimental',
   'observational',
@@ -47,18 +49,17 @@ article_data_type_levels <- c(
   'no_data',
   'skip'
 )
-article_coding <- article_coding %>%
-  mutate_at('article_topic1', factor, levels = article_topic_levels) %>%
-  mutate_at('article_data_type', factor, levels = article_data_type_levels)
 
-## Assert that all data entry follows pre-defined levels
-stopifnot(article_coding %>%
-  summarise(n_na = sum(is.na(article_topic1) | is.na(article_data_type))) == 0)
+article_coding <- article_coding %>%
+  mutate_at('article_topic1', parse_factor, levels = article_topic_levels) %>%
+  mutate_at('article_data_type', parse_factor, levels = article_data_type_levels)
 
 # Author website
 ## Import harmonized files
-ajps_author_website <- read_csv('data_entry/ajps_author_website_coding_harmonized.csv')
-apsr_author_website <- read_csv('data_entry/apsr_author_website_coding_harmonized.csv')
+ajps_author_website <- read_csv('data_entry/ajps_author_website_coding_harmonized.csv') %>%
+  mutate(journal = 'ajps')
+apsr_author_website <- read_csv('data_entry/apsr_author_website_coding_harmonized.csv') %>%
+  mutate(journal = 'apsr')
 
 # Combine data from AJPS and APSR into a single dataframe
 author_website <- bind_rows(ajps_author_website, apsr_author_website)
@@ -69,6 +70,7 @@ author_website <- author_website %>%
 
 ## Define website category levels
 website_category_levels <- c(
+  'skip',
   'could_not_find',
   '0',
   'data_dead',
@@ -78,30 +80,43 @@ website_category_levels <- c(
   'code',
   'files'
 )
-author_website <- author_website %>%
-  mutate_at('website_category', factor, levels = website_category_levels)
 
-## Summarize to one row per article
+author_website <- author_website %>%
+  mutate_at('website_category', parse_factor, levels = website_category_levels, ordered = TRUE) %>%
+  mutate(website_category_data = website_category %>%
+           fct_collapse(`0` = c('0', 'code', 'code_dead'),
+                        data_dead = c('data_dead', 'files_dead'),
+                        data = c('data', 'files')
+                        ),
+         website_category_code = website_category %>%
+           fct_collapse(`0` = c('0', 'data', 'data_dead'),
+                        code_dead = c('code_dead', 'files_dead'),
+                        code = c('code', 'files')
+           ))
+
+## Find highest level of availability
 author_website <- author_website %>%
   group_by(doi) %>%
-  summarize(data_web = max(data.avail),
-            code_web = max(code.avail),
-            files_web = max(files.avail))
+  mutate(author_website_data = max(website_category_data),
+         author_website_code = max(website_category_code)) %>%
+  # case_when in mutate is still experimental
+  # https://stackoverflow.com/a/38649748/
+  ungroup %>%
+  mutate(
+         author_website_files = case_when(
+           .$author_website_data == 'data' & .$author_website_code == 'code' ~ 'files',
+           .$author_website_data == 'data_dead' & .$author_website_code == 'code_dead' ~ 'files_dead',
+           TRUE ~ as.character(.$website_category)
+           ) %>%
+           parse_factor(levels = website_category_levels, ordered = TRUE)
+  ) %>%
+  group_by(doi) %>%
+  mutate_at('author_website_files', max)
 
-# adding data, code and files availability to the main data frame
-main.df <- right_join(main.df, author_web_data, by = 'doi')
-
-# this was an erratum on an erratum == 'files' were available for the paper, but this here was
-# a clarification on that paper.
-main.df <- mutate(main.df, files_web = replace(files_web, doi == '10.1111/j.1540-5907.2011.00554.x', 'skip'))
-
-# if files = 1 then data & code = 1 ,
-main.df$data_web[main.df$files_web == 1] <- '1'
-
-main.df$code_web[main.df$files_web == 1] <- '1'
-
-# for obs. where data was available from one author and code from another, files=1
-main.df$files_web[main.df$data_web == 1 & main.df$code_web ==1] <- '1'
+# Summarize to one row per article
+author_website <- author_website %>%
+  ungroup() %>%
+  distinct(journal, article_ix, doi, title, author_website_data, author_website_code, author_website_files)
 
 
 # uploading and binding ajps and apsr dataverse
