@@ -1,86 +1,131 @@
+# Setup
+library(tidyverse)
+library(stringr)
+library(rprojroot) # find project root
+setwd(find_root('README.md'))
 
-ajps_type_topic <- read.csv("../../URAPshared/Data/ajps_article_coding_harmonized.csv")
+# Tools
+remove_hyperlink <- function(text, hyperlink_separator = ';'){
+  hyperlink <- paste0('^=HYPERLINK\\(".+?"', hyperlink_separator, '"(.+?)"\\)$')
+  str_replace(text, hyperlink, '\\1')
+}
 
-apsr_type_topic <- read.csv("../../URAPshared/Data/apsr_article_coding_harmonized.csv")
+# Article coding (aka topic and type)
+## Import harmonized files
+ajps_article <- read_csv('data_entry/ajps_article_coding_harmonized.csv') %>%
+  mutate(journal = 'ajps')
+apsr_article <- read_csv('data_entry/apsr_article_coding_harmonized.csv') %>%
+  mutate(journal = 'apsr')
+apsr_centennial_article <- read_csv('data_entry/apsr_centennial_article_coding_harmonized.csv') %>%
+  mutate(journal = 'apsr_centennial')
 
-#binding the apsr and ajps files onto a df
-library(dplyr)
-library(tidyr)
-main.df <- bind_rows(ajps_type_topic, apsr_type_topic)
+## Combine data from AJPS, APSR and APSR centennial into a single dataframe
+article_coding <- bind_rows(ajps_article, apsr_article, apsr_centennial_article)
 
-#changing levels
-topic_levels <- c("political_theory","american_government_and_politics",
-                  "political_methodology","international_relations",
-                  "comparative_politics")
+## Remove hyperlinking
+article_coding <- article_coding %>%
+  mutate_at('title', remove_hyperlink)
 
-main.df$article_topic1 <- factor(main.df$article_topic1, levels = topic_levels)
+## If either topic or data type is 'skip', set the other column value to 'skip' as well
+article_coding <- article_coding %>%
+  mutate(article_topic1 = if_else(article_topic1 == 'skip' | article_data_type == 'skip', 'skip', article_topic1, article_topic1),
+         article_data_type = if_else(article_topic1 == 'skip' | article_data_type == 'skip', 'skip', article_data_type, article_data_type))
 
-data_type_levels <- c("experimental", "observational", "simulations", "")
-main.df$article_data_type <- factor(main.df$article_data_type)
+## Define topic and data type levels
+article_topic_levels <- c(
+  'american_government_and_politics',
+  'comparative_politics',
+  'international_relations',
+  'political_methodology',
+  'political_theory',
+  'skip'
+)
+article_data_type_levels <- c(
+  'experimental',
+  'observational',
+  'simulations',
+  'no_data',
+  'skip'
+)
+article_coding <- article_coding %>%
+  mutate_at('article_topic1', factor, levels = article_topic_levels) %>%
+  mutate_at('article_data_type', factor, levels = article_data_type_levels)
 
+## Assert that all data entry follows pre-defined levels
+stopifnot(article_coding %>%
+  summarise(n_na = sum(is.na(article_topic1) | is.na(article_data_type))) == 0)
 
-#data availability 
-ajps_author_website <- read.csv("../../URAPshared/Data/ajps_author_website_coding_harmonized.csv")
-apsr_author_website <- read.csv("../../URAPshared/Data/apsr_author_website_coding_harmonized.csv")
+# Author website
+## Import harmonized files
+ajps_author_website <- read_csv('data_entry/ajps_author_website_coding_harmonized.csv')
+apsr_author_website <- read_csv('data_entry/apsr_author_website_coding_harmonized.csv')
 
-# # # ##author_web <- bind_rows(ajps_author_website, apsr_author_website)
+# Combine data from AJPS and APSR into a single dataframe
+author_website <- bind_rows(ajps_author_website, apsr_author_website)
 
+## Remove hyperlinking
+author_website <- author_website %>%
+  mutate_at('author', remove_hyperlink, hyperlink_separator = ',')
 
-# combining factor levels 
-author_web <- author_web %>%
-  mutate(data.avail = author_web$website_category == "data",
-         code.avail = author_web$website_category == "code",
-         files.avail = author_web$website_category == "files") 
+## Define website category levels
+website_category_levels <- c(
+  'could_not_find',
+  '0',
+  'data_dead',
+  'code_dead',
+  'files_dead',
+  'data',
+  'code',
+  'files'
+)
+author_website <- author_website %>%
+  mutate_at('website_category', factor, levels = website_category_levels)
 
-author_web$data.avail <- as.numeric(author_web$data.avail)
-author_web$code.avail <- as.numeric(author_web$code.avail)
-author_web$files.avail <- as.numeric(author_web$files.avail)
-
-# getting an observation per article
-author_web_data <- author_web %>%
+## Summarize to one row per article
+author_website <- author_website %>%
   group_by(doi) %>%
   summarize(data_web = max(data.avail),
             code_web = max(code.avail),
             files_web = max(files.avail))
 
 # adding data, code and files availability to the main data frame
-main.df <- right_join(main.df, author_web_data, by = "doi")
+main.df <- right_join(main.df, author_web_data, by = 'doi')
 
-# this was an erratum on an erratum == "files" were available for the paper, but this here was 
-# a clarification on that paper. 
-main.df <- mutate(main.df, files_web = replace(files_web, doi == "10.1111/j.1540-5907.2011.00554.x", "skip"))
+# this was an erratum on an erratum == 'files' were available for the paper, but this here was
+# a clarification on that paper.
+main.df <- mutate(main.df, files_web = replace(files_web, doi == '10.1111/j.1540-5907.2011.00554.x', 'skip'))
 
 # if files = 1 then data & code = 1 ,
-main.df$data_web[main.df$files_web == 1] <- "1"
+main.df$data_web[main.df$files_web == 1] <- '1'
 
-main.df$code_web[main.df$files_web == 1] <- "1"
+main.df$code_web[main.df$files_web == 1] <- '1'
 
 # for obs. where data was available from one author and code from another, files=1
-main.df$files_web[main.df$data_web == 1 & main.df$code_web ==1] <- "1"
+main.df$files_web[main.df$data_web == 1 & main.df$code_web ==1] <- '1'
 
 
 # uploading and binding ajps and apsr dataverse
-ajps_dataverse <- read.csv("../../URAPshared/Data/ajps_dataverse_diff_resolution_RP_TC.csv")
+ajps_dataverse <- read.csv('data_entry/ajps_dataverse_diff_resolution_RP_TC.csv')
 
-apsr_dataverse <- read.csv("../../URAPshared/Data/apsr_dataverse_diff_resolution_RP_TC.csv")
+apsr_dataverse <- read.csv('data_entry/apsr_dataverse_diff_resolution_RP_TC.csv')
 
 # bind ajps and apsr dataverse file and add dataverse variable to main df
 dataverse <- bind_rows(ajps_dataverse, apsr_dataverse)
 
-#made result_category_RP_TC_resolved a factor variable so that we could then 
+#made result_category_RP_TC_resolved a factor variable so that we could then
 #individual vars for files, data, and code availability on dataverse
 dataverse$result_category_RP_TC_resolved <- as.factor(dataverse$result_category_RP_TC_resolved)
 
-dataverse <- dataverse %>% 
-  mutate(files_dataverse = dataverse$result_category_RP_TC_resolved == "files",
-         data_dataverse = dataverse$result_category_RP_TC_resolved == "data",
-         code_dataverse = dataverse$result_category_RP_TC_resolved == "code")
-  
+dataverse <- dataverse %>%
+  mutate(files_dataverse = dataverse$result_category_RP_TC_resolved == 'files',
+         data_dataverse = dataverse$result_category_RP_TC_resolved == 'data',
+         code_dataverse = dataverse$result_category_RP_TC_resolved == 'code')
+
 dataverse$files_dataverse <- as.numeric(dataverse$files_dataverse)
 dataverse$data_dataverse <- as.numeric(dataverse$data_dataverse)
 dataverse$code_dataverse <- as.numeric(dataverse$code_dataverse)
 
-# "collapse" dataverse file so that there is only one obs. per article 
+# 'collapse' dataverse file so that there is only one obs. per article
 dataverse1 <- dataverse %>%
   group_by(doi) %>%
   summarize(files_dataverse = max(files_dataverse),
@@ -88,25 +133,25 @@ dataverse1 <- dataverse %>%
             code_dataverse = max(code_dataverse))
 
 # add files, data and code dataverse variables to the main df
-main.df <- left_join(main.df, dataverse1, by="doi")
+main.df <- left_join(main.df, dataverse1, by='doi')
 
 # if files_dataverse=1 then data_dataverse and code_dataverse =1
-main.df$data_dataverse[main.df$files_dataverse == 1] <- "1"
-main.df$code_dataverse[main.df$files_dataverse == 1] <- "1"
+main.df$data_dataverse[main.df$files_dataverse == 1] <- '1'
+main.df$code_dataverse[main.df$files_dataverse == 1] <- '1'
 
 
 # uploading and binding ajps and apsr links
-ajps_links <- read.csv("../../URAPshared/Data/ajps_link_coding_diff_resolution.csv")
+ajps_links <- read.csv('data_entry/ajps_link_coding_diff_resolution.csv')
 
-apsr_links <- read.csv("../../URAPshared/Data/apsr_link_coding_RP.csv")
+apsr_links <- read.csv('data_entry/apsr_link_coding_RP.csv')
 
 links <- bind_rows(ajps_links, apsr_links)
 
 # create variables: files_link, data_link and code_link. Note: only consider full file, data and code
-links <- links %>% 
-  mutate(files_link = links$link_category_resolved == "files",
-         data_link = links$link_category_resolved == "data",
-         code_link = links$link_category_resolved == "code")
+links <- links %>%
+  mutate(files_link = links$link_category_resolved == 'files',
+         data_link = links$link_category_resolved == 'data',
+         code_link = links$link_category_resolved == 'code')
 
 links$files_link <- as.numeric(links$files_link)
 links$data_link <- as.numeric(links$data_link)
@@ -119,11 +164,11 @@ links <- links %>%
             code_link = max(code_link))
 
 # If files = 1 then data = 1 and code = 1
-links$data_link[links$files_link == 1] <- "1"
-links$code_link[links$files_link == 1] <- "1"
+links$data_link[links$files_link == 1] <- '1'
+links$code_link[links$files_link == 1] <- '1'
 
 # If data = 1 and code = 1 then files = 1
-links$files_link[links$data_link == 1 & links$code_link == 1] <- "1"
+links$files_link[links$data_link == 1 & links$code_link == 1] <- '1'
 
 # Make files_link, data_link and code_link numeric
 links$files_link <- as.numeric(links$files_link)
@@ -131,18 +176,18 @@ links$data_link <- as.numeric(links$data_link)
 links$code_link <- as.numeric(links$code_link)
 
 # Append links to main.df
-main.df <- left_join(main.df, links, by="doi")
+main.df <- left_join(main.df, links, by='doi')
 
-# # # # # Reference Coding 
-ajps_references <- read.csv("../../URAPshared/Data/ajps_reference_coding_harmonized.csv")
-apsr_references <- read.csv("../../URAPshared/Data/apsr_reference_coding_harmonized.csv")
+# # # # # Reference Coding
+ajps_references <- read.csv('data_entry/ajps_reference_coding_harmonized.csv')
+apsr_references <- read.csv('data_entry/apsr_reference_coding_harmonized.csv')
 
 references <- bind_rows(ajps_references, apsr_references)
 
 references <- references %>%
-  mutate(files_full_name = reference_category == "files_full_name",
-            data_full_name = reference_category == "data_full_name",
-            code_full_name = reference_category == "code_full_name")
+  mutate(files_full_name = reference_category == 'files_full_name',
+            data_full_name = reference_category == 'data_full_name',
+            code_full_name = reference_category == 'code_full_name')
 
 references$files_full_name <- as.numeric(references$files_full_name)
 references$data_full_name <- as.numeric(references$data_full_name)
@@ -154,15 +199,15 @@ ref <- references %>%
             data_references = max(data_full_name),
             code_references = max(code_full_name))
 
-  
 
 
-# # # #TESTING 
+
+# # # #TESTING
 # # # AJPS
 test_ajpsweb <- ajps_author_website %>%
-  mutate(data.avail = ajps_author_website$website_category == "data",
-         code.avail = ajps_author_website$website_category == "code",
-         files.avail = ajps_author_website$website_category == "files")
+  mutate(data.avail = ajps_author_website$website_category == 'data',
+         code.avail = ajps_author_website$website_category == 'code',
+         files.avail = ajps_author_website$website_category == 'files')
 
 test_ajpsweb$data.avail <- as.numeric(test_ajpsweb$data.avail)
 test_ajpsweb$code.avail <- as.numeric(test_ajpsweb$code.avail)
@@ -175,11 +220,11 @@ test_ajpsweb <- test_ajpsweb %>%
             code_web = max(code.avail),
             files_web = max(files.avail))
 
-# # # # # APSR 
+# # # # # APSR
 test_apsrweb <- apsr_author_website %>%
-  mutate(data.avail = apsr_author_website$website_category == "data",
-         code.avail = apsr_author_website$website_category == "code",
-         files.avail = apsr_author_website$website_category == "files")
+  mutate(data.avail = apsr_author_website$website_category == 'data',
+         code.avail = apsr_author_website$website_category == 'code',
+         files.avail = apsr_author_website$website_category == 'files')
 
 test_apsrweb$data.avail <- as.numeric(test_apsrweb$data.avail)
 test_apsrweb$code.avail <- as.numeric(test_apsrweb$code.avail)
@@ -194,8 +239,8 @@ test_apsrweb %>%
   anti_join(apsr_type_topic, by='doi') %>% View()
   summarize(distinct_title = n_distinct(title))
 
-## checking for "extra" articles in test_apsrweb with apsr_type_topic by doi 
-apsr_diff <- anti_join(test_apsrweb, apsr_type_topic, by = "doi")
+## checking for 'extra' articles in test_apsrweb with apsr_type_topic by doi
+apsr_diff <- anti_join(test_apsrweb, apsr_type_topic, by = 'doi')
 
 
 
@@ -207,13 +252,13 @@ apsr_diff <- anti_join(test_apsrweb, apsr_type_topic, by = "doi")
 
 
 # # # # Reference coding check
-ajps_references <- read.csv("../../URAPshared/Data/ajps_reference_coding_harmonized.csv")
-apsr_references <- read.csv("../../URAPshared/Data/apsr_reference_coding_harmonized.csv")
+ajps_references <- read.csv('data_entry/ajps_reference_coding_harmonized.csv')
+apsr_references <- read.csv('data_entry/apsr_reference_coding_harmonized.csv')
 
 ajps_references <- ajps_references %>%
-  mutate(files_full_name = reference_category == "files_full_name",
-         data_full_name = reference_category == "data_full_name",
-         code_full_name = reference_category == "code_full_name")
+  mutate(files_full_name = reference_category == 'files_full_name',
+         data_full_name = reference_category == 'data_full_name',
+         code_full_name = reference_category == 'code_full_name')
 
 ajps_references$files_full_name <- as.numeric(ajps_references$files_full_name)
 ajps_references$data_full_name <- as.numeric(ajps_references$data_full_name)
@@ -226,9 +271,9 @@ test_ajpsref <- ajps_references %>%
             code_references = max(code_full_name))
 
 apsr_references <- apsr_references %>%
-  mutate(files_full_name = reference_category == "files_full_name",
-         data_full_name = reference_category == "data_full_name",
-         code_full_name = reference_category == "code_full_name")
+  mutate(files_full_name = reference_category == 'files_full_name',
+         data_full_name = reference_category == 'data_full_name',
+         code_full_name = reference_category == 'code_full_name')
 
 apsr_references$files_full_name <- as.numeric(apsr_references$files_full_name)
 apsr_references$data_full_name <- as.numeric(apsr_references$data_full_name)
