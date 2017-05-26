@@ -4,25 +4,29 @@ library(magrittr)
 library(foreach)
 library(doParallel)
 
-#rd <- rsDriver(port = 4566L, browser = c( "phantomjs"))
+# Prior to run the next two lines of code to start the remoteDriver
+# Please make sure to cd to this folder and run this next line of code in the terminal
+# java -jar selenium-server-standalone-3.3.1.jar            
 remDr <- remoteDriver(port=4444)
-#remDr <- rd[["client"]]
 remDr$open()
 
-# ajps
+# Read in the data and split into 3 seperate dataframes to split the task into smaller pieces.
 df <- read.csv('ajps_article_coding_harmonized.csv')
 df1 <- df[1:200,]
 df2 <- df[201:401,]
 df3 <- df[402:608,]
 
-# apsr
 apsr <- read.csv('apsr_article.csv')
 apsr1<-apsr[1:220,]
 apsr2<-apsr[221:447,]
 
+
+# Main function to search on webofknowledge by doi 
 search <- function(doi) {
-  #doi <- as.character(doi)
+  
   remDr$navigate("http://www.webofknowledge.com")
+
+  # click on the clear button in case there is previous search entry
   clearEle = remDr$findElements(using='id', value='clearIcon1')
   if (length(clearEle)<1){
     remDr$navigate("http://www.webofknowledge.com")
@@ -30,6 +34,7 @@ search <- function(doi) {
   clearEle = remDr$findElement(using='id', value='clearIcon1')
   clearEle$clickElement()
   
+  # in dropdown menu for search criteria chose the element "doi"
   dropEle = remDr$findElement(using='id', value= 'select2-chosen-1')
   chosen = unlist(dropEle$getElementText())
   
@@ -45,12 +50,14 @@ search <- function(doi) {
     dropEle$sendKeysToElement(list(key = "enter"))  
   }
   
-  
+  # enter doi number in the input field
   inputEle = remDr$findElement(using='id', value = 'value(input1)')
   inputEle$sendKeysToElement(list(doi,key="enter"))
   
-  # get citation number:
+  # wait for 5 seconds to make sure that the page has fully loaded
   Sys.sleep(5) 
+  
+  # get citation number:
   citationEle <-remDr$findElements(using='class',value='search-results-data-cite')
   if (length(citationEle)<1) {
     result ='NA'
@@ -82,7 +89,8 @@ apsr1 <- data.frame(lapply(apsr1, as.character), stringsAsFactors=FALSE)
 output5 <- lapply(apsr2$doi, search)
 apsr2$citation <- output5
 apsr2 <- data.frame(lapply(apsr2, as.character), stringsAsFactors=FALSE)
-## write out 
+
+## write out each resulted datafram to file
 write.csv(df1, file="ajps1.csv")
 write.csv(df2, file="ajps2.csv")
 write.csv(df3, file="ajps3.csv")
@@ -105,12 +113,13 @@ NAsearch <- ajps[is.na(ajps$citation),]
 NAresult <- lapply(NAsearch$doi, search)
 NAsearch$citation2 <- NAresult
 
+# merge the result back to original dataframe and write out to file
 checked_ajps <- merge(ajps, NAsearch, all.x=TRUE)
 checked_ajps$citation <- with(checked_ajps, ifelse(is.na(citation2), 
                                                    citation, citation2))
 checked_ajps$citation2 <- NULL
 checked_ajps <- data.frame(lapply(checked_ajps, as.character), stringsAsFactors=FALSE)
-write.csv(checked_ajps, file="ajps_citation.csv")
+write.csv(checked_ajps, file="ajps_byDoi.csv")
 
 ### Redo search on NA results for apsr
 NAsearch1 <- apsr[is.na(apsr$citation),]
@@ -122,4 +131,4 @@ checked_apsr$citation <- with(checked_apsr, ifelse(is.na(citation2),
                                                    citation, citation2))
 checked_apsr$citation2 <- NULL
 checked_apsr <- data.frame(lapply(checked_apsr, as.character), stringsAsFactors=FALSE)
-write.csv(checked_apsr, file="apsr_citation.csv")
+write.csv(checked_apsr, file="apsr_byDoi.csv")
