@@ -51,8 +51,11 @@ article_data_type_levels <- c(
 )
 
 article_coding <- article_coding %>%
-  mutate_at('article_topic1', parse_factor, levels = article_topic_levels) %>%
-  mutate_at('article_data_type', parse_factor, levels = article_data_type_levels)
+  mutate(topic = parse_factor(article_topic1, levels = article_topic_levels),
+         data_type = parse_factor(article_data_type, levels = article_data_type_levels))
+
+article_coding <- article_coding %>%
+  select(journal, doi, title, abstract, topic, data_type)
 
 # Author website
 ## Import harmonized files
@@ -61,7 +64,7 @@ ajps_author_website <- read_csv('data_entry/ajps_author_website_coding_harmonize
 apsr_author_website <- read_csv('data_entry/apsr_author_website_coding_harmonized.csv') %>%
   mutate(journal = 'apsr')
 
-# Combine data from AJPS and APSR into a single dataframe
+## Combine data from AJPS and APSR into a single dataframe
 author_website <- bind_rows(ajps_author_website, apsr_author_website)
 
 ## Remove hyperlinking
@@ -69,7 +72,7 @@ author_website <- author_website %>%
   mutate_at('author', remove_hyperlink, hyperlink_separator = ',')
 
 ## Define website category levels
-website_category_levels <- c(
+availability_website_levels <- c(
   'skip',
   'could_not_find',
   '0',
@@ -81,225 +84,294 @@ website_category_levels <- c(
   'files'
 )
 
+## Find highest level of availability
 author_website <- author_website %>%
-  mutate_at('website_category', parse_factor, levels = website_category_levels, ordered = TRUE) %>%
-  mutate(website_category_data = website_category %>%
+  mutate(availability_website = parse_factor(website_category, levels = availability_website_levels, ordered = TRUE)) %>%
+  mutate(availability_website_data = availability_website %>%
            fct_collapse(`0` = c('0', 'code', 'code_dead'),
                         data_dead = c('data_dead', 'files_dead'),
                         data = c('data', 'files')
-                        ),
-         website_category_code = website_category %>%
+           ),
+         availability_website_code = availability_website %>%
            fct_collapse(`0` = c('0', 'data', 'data_dead'),
                         code_dead = c('code_dead', 'files_dead'),
                         code = c('code', 'files')
            ))
 
-## Find highest level of availability
 author_website <- author_website %>%
   group_by(doi) %>%
-  mutate(author_website_data = max(website_category_data),
-         author_website_code = max(website_category_code)) %>%
-  # case_when in mutate is still experimental
+  mutate_at(c('availability_website_data', 'availability_website_code'), max) %>%
+  # Using 'case_when' in 'mutate' is still experimental
   # https://stackoverflow.com/a/38649748/
   ungroup %>%
   mutate(
-         author_website_files = case_when(
-           .$author_website_data == 'data' & .$author_website_code == 'code' ~ 'files',
-           .$author_website_data == 'data_dead' & .$author_website_code == 'code_dead' ~ 'files_dead',
-           TRUE ~ as.character(.$website_category)
-           ) %>%
-           parse_factor(levels = website_category_levels, ordered = TRUE)
+    availability_website = case_when(
+      .$availability_website_data == 'data' & .$availability_website_code == 'code' ~ 'files',
+      .$availability_website_data == 'data_dead' & .$availability_website_code == 'code_dead' ~ 'files_dead',
+      TRUE ~ as.character(.$website_category)
+    ) %>%
+      parse_factor(levels = availability_website_levels, ordered = TRUE)
   ) %>%
   group_by(doi) %>%
-  mutate_at('author_website_files', max)
+  mutate_at('availability_website', max)
 
-# Summarize to one row per article
+## Summarize to one row per article
 author_website <- author_website %>%
   ungroup() %>%
-  distinct(journal, article_ix, doi, title, author_website_data, author_website_code, author_website_files)
+  distinct(journal, doi, title, availability_website)
 
+# Dataverse
+## Import harmonized files
+## Dataverse files were coded only by RP and TC, so take their resolution file as source
+ajps_dataverse <- read_csv('data_entry/ajps_dataverse_harmonized.csv') %>%
+  mutate_at('issue_date', parse_date, format = '%B %Y') %>%
+  mutate(journal = 'ajps')
 
-# uploading and binding ajps and apsr dataverse
-ajps_dataverse <- read.csv('data_entry/ajps_dataverse_diff_resolution_RP_TC.csv')
+apsr_dataverse <- read_csv('data_entry/apsr_dataverse_harmonized.csv') %>%
+  mutate(journal = 'apsr')
 
-apsr_dataverse <- read.csv('data_entry/apsr_dataverse_diff_resolution_RP_TC.csv')
-
-# bind ajps and apsr dataverse file and add dataverse variable to main df
+## Combine data from AJPS and APSR into a single dataframe
 dataverse <- bind_rows(ajps_dataverse, apsr_dataverse)
 
-#made result_category_RP_TC_resolved a factor variable so that we could then
-#individual vars for files, data, and code availability on dataverse
-dataverse$result_category_RP_TC_resolved <- as.factor(dataverse$result_category_RP_TC_resolved)
+## Relabel variable and levels to be consistent with other files
+dataverse <- dataverse %>%
+  mutate(availability_dataverse = result_category) %>%
+  mutate_at('availability_dataverse', fct_collapse, `0` = c('none'))
+
+## Define dataverse category levels
+availability_dataverse_levels <- c(
+  '0',
+  'data',
+  'code',
+  'files'
+)
+
+## Find highest level of availability
+dataverse <- dataverse %>%
+  mutate_at('availability_dataverse', parse_factor, levels = availability_dataverse_levels, ordered = TRUE) %>%
+  mutate(availability_dataverse_data = availability_dataverse %>%
+           fct_collapse(`0` = c('code'),
+                        data = c('data', 'files')
+           ),
+         availability_dataverse_code = availability_dataverse %>%
+           fct_collapse(`0` = c('data'),
+                        code = c('code', 'files')
+           ))
 
 dataverse <- dataverse %>%
-  mutate(files_dataverse = dataverse$result_category_RP_TC_resolved == 'files',
-         data_dataverse = dataverse$result_category_RP_TC_resolved == 'data',
-         code_dataverse = dataverse$result_category_RP_TC_resolved == 'code')
-
-dataverse$files_dataverse <- as.numeric(dataverse$files_dataverse)
-dataverse$data_dataverse <- as.numeric(dataverse$data_dataverse)
-dataverse$code_dataverse <- as.numeric(dataverse$code_dataverse)
-
-# 'collapse' dataverse file so that there is only one obs. per article
-dataverse1 <- dataverse %>%
   group_by(doi) %>%
-  summarize(files_dataverse = max(files_dataverse),
-            data_dataverse = max(data_dataverse),
-            code_dataverse = max(code_dataverse))
-
-# add files, data and code dataverse variables to the main df
-main.df <- left_join(main.df, dataverse1, by='doi')
-
-# if files_dataverse=1 then data_dataverse and code_dataverse =1
-main.df$data_dataverse[main.df$files_dataverse == 1] <- '1'
-main.df$code_dataverse[main.df$files_dataverse == 1] <- '1'
-
-
-# uploading and binding ajps and apsr links
-ajps_links <- read.csv('data_entry/ajps_link_coding_diff_resolution.csv')
-
-apsr_links <- read.csv('data_entry/apsr_link_coding_RP.csv')
-
-links <- bind_rows(ajps_links, apsr_links)
-
-# create variables: files_link, data_link and code_link. Note: only consider full file, data and code
-links <- links %>%
-  mutate(files_link = links$link_category_resolved == 'files',
-         data_link = links$link_category_resolved == 'data',
-         code_link = links$link_category_resolved == 'code')
-
-links$files_link <- as.numeric(links$files_link)
-links$data_link <- as.numeric(links$data_link)
-links$code_link <- as.numeric(links$code_link)
-
-links <- links %>%
+  mutate_at(c('availability_dataverse_data', 'availability_dataverse_code'), max) %>%
+  # Using 'case_when' in 'mutate' is still experimental
+  # https://stackoverflow.com/a/38649748/
+  ungroup %>%
+  mutate(
+    availability_dataverse = case_when(
+      .$availability_dataverse_data == 'data' & .$availability_dataverse_code == 'code' ~ 'files',
+      TRUE ~ as.character(.$availability_dataverse)
+    ) %>%
+      parse_factor(levels = availability_dataverse_levels, ordered = TRUE)
+  ) %>%
   group_by(doi) %>%
-  summarize(files_link = max(files_link),
-            data_link = max(data_link),
-            code_link = max(code_link))
+  mutate_at('availability_dataverse', max) %>%
+  ungroup
 
-# If files = 1 then data = 1 and code = 1
-links$data_link[links$files_link == 1] <- '1'
-links$code_link[links$files_link == 1] <- '1'
+## Summarize to one row per article
+dataverse <- dataverse %>%
+  distinct(journal, doi, title, availability_dataverse)
 
-# If data = 1 and code = 1 then files = 1
-links$files_link[links$data_link == 1 & links$code_link == 1] <- '1'
+# Links
+ajps_link <- read_csv('data_entry/ajps_link_coding_diff_resolution.csv') %>%
+  mutate(journal = 'ajps')
 
-# Make files_link, data_link and code_link numeric
-links$files_link <- as.numeric(links$files_link)
-links$data_link <- as.numeric(links$data_link)
-links$code_link <- as.numeric(links$code_link)
+apsr_link <- read_csv('data_entry/apsr_link_coding_RP.csv') %>%
+  mutate(journal = 'apsr')
 
-# Append links to main.df
-main.df <- left_join(main.df, links, by='doi')
+link <- bind_rows(ajps_link, apsr_link)
 
-# # # # # Reference Coding
-ajps_references <- read.csv('data_entry/ajps_reference_coding_harmonized.csv')
-apsr_references <- read.csv('data_entry/apsr_reference_coding_harmonized.csv')
+availability_link_levels <- c(
+  'dead',
+  'redirect_to_general',
+  'could_not_find',
+  'restricted_access',
+  'data',
+  'code',
+  'files'
+)
 
-references <- bind_rows(ajps_references, apsr_references)
+link <- link %>%
+  mutate(availability_link = parse_factor(link_category_resolved, levels = availability_link_levels, ordered = TRUE, include_na = FALSE))
 
-references <- references %>%
-  mutate(files_full_name = reference_category == 'files_full_name',
-            data_full_name = reference_category == 'data_full_name',
-            code_full_name = reference_category == 'code_full_name')
+## Drop observations with unknown factor levels
+link <- link %>%
+  drop_na(availability_link)
 
-references$files_full_name <- as.numeric(references$files_full_name)
-references$data_full_name <- as.numeric(references$data_full_name)
-references$code_full_name <- as.numeric(references$code_full_name)
+## Find highest level of availability
+link <- link %>%
+  mutate(availability_link_data = availability_link %>%
+           fct_collapse(could_not_find = c('code'),
+                        data = c('data', 'files')),
+         availability_link_code = availability_link %>%
+           fct_collapse(could_not_find = c('data'),
+                        code = c('code', 'files')))
 
-ref <- references %>%
+link <- link %>%
   group_by(doi) %>%
-  summarise(files_references = max(files_full_name),
-            data_references = max(data_full_name),
-            code_references = max(code_full_name))
-
-
-
-
-# # # #TESTING
-# # # AJPS
-test_ajpsweb <- ajps_author_website %>%
-  mutate(data.avail = ajps_author_website$website_category == 'data',
-         code.avail = ajps_author_website$website_category == 'code',
-         files.avail = ajps_author_website$website_category == 'files')
-
-test_ajpsweb$data.avail <- as.numeric(test_ajpsweb$data.avail)
-test_ajpsweb$code.avail <- as.numeric(test_ajpsweb$code.avail)
-test_ajpsweb$files.avail <- as.numeric(test_ajpsweb$files.avail)
-
-
-test_ajpsweb <- test_ajpsweb %>%
+  mutate_at(c('availability_link_data', 'availability_link_code'), max) %>%
+  # Using 'case_when' in 'mutate' is still experimental
+  # https://stackoverflow.com/a/38649748/
+  ungroup %>%
+  mutate(
+    availability_link = case_when(
+      .$availability_link_data == 'data' & .$availability_link_code == 'code' ~ 'files',
+      TRUE ~ as.character(.$availability_link)
+    ) %>%
+      parse_factor(levels = availability_link_levels, ordered = TRUE)
+  ) %>%
   group_by(doi) %>%
-  summarize(data_web = max(data.avail),
-            code_web = max(code.avail),
-            files_web = max(files.avail))
+  mutate_at('availability_link', max) %>%
+  ungroup
 
-# # # # # APSR
-test_apsrweb <- apsr_author_website %>%
-  mutate(data.avail = apsr_author_website$website_category == 'data',
-         code.avail = apsr_author_website$website_category == 'code',
-         files.avail = apsr_author_website$website_category == 'files')
+## Summarize to one row per article
+link <- link %>%
+  distinct(journal, doi, title, availability_link)
 
-test_apsrweb$data.avail <- as.numeric(test_apsrweb$data.avail)
-test_apsrweb$code.avail <- as.numeric(test_apsrweb$code.avail)
-test_apsrweb$files.avail <- as.numeric(test_apsrweb$files.avail)
+# References
+## Import harmonized files
+ajps_reference <- read_csv('data_entry/ajps_reference_coding_harmonized.csv') %>%
+  mutate(journal = 'ajps')
+apsr_reference <- read_csv('data_entry/apsr_reference_coding_harmonized.csv') %>%
+  mutate(journal = 'apsr')
+apsr_centennial_reference <- read_csv('data_entry/apsr_centennial_reference_coding_harmonized.csv') %>%
+  mutate(journal = 'apsr_centennial')
 
-test_apsrweb %>%
+## Combine data from AJPS and APSR and APSR Centennial into a single dataframe
+reference <- bind_rows(ajps_reference, apsr_reference, apsr_centennial_reference)
+
+## Remove hyperlinking
+reference <- reference %>%
+  mutate_at('title', remove_hyperlink, hyperlink_separator = ',')
+
+## Define reference levels
+reference <- reference %>%
+  separate(reference_category, into = c('reference_what',
+                                        'reference_how_much',
+                                        'reference_how'),
+           sep = '_', remove = FALSE, fill = 'right') %>%
+  mutate(reference_how_much = if_else(is.na(reference_how_much), reference_what, reference_how_much),
+         reference_how = if_else(is.na(reference_how), reference_what, reference_how))
+
+reference_what_levels <- c(
+  'skip',
+  '0',
+  'data',
+  'code',
+  'files'
+)
+
+reference_how_much_levels <- c(
+  'skip',
+  '0',
+  'partial',
+  'full'
+)
+
+reference_how_levels <- c(
+  'skip',
+  '0',
+  'paper',
+  'name',
+  'link',
+  'dataverse'
+)
+
+reference <- reference %>%
+  mutate_at('reference_what', parse_factor, levels = reference_what_levels, ordered = TRUE) %>%
+  mutate_at('reference_how_much', parse_factor, levels = reference_how_much_levels, ordered = TRUE) %>%
+  mutate_at('reference_how', parse_factor, levels = reference_how_levels, ordered = TRUE)
+
+## Find highest level of stated availability
+reference_strict_levels <- c('link', 'dataverse')
+reference_easy_levels <- c('link', 'dataverse', 'paper' ,'name')
+reference_united_levels <- c(
+  '0_0',
+  '0_1',
+  '1_0',
+  '1_1'
+)
+reference_what_how_much_levels <- c('NA',
+                                   'code_partial', 'data_partial', 'files_partial',
+                                   'code_full', 'data_full', 'files_full')
+
+reference <- reference %>%
+  mutate(reference_strict = reference_how %in% reference_strict_levels,
+         reference_easy = reference_how %in% reference_easy_levels)
+
+## Note that at this point 'code' + 'data' != 'files', since 'files' is evaluated only from entries that contain 'files_x_x'.
+## This is useful to dinstinguish two references, 'code' and 'data', from a single 'files' reference.
+reference <- reference %>%
+  unite(reference_what_how_much, reference_what, reference_how_much, remove = FALSE) %>%
+  mutate_at('reference_what_how_much', factor, levels = reference_what_how_much_levels) %>%
+  #drop_na(reference_what_how_much) %>%
+  group_by(doi, reference_what_how_much) %>%
+  mutate_at(c('reference_strict', 'reference_easy'), max) %>%
+  ungroup %>%
+  unite(reference, reference_strict, reference_easy, remove = FALSE) %>%
+  mutate_at('reference', parse_factor, levels = reference_united_levels, ordered = TRUE) %>%
+  select(journal, doi, title, reference_what_how_much, reference) %>%
+  # As of Jun 2, 2017 'drop = FALSE' in 'spread' is not working as intended.
+  # https://github.com/tidyverse/tidyr/issues/254
+  # Add 'NA' as level of 'reference_what_how_much_levels' to preserve articles with only '0_0' reference values
+  distinct %>%
+  spread(reference_what_how_much, reference, fill = '0_0', drop = TRUE) %>%
+  select(-`<NA>`)
+
+## Make sure that 'code' + 'data' = files.
+## This removes the distinction between two references, 'code' and 'data', and a single 'files' reference.
+reference <- reference %>%
   group_by(doi) %>%
-  summarize(title = first(title),
-            data_web = max(data.avail),
-            code_web = max(code.avail),
-            files_web = max(files.avail)) %>%
-  anti_join(apsr_type_topic, by='doi') %>% View()
-  summarize(distinct_title = n_distinct(title))
+  mutate(code_partial = max(code_partial, files_partial),
+         data_partial = max(data_partial, files_partial),
+         code_full = max(code_full, files_full),
+         data_full = max(data_full, files_full),
+         files_partial = min(code_partial, data_partial),
+         files_full = min(code_full, data_full)) %>%
+  ungroup
 
-## checking for 'extra' articles in test_apsrweb with apsr_type_topic by doi
-apsr_diff <- anti_join(test_apsrweb, apsr_type_topic, by = 'doi')
+## Create separate variables for 'strict' and 'easy' definition of availability
+reference <- reference %>%
+  separate(code_partial, paste0('reference_code_partial_', c('strict', 'easy'))) %>%
+  separate(data_partial, paste0('reference_data_partial_', c('strict', 'easy'))) %>%
+  separate(files_partial, paste0('reference_files_partial_', c('strict', 'easy'))) %>%
+  separate(code_full, paste0('reference_code_full_', c('strict', 'easy'))) %>%
+  separate(data_full, paste0('reference_data_full_', c('strict', 'easy'))) %>%
+  separate(files_full, paste0('reference_files_full_', c('strict', 'easy')))
 
+# Merge article information
+join_columns = c('journal', 'doi', 'title')
+df <- article_coding %>%
+  left_join(author_website, join_columns) %>%
+  left_join(dataverse, join_columns) %>%
+  left_join(link, join_columns) %>%
+  left_join(reference, join_columns)
 
+# Combine availability measure from different sources into single variable
+availability_levels = c(
+  'NA',
+  '0',
+  'code',
+  'data',
+  'files'
+)
 
+df <- df %>%
+  bind_cols(df %>%
+              mutate_at(vars(starts_with('availability_')),
+                        parse_factor, levels = availability_levels, ordered = TRUE, include_na = TRUE) %>%
+              rowwise %>%
+              mutate(availability = max(availability_website, availability_dataverse, availability_link, na.rm = TRUE) %>%
+                       fct_recode('0' = 'NA')) %>%
+              select(availability))
 
-
-
-
-
-
-
-# # # # Reference coding check
-ajps_references <- read.csv('data_entry/ajps_reference_coding_harmonized.csv')
-apsr_references <- read.csv('data_entry/apsr_reference_coding_harmonized.csv')
-
-ajps_references <- ajps_references %>%
-  mutate(files_full_name = reference_category == 'files_full_name',
-         data_full_name = reference_category == 'data_full_name',
-         code_full_name = reference_category == 'code_full_name')
-
-ajps_references$files_full_name <- as.numeric(ajps_references$files_full_name)
-ajps_references$data_full_name <- as.numeric(ajps_references$data_full_name)
-ajps_references$code_full_name <- as.numeric(ajps_references$code_full_name)
-
-test_ajpsref <- ajps_references %>%
-  group_by(doi) %>%
-  summarise(files_references = max(files_full_name),
-            data_references = max(data_full_name),
-            code_references = max(code_full_name))
-
-apsr_references <- apsr_references %>%
-  mutate(files_full_name = reference_category == 'files_full_name',
-         data_full_name = reference_category == 'data_full_name',
-         code_full_name = reference_category == 'code_full_name')
-
-apsr_references$files_full_name <- as.numeric(apsr_references$files_full_name)
-apsr_references$data_full_name <- as.numeric(apsr_references$data_full_name)
-apsr_references$code_full_name <- as.numeric(apsr_references$code_full_name)
-
-test_apsrref <- apsr_references %>%
-  group_by(doi) %>%
-  summarise(files_references = max(files_full_name),
-            data_references = max(data_full_name),
-            code_references = max(code_full_name))
-
-
-###### TEST FOR EACH MERGER ##########
-anti_join(dv, main, by = 'doi') %>% nrows
+# Order columns
+df <- df %>% select(journal, doi, title, abstract, topic, data_type,
+                    availability, starts_with('availability_'), starts_with('reference_'))
