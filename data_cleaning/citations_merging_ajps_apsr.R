@@ -346,13 +346,44 @@ reference <- reference %>%
   separate(data_full, paste0('reference_data_full_', c('strict', 'easy'))) %>%
   separate(files_full, paste0('reference_files_full_', c('strict', 'easy')))
 
-# Merge article information
+# Article information from issue table of contents
+remove_page_string <- function(text)
+
+ajps_article_info_from_issue_toc <- read_csv('external/ajps_article_info_from_issue_toc.csv') %>%
+  mutate(journal = 'ajps') %>%
+  mutate_at('title', str_replace, pattern = ' \\(page.+\\)\\z', replacement = '') %>%
+  rename(publication_date_print = issue_date,
+         publication_date_internet = version_date) %>%
+  mutate_at('publication_date_print', parse_date, format = '%B %Y') %>%
+  mutate_at('publication_date_internet', parse_date, format = '%d %b %Y')
+
+apsr_article_info_from_issue_toc <- read_csv('external/apsr_article_info_from_issue_toc.csv') %>%
+  mutate(journal = 'apsr') %>%
+  rename(publication_date_print = issue_date,
+         publication_date_internet = publication_date) %>%
+  mutate_at('publication_date_print', parse_date, format = '%B %Y') %>%
+  mutate_at('publication_date_internet', parse_date, format = '%d %B %Y')
+
+article_info_from_issue_toc <- bind_rows(ajps_article_info_from_issue_toc, apsr_article_info_from_issue_toc)
+
+# Merge all article information
 join_columns = c('journal', 'doi', 'title')
+
 df <- article_coding %>%
+  left_join(article_info_from_issue_toc, join_columns) %>%
   left_join(author_website, join_columns) %>%
   left_join(dataverse, join_columns) %>%
   left_join(link, join_columns) %>%
   left_join(reference, join_columns)
+
+# Add date information for APSR Centennial Issue
+df <- df %>%
+  mutate(publication_date_print = if_else(journal == 'apsr_centennial',
+                                          parse_date('2006-11-01'),
+                                          publication_date_print),
+         publication_date_internet = if_else(journal == 'apsr_centennial',
+                                             parse_date('2006-11-28'),
+                                             publication_date_internet))
 
 # Combine availability measure from different sources into single variable
 availability_levels = c(
@@ -373,9 +404,9 @@ df <- df %>%
               select(availability))
 
 # Order columns
-df <- df %>% select(journal, doi, title, abstract, topic, data_type,
+df <- df %>% select(journal, publication_date_print, publication_date_internet, doi, title, abstract, topic, data_type,
                     availability, starts_with('availability_'), starts_with('reference_'))
 
 # Write dataframe to file
-output_file <- 'bld/citations_right_hand_side'
+output_file <- 'bld/citations_right_hand_side.csv'
 df %>% write_csv(output_file)
