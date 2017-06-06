@@ -13,11 +13,11 @@ remove_hyperlink <- function(text, hyperlink_separator = ';'){
 
 # Article coding (aka topic and type)
 ## Import harmonized files
-ajps_article <- read_csv('data_entry/ajps_article_coding_harmonized.csv') %>%
+ajps_article <- read_csv('external/ajps_article_coding_harmonized.csv') %>%
   mutate(journal = 'ajps')
-apsr_article <- read_csv('data_entry/apsr_article_coding_harmonized.csv') %>%
+apsr_article <- read_csv('external/apsr_article_coding_harmonized.csv') %>%
   mutate(journal = 'apsr')
-apsr_centennial_article <- read_csv('data_entry/apsr_centennial_article_coding_harmonized.csv') %>%
+apsr_centennial_article <- read_csv('external/apsr_centennial_article_coding_harmonized.csv') %>%
   mutate(journal = 'apsr_centennial')
 
 ## Combine data from AJPS, APSR and APSR centennial into a single dataframe
@@ -59,9 +59,9 @@ article_coding <- article_coding %>%
 
 # Author website
 ## Import harmonized files
-ajps_author_website <- read_csv('data_entry/ajps_author_website_coding_harmonized.csv') %>%
+ajps_author_website <- read_csv('external/ajps_author_website_coding_harmonized.csv') %>%
   mutate(journal = 'ajps')
-apsr_author_website <- read_csv('data_entry/apsr_author_website_coding_harmonized.csv') %>%
+apsr_author_website <- read_csv('external/apsr_author_website_coding_harmonized.csv') %>%
   mutate(journal = 'apsr')
 
 ## Combine data from AJPS and APSR into a single dataframe
@@ -123,11 +123,11 @@ author_website <- author_website %>%
 # Dataverse
 ## Import harmonized files
 ## Dataverse files were coded only by RP and TC, so take their resolution file as source
-ajps_dataverse <- read_csv('data_entry/ajps_dataverse_harmonized.csv') %>%
+ajps_dataverse <- read_csv('external/ajps_dataverse_harmonized.csv') %>%
   mutate_at('issue_date', parse_date, format = '%B %Y') %>%
   mutate(journal = 'ajps')
 
-apsr_dataverse <- read_csv('data_entry/apsr_dataverse_harmonized.csv') %>%
+apsr_dataverse <- read_csv('external/apsr_dataverse_harmonized.csv') %>%
   mutate(journal = 'apsr')
 
 ## Combine data from AJPS and APSR into a single dataframe
@@ -180,10 +180,10 @@ dataverse <- dataverse %>%
   distinct(journal, doi, title, availability_dataverse)
 
 # Links
-ajps_link <- read_csv('data_entry/ajps_link_coding_diff_resolution.csv') %>%
+ajps_link <- read_csv('external/ajps_link_coding_diff_resolution.csv') %>%
   mutate(journal = 'ajps')
 
-apsr_link <- read_csv('data_entry/apsr_link_coding_RP.csv') %>%
+apsr_link <- read_csv('external/apsr_link_coding_RP.csv') %>%
   mutate(journal = 'apsr')
 
 link <- bind_rows(ajps_link, apsr_link)
@@ -237,11 +237,11 @@ link <- link %>%
 
 # References
 ## Import harmonized files
-ajps_reference <- read_csv('data_entry/ajps_reference_coding_harmonized.csv') %>%
+ajps_reference <- read_csv('external/ajps_reference_coding_harmonized.csv') %>%
   mutate(journal = 'ajps')
-apsr_reference <- read_csv('data_entry/apsr_reference_coding_harmonized.csv') %>%
+apsr_reference <- read_csv('external/apsr_reference_coding_harmonized.csv') %>%
   mutate(journal = 'apsr')
-apsr_centennial_reference <- read_csv('data_entry/apsr_centennial_reference_coding_harmonized.csv') %>%
+apsr_centennial_reference <- read_csv('external/apsr_centennial_reference_coding_harmonized.csv') %>%
   mutate(journal = 'apsr_centennial')
 
 ## Combine data from AJPS and APSR and APSR Centennial into a single dataframe
@@ -375,3 +375,7 @@ df <- df %>%
 # Order columns
 df <- df %>% select(journal, doi, title, abstract, topic, data_type,
                     availability, starts_with('availability_'), starts_with('reference_'))
+
+# Write dataframe to file
+output_file <- 'bld/citations_right_hand_side'
+df %>% write_csv(output_file)
