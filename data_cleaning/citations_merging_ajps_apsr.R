@@ -417,6 +417,6 @@ df <- df %>% select(journal, apsr_centennial_issue = centennial, publication_dat
                     availability, starts_with('availability_'), starts_with('reference_'))
 
 # Write dataframe to file
-output_file <- 'bld/citations_right_hand_side.csv'
+output_file <- 'bld/citations_clean_data.csv'
 df %>% write_csv(output_file)
 
