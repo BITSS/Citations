@@ -18,7 +18,7 @@ ajps_article <- read_csv('external/ajps_article_coding_harmonized.csv') %>%
 apsr_article <- read_csv('external/apsr_article_coding_harmonized.csv') %>%
   mutate(journal = 'apsr')
 apsr_centennial_article <- read_csv('external/apsr_centennial_article_coding_harmonized.csv') %>%
-  mutate(journal = 'apsr_centennial')
+  mutate(journal = 'apsr', centennial = TRUE)
 
 ## Combine data from AJPS, APSR and APSR centennial into a single dataframe
 article_coding <- bind_rows(ajps_article, apsr_article, apsr_centennial_article)
@@ -55,7 +55,7 @@ article_coding <- article_coding %>%
          data_type = parse_factor(article_data_type, levels = article_data_type_levels))
 
 article_coding <- article_coding %>%
-  select(journal, doi, title, abstract, topic, data_type)
+  select(journal, centennial, doi, title, abstract, topic, data_type)
 
 # Author website
 ## Import harmonized files
@@ -242,7 +242,7 @@ ajps_reference <- read_csv('external/ajps_reference_coding_harmonized.csv') %>%
 apsr_reference <- read_csv('external/apsr_reference_coding_harmonized.csv') %>%
   mutate(journal = 'apsr')
 apsr_centennial_reference <- read_csv('external/apsr_centennial_reference_coding_harmonized.csv') %>%
-  mutate(journal = 'apsr_centennial')
+  mutate(journal = 'apsr')
 
 ## Combine data from AJPS and APSR and APSR Centennial into a single dataframe
 reference <- bind_rows(ajps_reference, apsr_reference, apsr_centennial_reference)
@@ -311,7 +311,6 @@ reference <- reference %>%
 reference <- reference %>%
   unite(reference_what_how_much, reference_what, reference_how_much, remove = FALSE) %>%
   mutate_at('reference_what_how_much', factor, levels = reference_what_how_much_levels) %>%
-  #drop_na(reference_what_how_much) %>%
   group_by(doi, reference_what_how_much) %>%
   mutate_at(c('reference_strict', 'reference_easy'), max) %>%
   ungroup %>%
@@ -347,8 +346,6 @@ reference <- reference %>%
   separate(files_full, paste0('reference_files_full_', c('strict', 'easy')))
 
 # Article information from issue table of contents
-remove_page_string <- function(text)
-
 ajps_article_info_from_issue_toc <- read_csv('external/ajps_article_info_from_issue_toc.csv') %>%
   mutate(journal = 'ajps') %>%
   mutate_at('title', str_replace, pattern = ' \\(page.+\\)\\z', replacement = '') %>%
@@ -366,6 +363,7 @@ apsr_article_info_from_issue_toc <- read_csv('external/apsr_article_info_from_is
 
 article_info_from_issue_toc <- bind_rows(ajps_article_info_from_issue_toc, apsr_article_info_from_issue_toc)
 
+# Remap apsr_centennial to apsr before merging
 # Merge all article information
 join_columns = c('journal', 'doi', 'title')
 
@@ -378,12 +376,12 @@ df <- article_coding %>%
 
 # Add date information for APSR Centennial Issue
 df <- df %>%
-  mutate(publication_date_print = if_else(journal == 'apsr_centennial',
+  mutate(publication_date_print = if_else(!is.na(centennial) & centennial,
                                           parse_date('2006-11-01'),
                                           publication_date_print),
-         publication_date_internet = if_else(journal == 'apsr_centennial',
+         publication_date_internet = if_else(!is.na(centennial) & centennial,
                                              parse_date('2006-11-28'),
-                                             publication_date_internet))
+                                             parse_date(publication_date_internet)))
 
 # Combine availability measure from different sources into single variable
 availability_levels = c(
@@ -403,10 +401,22 @@ df <- df %>%
                        fct_recode('0' = 'NA')) %>%
               select(availability))
 
+# Merge with citation_count data
+ajps_citation_count <- read_csv('external/ajps_2ndCheck.csv') %>%
+  mutate(journal = 'ajps')
+apsr_citation_count <- read_csv('external/apsr_2ndCheck.csv') %>%
+  mutate(journal = 'apsr')
+
+citation_count <- bind_rows(ajps_citation_count, apsr_citation_count) %>%
+  rename(citation_count = citation)
+df <- df %>%
+  left_join(citation_count, join_columns)
+
 # Order columns
-df <- df %>% select(journal, publication_date_print, publication_date_internet, doi, title, abstract, topic, data_type,
+df <- df %>% select(journal, apsr_centennial_issue = centennial, publication_date_print, publication_date_internet, citation_count, doi, title, abstract.x, topic, data_type,
                     availability, starts_with('availability_'), starts_with('reference_'))
 
 # Write dataframe to file
 output_file <- 'bld/citations_right_hand_side.csv'
 df %>% write_csv(output_file)
+
