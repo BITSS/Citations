@@ -6,6 +6,7 @@ dataverse_api_token.txt
 .~lock*
 .vscode
 .Rhistory
+.Rproj
 .DS_Store
 .csv
 
