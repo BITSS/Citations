@@ -1,0 +1,42 @@
+---
+title: "Data Sharing and Citations"
+author: "Garret Christensen"
+date: "June 6, 2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(lfe)
+library(tidyr)
+library(stringr)
+```
+
+## Data Sharing and Citations
+
+```{r load_drop}
+getwd()
+df<-read_csv("../external/citations_clean_data.csv")
+df<-rename(df, abstract=abstract.x)
+nrow(df)
+#filter out NA abstracts with INDEX in title
+#then Editor
+#then Errat
+drops <-df %>% filter(is.na(abstract) & str_detect(title, "INDEX"))
+df<-df %>% filter(!(is.na(abstract) & str_detect(title, "INDEX")))
+nrow(df)
+
+drops <-df %>% filter(is.na(abstract) & str_detect(title, "Editor"))
+df<-df %>% filter(!(is.na(abstract) & str_detect(title, "Editor")))
+nrow(df)
+
+drops <-df %>% filter(is.na(abstract) & str_detect(title, "Errat"))
+df<-df %>% filter(!(is.na(abstract) & str_detect(title, "Errat")))
+nrow(df)
+```
+
+As of June, 2017 we probably still need to do something to clean this data. I thought double-entry would suffice, but I'm a little skeptical. Given the time constraint, let's just proceed with preliminary data.
+
+```{r regressions}
+
+```
