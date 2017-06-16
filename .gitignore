@@ -6,9 +6,9 @@ dataverse_api_token.txt
 .~lock*
 .vscode
 .Rhistory
-.Rproj
 .DS_Store
-.csv
+*.Rproj
+*.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

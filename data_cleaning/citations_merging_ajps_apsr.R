@@ -407,13 +407,15 @@ ajps_citation_count <- read_csv('external/ajps_2ndCheck.csv') %>%
 apsr_citation_count <- read_csv('external/apsr_2ndCheck.csv') %>%
   mutate(journal = 'apsr')
 
+## Values for title appear in both right-hand side and citation data. Choose value from right-hand side data.
 citation_count <- bind_rows(ajps_citation_count, apsr_citation_count) %>%
-  rename(citation_count = citation)
+  select(journal, doi, citation_count = citation)
+
 df <- df %>%
-  left_join(citation_count, join_columns)
+  left_join(citation_count, by = c('journal', 'doi'))
 
 # Order columns
-df <- df %>% select(journal, apsr_centennial_issue = centennial, publication_date_print, publication_date_internet, citation_count, doi, title, abstract.x, topic, data_type,
+df <- df %>% select(journal, apsr_centennial_issue = centennial, publication_date_print, publication_date_internet, citation_count, doi, topic, data_type, title, abstract,
                     availability, starts_with('availability_'), starts_with('reference_'))
 
 # Write dataframe to file
