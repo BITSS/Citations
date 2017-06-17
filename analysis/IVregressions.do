@@ -24,6 +24,14 @@ drop if abstract=="NA" & strpos(title,"INDEX")>0
 drop if abstract=="NA" & strpos(title,"Editor")>0
 drop if abstract=="NA" & strpos(title,"Errat")>0
 
+*APSR EXTERNAL REVIEWERS--NOT REAL ARTICLES
+drop if doi=="10.1017/S0003055409990256"
+drop if doi=="10.1017/S0003055410000547"
+drop if doi=="10.1017/S0003055411000499"
+drop if doi=="10.1017/S0003055412000470"
+drop if doi=="10.1017/S0003055414000574"
+
+
 replace citation_count="." if citation_count=="NA"
 destring citation_count, replace
 summ citation_count
@@ -125,6 +133,22 @@ line ajps_y_avg apsr_y_avg year, title("Yearly Average Availability by Journal")
 	ylabel(0 0.2 0.4 0.6 0.8 1)
 graph export ../output/avail_time.png, replace
 
+****************************
+*GRAPH CITATIONS
+****************************
+histogram citation, bgcolor(white) graphregion(color(white)) title("Density of Citations")
+graph export ../output/cite_histo.png, replace
+
+bysort year ajps: egen cite_j_avg=mean(citation)
+label var cite_j_avg "Cites by Journal and Year"
+gen ajps_y_citeavg=cite_j_avg if ajps==1
+label var ajps_y_citeavg "AJPS"
+gen apsr_y_citeavg=cite_j_avg if ajps==0
+label var apsr_y_citeavg "APSR"
+line ajps_y_citeavg apsr_y_citeavg year, title("Yearly Average Citations by Journal") ///
+	bgcolor(white) graphregion(color(white))
+
+graph export ../output/cite_time.png, replace
 *********************************************************
 *GRAPH TOPIC AND TYPE
 *****************************************************
