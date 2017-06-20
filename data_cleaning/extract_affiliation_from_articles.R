@@ -1,17 +1,11 @@
 # Setup
 library(tidyverse)
 library(stringr)
+library(fuzzyjoin)
 library(rprojroot) # find project root
 setwd(find_root('README.md'))
 
-# AJPS
-ajps <- read_csv('bld/ajps_articles_2006_2014.csv',
-                 col_types = cols_only(doi = col_character(),
-                                       title = col_character(),
-                                       authors = col_character(),
-                                       authors_description = col_character()))
-
-## The manual entries will be used in regular expression, hence escape special characters
+# The manual entries will be used in regular expression, hence escape special characters
 manual_authors = c('Samuel Merrill III',
                    'Darwin W. Miller, III',
                    'Edgar E. Ramirez De La Cruz',
@@ -63,6 +57,7 @@ manual_affiliations = c('California State University, Los Angeles',
                         'Gardner-Webb University',
                         'Florida State University',
                         'Fundação Getúlio Vargas',
+                        'Ohio State University',
                         'Graduate Institute of International and Development Studies',
                         'ETH Zürich',
                         'Hebrew University of Jerusalem',
@@ -101,7 +96,16 @@ manual_affiliations = c('California State University, Los Angeles',
                         'University of Oslo',
                         'Centre for the Study of Civil War, PRIO',
                         'George Washington University',
-                        'Essex University')
+                        'Essex University',
+                        'Indiana University',
+                        'Houston State University')
+
+# AJPS
+ajps <- read_csv('bld/ajps_articles_2006_2014.csv',
+                 col_types = cols_only(doi = col_character(),
+                                       title = col_character(),
+                                       authors = col_character(),
+                                       authors_description = col_character()))
 
 ajps_affiliation_manual_regex = paste(paste(paste0('(?<=^', manual_authors, ')[, ]*'), collapse = '|'),
                                       paste(paste0('[, ]*(?=', manual_affiliations, '[, ]*$)'), collapse = '|'),
@@ -137,15 +141,65 @@ apsr <- apsr %>% mutate(journal = 'apsr') %>%
          author_affiliation = authors_affiliations)
 ajps <- ajps %>% mutate(journal = 'ajps')
 
-df <- bind_rows(ajps, apsr) %>%
+affiliation <- bind_rows(ajps, apsr) %>%
   select(journal, doi, title, author_name, author_affiliation)
 
 ## Extract affiliations from authors with multiple affiliations
-ajps <- ajps %>% separate_rows(author_affiliation, sep = paste(paste0('(?<=', paste(manual_affiliations, collapse = '|'), ') and '),
+affiliation <- affiliation %>% separate_rows(author_affiliation, sep = paste(paste0('(?<=', paste(manual_affiliations, collapse = '|'), ') and '),
                                                                paste0(' and (?=', paste(manual_affiliations, collapse = '|'), ')'),
                                                                sep = '|'))
 
-# Remove leading or trailing special characters
-df <- df %>% mutate_at('author_affiliation', str_replace_all,
-                 pattern = '^[, ]+|[, ]+$', replace = '')
-df %>% write_csv('bld/article_author_affiliation.csv')
+# Remove leading or trailing uninformative
+affiliation <- affiliation %>% mutate_at('author_affiliation', str_replace_all,
+                 pattern = '^\\W+|\\W+$', replace = '')
+
+# Merge with university rankings
+ranking <- read_csv('bld/uni_rankings.csv',
+                    locale = locale(encoding = 'windows-1252')) %>%
+  mutate(affiliation_join = str_trim(university)) %>%
+  mutate_at('affiliation_join', str_replace_all,
+            pattern = '[[:punct:]]|\\W[Tt]he\\W|\\Wof\\W|\\Wat\\W| (?= )', replacement = '')
+
+## Simplify columns for fuzzy join
+affiliation <- affiliation %>%
+  mutate(affiliation_join = str_replace_all(author_affiliation,
+                                            pattern = '[[:punct:]]|\\W[Tt]he\\W|\\Wof\\W|\\Wat\\W| (?= )',
+                                            replacement = ''))
+df <- affiliation %>%
+  stringdist_left_join(ranking, by = 'affiliation_join',
+                       max_dist = 5, distance_col = 'join_string_distance',
+                       method = 'lcs') %>%
+  arrange(join_string_distance) %>%
+  distinct(doi, title, author_name, author_affiliation, .keep_all = TRUE) %>%
+  arrange(journal, doi, title, author_name)
+
+# University that should be matched, but are missed by algorithm
+## University of Michigan
+## Indiana University
+## University of Maryland?
+## Pennsylvania State University
+## Texas A&M University, College Station
+## University Minnesota Law School
+## Rutgers, The State University of New Jersey,
+## Louisiana State University, Baton Rouge
+## Stanford Gradue School Business
+## University of Minnesota, Twin Cis
+## University of Nebraska, Lincoln
+## University of Missouri-Columbia
+## University of Tennessee, Knoxville
+## Penn State University
+## City UniversityNew York
+## Harvard Law School
+## UCLA
+## UniversityNotre Dame and Witherspoon Institute
+## UniversityColorado
+## Purdue University, West Lafayette
+## Southern UniversityBaton Rouge
+
+# Find top ranked author
+df <- df %>% group_by(journal, doi, title) %>%
+  mutate(top_rank = max(ranking, na.rm = TRUE)) %>%
+  distinct(.keep_all = TRUE) %>%
+  select(journal, doi, title, top_rank)
+
+df %>% write_csv('bld/article_author_top_rank.csv')
