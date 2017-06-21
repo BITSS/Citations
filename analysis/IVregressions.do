@@ -5,7 +5,9 @@ cd "C:\Users\garret\Box Sync\CEGA-Programs-BITSS\3_Publications_Research\Citatio
 *The R script somehow loses many citations
 *all with a foreign character in title
 *so GSC redid it in Stata
-
+***************************************************
+*LOAD DATA
+***************************************************
 *SAVE CITATIONS IN STATA FORMAT
 insheet using ../external/apsr_2ndCheck.csv, clear names
 keep doi citation
@@ -14,9 +16,18 @@ insheet using ../external/ajps_2ndCheck.csv, clear names
 keep doi citation
 save ../external/ajps_2ndCheck.dta, replace
 
+*SAVE AUTHOR RANK IN STATA FORMAT
+insheet using ../external/article_author_top_rank.csv, clear names
+keep doi top_rank
+save ../external/article_author_top_rank.dta, replace
+
 *LOAD MAIN MERGED DATA
 insheet using ../external/citations_clean_data.csv, clear names
 rename abstractx abstract
+
+*****************************************************
+*DROP NON-REAL ARTICLES
+******************************************************
 
 *GET RID OF SOME NOT-REAL ARTICLES
 count
@@ -31,6 +42,14 @@ drop if doi=="10.1017/S0003055411000499"
 drop if doi=="10.1017/S0003055412000470"
 drop if doi=="10.1017/S0003055414000574"
 
+*NOTES FROM THE EDITOR
+drop if strpos(title,"Notes from the Editor")>0
+
+*ERRATA
+drop if strpos(title,"Errata to")>0 //1
+drop if strpos(title,"ERRATUM")>0 //3
+drop if strpos(title,"Erratum")>0 //1
+drop if strpos(title,"CORRIGENDUM")>0 //2 
 
 replace citation_count="." if citation_count=="NA"
 destring citation_count, replace
@@ -41,14 +60,16 @@ summ citation_count
 *MERGE, AND CHANGE NAME SO AJPS MERGE DOESN'T OVERWRITE 
 merge 1:1 doi using ../external/apsr_2ndCheck.dta
 drop if _merge==2 //these are a few Index not-real articles
+rename _merge merge_apsr
 replace citation="." if citation=="NA"
 destring citation, replace
 rename citation citation_apsr
 summ citation*
 
 *MERGE AJPS
-rename _merge merge_apsr
 merge 1:1 doi using ../external/ajps_2ndCheck.dta
+drop if _merge==2 //Editor notes, etc.
+rename _merge merge_ajps
 replace citation="." if citation=="NA" 
 destring citation, replace
 summ citation*
@@ -169,7 +190,7 @@ graph bar topic_*, stack over(ajps) legend(lab(1 "American") ///
 graph export ../output/topicXjournal.png, replace
 
 foreach X in 2010 2012{
-graph bar topic_*, stack over(ajps) over(post`X') legend(lab(1 "American") ///
+graph bar topic_*, stack over(post`X') over(ajps)  legend(lab(1 "American") ///
 	lab(2 "Comparative") ///
 	lab(3 "Int'l Relations") ///
 	lab(4 "Methodology") ///
@@ -181,8 +202,9 @@ graph export ../output/topicXjournalXpost`X'.png, replace
 
 replace data_type="" if data_type=="skip"
 tab data_type, generate(data_type_)
+label var data_type_2 "No Data in Article" 
 foreach X in 2010 2012{
-graph bar data_type_*, stack over(ajps) over(post`X') legend(lab(1 "Experimental") ///
+graph bar data_type_*, stack over(post`X') over(ajps)  legend(lab(1 "Experimental") ///
 	lab(2 "None") ///
 	lab(3 "Observational") ///
 	lab(4 "Simulations")) ///
@@ -191,44 +213,151 @@ graph bar data_type_*, stack over(ajps) over(post`X') legend(lab(1 "Experimental
 graph export ../output/typeXjournalXpost`X'.png, replace
 }
 
+*************************************
+*GRAPH AUTHOR RANKING
+*************************************
+count
+merge 1:1 doi using ../external/article_author_top_rank.dta
+drop if _merge==2 //Contains a few 2015 articles, editorials, and erratum
+*AS OF 6/21/2017 THE APSR CENTENNIAL AND ~10 OTHERS AREN'T IN THIS DATASET
+count
+rename _merge merge_auth_rank
+replace top_rank=".a" if top_rank=="NA"
+destring top_rank, replace
+replace top_rank=.b if top_rank==. //.b is TRULY MISSING
+replace top_rank=125 if top_rank==.a //temp! 
+label var top_rank "Top US News Ranking of Author Institutions"
+histogram top_rank, title("Top US News Ranking of Articles") ///
+	bgcolor(white) graphregion(color(white)) ///
+	note("*Rank of 125 implies no author at top-100 ranked institution")
+graph export ../output/histo_authrank.png, replace
+replace top_rank=.a if top_rank==125 //.a is NOT RANKED
+
+gen top1=.
+replace top1=1 if top_rank==1
+replace top1=0 if top_rank>1 & top_rank<.b
+gen top5=.
+replace top5=1 if (top_rank>1 & top_rank<=5)
+replace top5=0 if top1==1 | (top_rank>5 & top_rank<.b)
+gen top20=.
+replace top20=1 if (top_rank>5 & top_rank<=20)
+replace top20=0 if top1==1|top5==1|(top_rank>20 & top_rank<.b)
+gen top50=.
+replace top50=1 if (top_rank>20 & top_rank<=50)
+replace top50=0 if top1==1|top5==1|top20==1|(top_rank>50 & top_rank<.b)
+gen top100=.
+replace top100=1 if (top_rank>50 & top_rank <=100)
+replace top100=0 if top1==1|top5==1|top20==1|top50==1|(top_rank>100 & top_rank<.b)
+gen unranked=.
+replace unranked=1 if top_rank==.a
+replace unranked=0 if top_rank<.
+
+foreach X in 2010 2012{
+graph bar top1 top5 top20 top50 top100 unranked, stack over(post`X') over(ajps)  legend(lab(1 "Top 1") ///
+	lab(2 "Top 5") ///
+	lab(3 "Top 20") ///
+	lab(4 "Top 50") ///
+	lab(5 "Top 100") ///
+	lab(6 "Unranked")) ///
+	title("Institution Rankings by Journal Before and After `X' Policy") ///
+	bgcolor(white) graphregion(color(white))
+graph export ../output/rankXjournalXpost`X'.png, replace
+}
 ***********************************************************
 *REGRESSIONS
 ***********************************************************
 
 *NAIVE
 regress citation avail_yn
-	outreg2 using ../output/naive.tex, tex label replace
-regress citation avail_yn ajps 
-	outreg2 using ../output/naive.tex, tex label append
+	outreg2 using ../output/naive.tex, tex label replace addtext(Sample, All)
+*regress citation avail_yn ajps 
+*	outreg2 using ../output/naive.tex, tex label append
 regress citation avail_yn ajps print_months_ago	print_months_ago_sq print_months_ago_cu
-	outreg2 using ../output/naive.tex, tex label append title("Naive OLS Regression")
+	outreg2 using ../output/naive.tex, tex label append title("Naive OLS Regression") ///
+	addtext(Sample, All)
+regress citation avail_yn ajps print_months_ago	print_months_ago_sq print_months_ago_cu ///
+	data_type_2
+	outreg2 using ../output/naive.tex, tex label append title("Naive OLS Regression") ///
+	addtext(Sample, All)	
+regress citation avail_yn ajps print_months_ago	print_months_ago_sq print_months_ago_cu ///
+	if data_type!="no_data"
+	outreg2 using ../output/naive.tex, tex label append addtext(Sample, Data-Only)
+	
 
 *NAIVE-LN
 gen lncite=ln(citation+1)
-label var lncite "Log(Citations+1)"
+label var lncite "Ln(Cites+1)"
 regress lncite avail_yn
-	outreg2 using ../output/naiveLN.tex, tex label replace
-regress lncite avail_yn ajps 
-	outreg2 using ../output/naiveLN.tex, tex label append
+	outreg2 using ../output/naiveLN.tex, tex label replace addtext(Sample, All)
+*regress lncite avail_yn ajps 
+*	outreg2 using ../output/naiveLN.tex, tex label append
 regress lncite avail_yn ajps print_months_ago	print_months_ago_sq print_months_ago_cu
-	outreg2 using ../output/naiveLN.tex, tex label append title("Naive Log OLS Regression")
+	outreg2 using ../output/naiveLN.tex, tex label append title("Naive Log OLS Regression") ///
+		addtext(Sample, All)
+regress lncite avail_yn ajps print_months_ago	print_months_ago_sq print_months_ago_cu ///
+	data_type_2
+	outreg2 using ../output/naiveLN.tex, tex label append title("Naive Log OLS Regression") ///
+		addtext(Sample, All)
+regress lncite avail_yn ajps print_months_ago	print_months_ago_sq print_months_ago_cu ///
+	if data_type!="no_data"
+	outreg2 using ../output/naiveLN.tex, tex label append addtext(Sample, Data-Only)
+	
 
 	
 *********************************
 *INSTRUMENTAL VARIABLE REGRESSION
+*LEVEL
 ivregress 2sls citation ajps post2010 post2012 print_months_ago ///
 	print_months_ago_sq print_months_ago_cu (avail_yn = ajpsXpost2010 ///
 	ajpsXpost2012), first
 
 	outreg2 using ../output/ivreg.tex, tex label replace ctitle("2SLS") title("2SLS Regression") ///
-		nocons
+		nocons addtext(Sample, All)
 
+ivregress 2sls citation ajps post2010 post2012 print_months_ago ///
+	print_months_ago_sq print_months_ago_cu (avail_yn = ajpsXpost2010 ///
+	ajpsXpost2012) if data_type!="no_data", first
+
+	outreg2 using ../output/ivreg.tex, tex label append ctitle("2SLS") ///
+		addtext(Sample, Data-Only) nocons		
+
+*INCLUDE INTERACTIONS
+gen ajpsXpost2010Xdata=ajpsXpost2010*(data_type_2==0)
+label var ajpsXpost2010Xdata "AJPS Post-2010 with Data"
+gen ajpsXpost2012Xdata=ajpsXpost2012*(data_type_2==0)
+label var ajpsXpost2012Xdata "AJPS Post-2012 with Data"				
+gen post2010Xdata=post2010*(data_type_2==0)
+label var post2010Xdata "Post-2010 with Data"
+gen post2012Xdata=post2012*(data_type_2==0)
+label var post2012Xdata "Post-2012 with Data"	
+ivregress 2sls citation ajps post2010 post2012 post2010Xdata post2012Xdata ///
+	print_months_ago print_months_ago_sq print_months_ago_cu data_type_2 (avail_yn = ajpsXpost2010Xdata ///
+	ajpsXpost2012Xdata), first
+
+	outreg2 using ../output/ivreg.tex, tex label append ctitle("2SLS") ///
+		nocons addtext(Sample, IV=Data-Only)		
+		
+*LOG		
 ivregress 2sls lncite ajps post2010 post2012 print_months_ago ///
 	print_months_ago_sq print_months_ago_cu (avail_yn = ajpsXpost2010 ///
 	ajpsXpost2012), first
 
-	outreg2 using ../output/ivreg.tex, tex label append ctitle("2SLS-Log") ///
-		nocons
+	outreg2 using ../output/ivregln.tex, tex label replace ctitle("2SLS-Log") ///
+		nocons addtext(Sample, All) title("2SLS Regression of ln(citations+1)")
+		
+ivregress 2sls lncite ajps post2010 post2012 print_months_ago ///
+	print_months_ago_sq print_months_ago_cu (avail_yn = ajpsXpost2010 ///
+	ajpsXpost2012) if data_type!="no_data", first
+
+	outreg2 using ../output/ivregln.tex, tex label append ctitle("2SLS-Log") ///
+		nocons addtext(Sample, Data-Only)
+		
+ivregress 2sls lncite ajps post2010 post2012 post2010Xdata post2012Xdata print_months_ago ///
+	print_months_ago_sq print_months_ago_cu data_type_2 (avail_yn = ajpsXpost2010Xdata ///
+	ajpsXpost2012Xdata), first
+
+	outreg2 using ../output/ivregln.tex, tex label append ctitle("2SLS-Log") ///
+		nocons addtext(Sample, IV=Data-Only)
 		
 *MANUALLY DO THE IV
 *FIRST STAGE
@@ -236,7 +365,20 @@ regress avail_yn ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months
 	print_months_ago_sq print_months_ago_cu
 test ajpsXpost2010=ajpsXpost2012=0
 outreg2 using ../output/ivreg.tex, tex label append ctitle("First Stage") addstat(F Stat, r(F)) ///
-	nocons
+	nocons addtext(Sample, All)
+	
+regress avail_yn ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
+	print_months_ago_sq print_months_ago_cu if data_type_2==0
+test ajpsXpost2010=ajpsXpost2012=0
+outreg2 using ../output/ivreg.tex, tex label append ctitle("First Stage") addstat(F Stat, r(F)) ///
+	nocons addtext(Sample, Data-Only)
+
+regress avail_yn ajpsXpost2010Xdata ajpsXpost2012Xdata ajps post2010 post2012 post2010Xdata post2012Xdata ///
+	print_months_ago print_months_ago_sq print_months_ago_cu data_type_2
+test ajpsXpost2010=ajpsXpost2012=0
+outreg2 using ../output/ivreg.tex, tex label append ctitle("First Stage") addstat(F Stat, r(F)) ///
+	nocons addtext(Sample, IV=Data-Only)
+	
 
 predict avail_hat
 *SECOND STAGE--DON'T TRUST THE STANDARD ERRORS!

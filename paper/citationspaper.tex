@@ -49,12 +49,14 @@ This is just a placeholder document so I can put all the figures and tables in o
 First, let's graph data availability over time in our two journals.
 
 \includegraphics[scale=0.4]{../output/avail_time.png}
+\pagebreak
 
 What's the overall distribution of citations? Power law, big time.
 
 \includegraphics[scale=0.4]{../output/cite_histo.png}
 
 \includegraphics[scale=0.4]{../output/cite_time.png}
+\pagebreak
 
 Let's test whether we see the same positive association between data and citations as Vision, Piwowar. We do.
 
@@ -63,13 +65,22 @@ Let's test whether we see the same positive association between data and citatio
 \input{../output/naiveLN.tex}
 \clearpage
 
-Does the relationship hold if try to strip out the confounders? Preliminary evidence says no. The first stage has a sufficiently strong F test, but the second stage shows a noisy, possibly \textit{negative} effect.
+Does the relationship hold if try to strip out the confounders? The first stage has a sufficiently strong F test, but the second stage shows a noisy effect. Results are significantly more positive if you restrict to the articles with data. (Columns 2, 4, 5)
 
+\scalebox{0.8}{
 \input{../output/ivreg.tex}
+}
+\pagebreak
 
-Third, what things could be changing at the same time as the policy? Article topic, the type of data used, and the quality of the researcher could change. We've got data on the first two, but still need to work with the data to get the university (and associated ranking) of the researchers.
+Now the IV with LN
 
-It appears that the article topic and type really don't change before and after the policy.
+\scalebox{1.0}{
+\input{../output/ivregln.tex}
+}
+\pagebreak
+
+Third, what things could be changing at the same time as the policy? Article topic, the type of data used, and the quality of the researcher could change. We have data on all three of these, and none look like they really change, though I haven't run statistical tests yet.
+
 
 \includegraphics[scale=0.4]{../output/topicXjournalXpost2010.png}
 
@@ -78,6 +89,13 @@ It appears that the article topic and type really don't change before and after 
 \includegraphics[scale=0.4]{../output/typeXjournalXpost2010.png}
 
 \includegraphics[scale=0.4]{../output/typeXjournalXpost2012.png}
+
+Maybe rankings of the top institutions of the authors changes a little?
+
+\includegraphics[scale=0.4]{../output/rankXjournalXpost2010.png}
+
+\includegraphics[scale=0.4]{../output/rankXjournalXpost2012.png}
+
 
 
 \end{document}
