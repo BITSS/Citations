@@ -5,6 +5,8 @@ See https://osf.io/cdt8y/ for more info.
 
 To update the research log, click [here](https://docs.google.com/a/berkeley.edu/document/d/1XC20bRYeNCIrH-XqrU8tqs2K5fdqaGenZ41ZlpTg2QM/edit?usp=sharing).
 
+Draft of the entire data collection process is [here](https://docs.google.com/document/d/1zPoa1W5Ysd-5aFIp1Qz_j2zJKnSaVzC072d625MkjFc/edit?usp=sharing).
+
 # Project Status
 ## Data Collection
 
