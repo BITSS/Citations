@@ -149,17 +149,35 @@ apsr <- read_csv('bld/apsr_article_content_2006_2014.csv',
                                        title = col_character(),
                                        authors = col_character(),
                                        authors_affiliations = col_character()))
+
 apsr <- apsr %>% separate_rows(authors_affiliations, sep = ';') %>%
   filter(authors_affiliations != '')
 
+# APSR Centennial
+apsr_centennial <- read_csv('bld/apsr_centennial_article_content.csv',
+                            col_types = cols_only(doi = col_character(),
+                                                  title = col_character(),
+                                                  authors = col_character(),
+                                                  authors_affiliations = col_character()))
+
+apsr_centennial <- apsr_centennial %>% separate_rows(authors_affiliations, sep = ';') %>%
+  filter(authors_affiliations != '')
+
 # Combine journals
-apsr <- apsr %>% mutate(journal = 'apsr') %>%
+ajps <- ajps %>%
+  mutate(journal = 'ajps')
+apsr <- apsr %>%
+  mutate(journal = 'apsr') %>%
   rename(author_name = authors,
          author_affiliation = authors_affiliations)
-ajps <- ajps %>% mutate(journal = 'ajps')
+apsr_centennial <- apsr_centennial %>%
+  mutate(journal = 'apsr',
+         apsr_centennial = TRUE) %>%
+  rename(author_name = authors,
+         author_affiliation = authors_affiliations)
 
-affiliation <- bind_rows(ajps, apsr) %>%
-  select(journal, doi, title, author_name, author_affiliation)
+affiliation <- bind_rows(ajps, apsr, apsr_centennial) %>%
+  select(journal, apsr_centennial, doi, title, author_name, author_affiliation)
 
 # Extract affiliations from authors with multiple affiliations
 affiliation <- affiliation %>% separate_rows(author_affiliation, sep = paste(paste0('(?<=', paste(manual_affiliations, collapse = '|'), ') and '),
@@ -208,7 +226,10 @@ manual_affiliation_mapping <- tribble(
   '10.1017/S0003055413000300', 'ROBERT S. TAYLOR', 'University of California, Davis',
   '10.1017/S0003055413000397', 'GERALD GAMM;THAD KOUSSER', 'University of California, San Diego',
   '10.1017/S0003055413000609', 'SHALINI SATKUNANANDAN', 'University of California, Davis',
-  '10.1017/S0003055414000215', 'JOHN T. SCOTT', 'University of California, Davis'
+  '10.1017/S0003055414000215', 'JOHN T. SCOTT', 'University of California, Davis',
+  '10.1017/S0003055406062320', 'JOHN G. GUNNELL', 'State University of New York, Albany',
+  '10.1017/S0003055406382561', 'Nelson W. Polsby', 'University of California, Berkeley',
+  '10.1017/S0003055406342566', 'Jack Citrin;Nelson W. Polsby', 'University of California, Berkeley'
 )
 
 affiliation <- affiliation %>% left_join(manual_affiliation_mapping, by = c('doi', 'author_name')) %>%
@@ -298,12 +319,12 @@ df <- affiliation %>%
                        method = 'lcs') %>%
   arrange(join_string_distance) %>%
   distinct(doi, title, author_name, author_affiliation, .keep_all = TRUE) %>%
-  arrange(journal, doi, title, author_name)
+  arrange(journal, apsr_centennial, doi, title, author_name)
 
 # Find top ranked author
-df <- df %>% group_by(journal, doi, title) %>%
+df <- df %>% group_by(journal, apsr_centennial, doi, title) %>%
   mutate(top_rank = max(ranking, na.rm = TRUE)) %>%
   distinct(.keep_all = TRUE) %>%
-  select(journal, doi, title, top_rank)
+  select(journal, apsr_centennial, doi, title, top_rank)
 
 df %>% write_csv('bld/article_author_top_rank.csv')
