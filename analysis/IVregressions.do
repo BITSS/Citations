@@ -112,9 +112,9 @@ local July2012=date("2012-07-01","YMD")
 gen post2012=(print_date>`July2012')
 
 gen ajpsXpost2010=ajps*post2010
-label var ajpsXpost2010 "AJPS after 2010 Policy"
+label var ajpsXpost2010 "AJPS post-2010 Policy"
 gen ajpsXpost2012=ajps*post2012
-label var ajpsXpost2012 "AJPS after 2012 Policy"
+label var ajpsXpost2012 "AJPS post-2012 Policy"
 
 gen year=substr(publication_date_print, 1, 4)
 destring year, replace
@@ -128,10 +128,10 @@ label var print_months_ago "Months since Pub'd"
 label var print_months_ago_sq "Months since Pub'd$^2$"
 label var print_months_ago_cu "Months since Pub'd$^3$"
 label var ajps "AJPS"
-label var post2010 "After Oct 2010"
+label var post2010 "Post-Oct 2010"
 label define beforeafter 0 "Before" 1 "After"
 label values post2010 beforeafter
-label var post2012 "After July 2012"
+label var post2012 "Post-July 2012"
 label value post2012 beforeafter
 label var avail_yn "Data and Code Available" 
 
@@ -202,7 +202,10 @@ graph export ../output/topicXjournalXpost`X'.png, replace
 
 replace data_type="" if data_type=="skip"
 tab data_type, generate(data_type_)
+label var data_type_1 "Experimental"
 label var data_type_2 "No Data in Article" 
+label var data_type_3 "Observational"
+label var data_type_4 "Simulations"
 foreach X in 2010 2012{
 graph bar data_type_*, stack over(post`X') over(ajps)  legend(lab(1 "Experimental") ///
 	lab(2 "None") ///
@@ -251,6 +254,8 @@ replace top100=0 if top1==1|top5==1|top20==1|top50==1|(top_rank>100 & top_rank<.
 gen unranked=.
 replace unranked=1 if top_rank==.a
 replace unranked=0 if top_rank<.
+label var top5 "Top 5"
+label var top20 "Top 20"
 
 foreach X in 2010 2012{
 graph bar top1 top5 top20 top50 top100 unranked, stack over(post`X') over(ajps)  legend(lab(1 "Top 1") ///
@@ -263,6 +268,7 @@ graph bar top1 top5 top20 top50 top100 unranked, stack over(post`X') over(ajps) 
 	bgcolor(white) graphregion(color(white))
 graph export ../output/rankXjournalXpost`X'.png, replace
 }
+
 ***********************************************************
 *REGRESSIONS
 ***********************************************************
@@ -270,38 +276,52 @@ graph export ../output/rankXjournalXpost`X'.png, replace
 *NAIVE
 regress citation avail_yn
 	outreg2 using ../output/naive.tex, tex label replace addtext(Sample, All)
+	outreg2 using ../output/naive-simp.tex, tex label replace addtext(Sample, All) ///
+	nocons drop(print_months_ago_cu print_months_ago_sq) addnote("Regressions include constant, squared and cubed months since publication.")
 *regress citation avail_yn ajps 
 *	outreg2 using ../output/naive.tex, tex label append
 regress citation avail_yn ajps print_months_ago	print_months_ago_sq print_months_ago_cu
 	outreg2 using ../output/naive.tex, tex label append title("Naive OLS Regression") ///
 	addtext(Sample, All)
+	outreg2 using ../output/naive-simp.tex, tex label append title("Naive OLS Regression") ///
+	addtext(Sample, All) nocons drop(print_months_ago_cu print_months_ago_sq)
 regress citation avail_yn ajps print_months_ago	print_months_ago_sq print_months_ago_cu ///
 	data_type_2
 	outreg2 using ../output/naive.tex, tex label append title("Naive OLS Regression") ///
-	addtext(Sample, All)	
+	addtext(Sample, All)
+	outreg2 using ../output/naive-simp.tex, tex label append title("Naive OLS Regression") ///
+	addtext(Sample, All) nocons drop(print_months_ago_cu print_months_ago_sq)
 regress citation avail_yn ajps print_months_ago	print_months_ago_sq print_months_ago_cu ///
 	if data_type!="no_data"
 	outreg2 using ../output/naive.tex, tex label append addtext(Sample, Data-Only)
-	
+	outreg2 using ../output/naive-simp.tex, tex label append addtext(Sample, Data-Only) ///
+	nocons drop(print_months_ago_cu print_months_ago_sq)
 
 *NAIVE-LN
 gen lncite=ln(citation+1)
 label var lncite "Ln(Cites+1)"
 regress lncite avail_yn
 	outreg2 using ../output/naiveLN.tex, tex label replace addtext(Sample, All)
+	outreg2 using ../output/naiveLN-simp.tex, tex label replace addtext(Sample, All) ///
+	nocons drop(print_months_ago_cu print_months_ago_sq)
 *regress lncite avail_yn ajps 
 *	outreg2 using ../output/naiveLN.tex, tex label append
 regress lncite avail_yn ajps print_months_ago	print_months_ago_sq print_months_ago_cu
 	outreg2 using ../output/naiveLN.tex, tex label append title("Naive Log OLS Regression") ///
 		addtext(Sample, All)
+		outreg2 using ../output/naiveLN-simp.tex, tex label append title("Naive OLS Regression") ///
+	addtext(Sample, All) nocons drop(print_months_ago_cu print_months_ago_sq)
 regress lncite avail_yn ajps print_months_ago	print_months_ago_sq print_months_ago_cu ///
 	data_type_2
 	outreg2 using ../output/naiveLN.tex, tex label append title("Naive Log OLS Regression") ///
 		addtext(Sample, All)
+	outreg2 using ../output/naiveLN-simp.tex, tex label append title("Naive OLS Regression") ///
+	addtext(Sample, All) nocons drop(print_months_ago_cu print_months_ago_sq)
 regress lncite avail_yn ajps print_months_ago	print_months_ago_sq print_months_ago_cu ///
 	if data_type!="no_data"
 	outreg2 using ../output/naiveLN.tex, tex label append addtext(Sample, Data-Only)
-	
+	outreg2 using ../output/naiveLN-simp.tex, tex label append addtext(Sample, Data-Only) ///
+	nocons drop(print_months_ago_cu print_months_ago_sq)
 
 	
 *********************************
@@ -313,13 +333,8 @@ ivregress 2sls citation ajps post2010 post2012 print_months_ago ///
 
 	outreg2 using ../output/ivreg.tex, tex label replace ctitle("2SLS") title("2SLS Regression") ///
 		nocons addtext(Sample, All)
-
-ivregress 2sls citation ajps post2010 post2012 print_months_ago ///
-	print_months_ago_sq print_months_ago_cu (avail_yn = ajpsXpost2010 ///
-	ajpsXpost2012) if data_type!="no_data", first
-
-	outreg2 using ../output/ivreg.tex, tex label append ctitle("2SLS") ///
-		addtext(Sample, Data-Only) nocons		
+	outreg2 using ../output/ivreg-simp.tex, tex label replace ctitle("2SLS") title("2SLS Regression") ///
+		nocons addtext(Sample, All) drop(print_months_ago_cu print_months_ago_sq)
 
 *INCLUDE INTERACTIONS
 gen ajpsXpost2010Xdata=ajpsXpost2010*(data_type_2==0)
@@ -335,53 +350,112 @@ ivregress 2sls citation ajps post2010 post2012 post2010Xdata post2012Xdata ///
 	ajpsXpost2012Xdata), first
 
 	outreg2 using ../output/ivreg.tex, tex label append ctitle("2SLS") ///
-		nocons addtext(Sample, IV=Data-Only)		
+		nocons addtext(Sample, IV=Data-Only)
+	outreg2 using ../output/ivreg-simp.tex, tex label append ctitle("2SLS") ///
+		nocons addtext(Sample, IV=Data-Only) drop(print_months_ago_cu print_months_ago_sq)
+
+ivregress 2sls citation ajps post2010 post2012 print_months_ago ///
+	print_months_ago_sq print_months_ago_cu (avail_yn = ajpsXpost2010 ///
+	ajpsXpost2012) if data_type!="no_data", first
+
+	outreg2 using ../output/ivreg.tex, tex label append ctitle("2SLS") ///
+		addtext(Sample, Data-Only) nocons
+	outreg2 using ../output/ivreg-simp.tex, tex label append ctitle("2SLS") ///
+		addtext(Sample, Data-Only) nocons drop(print_months_ago_cu print_months_ago_sq)
+		
 		
 *LOG		
 ivregress 2sls lncite ajps post2010 post2012 print_months_ago ///
 	print_months_ago_sq print_months_ago_cu (avail_yn = ajpsXpost2010 ///
 	ajpsXpost2012), first
-
-	outreg2 using ../output/ivregln.tex, tex label replace ctitle("2SLS-Log") ///
+	outreg2 using ../output/ivregLN.tex, tex label replace ctitle("2SLS-Log") ///
 		nocons addtext(Sample, All) title("2SLS Regression of ln(citations+1)")
+	outreg2 using ../output/ivregLN-simp.tex, tex label replace ctitle("2SLS-Log") ///
+		nocons addtext(Sample, All) title("2SLS Regression of ln(citations+1)") ///
+		drop(print_months_ago_cu print_months_ago_sq)
 		
-ivregress 2sls lncite ajps post2010 post2012 print_months_ago ///
-	print_months_ago_sq print_months_ago_cu (avail_yn = ajpsXpost2010 ///
-	ajpsXpost2012) if data_type!="no_data", first
-
-	outreg2 using ../output/ivregln.tex, tex label append ctitle("2SLS-Log") ///
-		nocons addtext(Sample, Data-Only)
 		
 ivregress 2sls lncite ajps post2010 post2012 post2010Xdata post2012Xdata print_months_ago ///
 	print_months_ago_sq print_months_ago_cu data_type_2 (avail_yn = ajpsXpost2010Xdata ///
 	ajpsXpost2012Xdata), first
-
-	outreg2 using ../output/ivregln.tex, tex label append ctitle("2SLS-Log") ///
+	outreg2 using ../output/ivregLN.tex, tex label append ctitle("2SLS-Log") ///
 		nocons addtext(Sample, IV=Data-Only)
+	outreg2 using ../output/ivregLN-simp.tex, tex label append ctitle("2SLS-Log") ///
+		nocons addtext(Sample, IV=Data-Only) drop(print_months_ago_cu print_months_ago_sq)
+		
+ivregress 2sls lncite ajps post2010 post2012 print_months_ago ///
+	print_months_ago_sq print_months_ago_cu (avail_yn = ajpsXpost2010 ///
+	ajpsXpost2012) if data_type!="no_data", first
+	outreg2 using ../output/ivregLN.tex, tex label append ctitle("2SLS-Log") ///
+		nocons addtext(Sample, Data-Only)		
+	outreg2 using ../output/ivregLN-simp.tex, tex label append ctitle("2SLS-Log") ///
+		nocons addtext(Sample, Data-Only) drop(print_months_ago_cu print_months_ago_sq)
 		
 *MANUALLY DO THE IV
 *FIRST STAGE
 regress avail_yn ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
 	print_months_ago_sq print_months_ago_cu
-test ajpsXpost2010=ajpsXpost2012=0
-outreg2 using ../output/ivreg.tex, tex label append ctitle("First Stage") addstat(F Stat, r(F)) ///
+	test ajpsXpost2010=ajpsXpost2012=0
+	local F=r(F)
+	outreg2 using ../output/ivreg.tex, tex label append ctitle("First Stage") addstat(F Stat, `F' ) ///
 	nocons addtext(Sample, All)
-	
-regress avail_yn ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
-	print_months_ago_sq print_months_ago_cu if data_type_2==0
-test ajpsXpost2010=ajpsXpost2012=0
-outreg2 using ../output/ivreg.tex, tex label append ctitle("First Stage") addstat(F Stat, r(F)) ///
-	nocons addtext(Sample, Data-Only)
+	outreg2 using ../output/first.tex, tex label replace ctitle("First Stage") ///
+	addstat(F Stat, `F') nocons addtext(Sample, All) drop(print_months_ago_cu print_months_ago_sq)
 
 regress avail_yn ajpsXpost2010Xdata ajpsXpost2012Xdata ajps post2010 post2012 post2010Xdata post2012Xdata ///
 	print_months_ago print_months_ago_sq print_months_ago_cu data_type_2
-test ajpsXpost2010=ajpsXpost2012=0
-outreg2 using ../output/ivreg.tex, tex label append ctitle("First Stage") addstat(F Stat, r(F)) ///
+	test ajpsXpost2010=ajpsXpost2012=0
+	local F=r(F)
+	outreg2 using ../output/ivreg.tex, tex label append ctitle("First Stage") addstat(F Stat, `F') ///
 	nocons addtext(Sample, IV=Data-Only)
+	outreg2 using ../output/first.tex, tex label append ctitle("First Stage") addstat(F Stat, `F') ///
+	nocons addtext(Sample, IV=Data-Only) drop(print_months_ago_cu print_months_ago_sq)
+	
+regress avail_yn ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
+	print_months_ago_sq print_months_ago_cu if data_type_2==0
+	test ajpsXpost2010=ajpsXpost2012=0
+	local F=r(F)
+	outreg2 using ../output/ivreg.tex, tex label append ctitle("First Stage") addstat(F Stat, `F') ///
+	nocons addtext(Sample, Data-Only)
+	outreg2 using ../output/first.tex, tex label append ctitle("First Stage") addstat(F Stat, `F') ///
+	nocons addtext(Sample, Data-Only) drop(print_months_ago_cu print_months_ago_sq)
+
 	
 
 predict avail_hat
 *SECOND STAGE--DON'T TRUST THE STANDARD ERRORS!
 regress citation avail_hat ajps post2010 post2012 ///
 	print_months_ago print_months_ago_sq print_months_ago_cu year
-***********************************************	
+**********************************************************
+*TEST THE CHANGE IN TOPIC/TYPE/RANK USING THE MAIN SPECIFICATION
+*********************************************************
+regress topic_1 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
+	print_months_ago_sq print_months_ago_cu if data_type_2==0
+outreg2 using ../output/exclusion.tex, tex label replace  ///
+	nocons addtext(Sample, Data-Only) drop(print_months_ago_cu print_months_ago_sq) ///
+	title("Exclusion Restriction")
+	
+regress topic_4 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
+	print_months_ago_sq print_months_ago_cu if data_type_2==0
+	outreg2 using ../output/exclusion.tex, tex label append  ///
+	nocons addtext(Sample, Data-Only) drop(print_months_ago_cu print_months_ago_sq)
+	
+regress data_type_1 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
+	print_months_ago_sq print_months_ago_cu if data_type_2==0
+	outreg2 using ../output/exclusion.tex, tex label append  ///
+	nocons addtext(Sample, Data-Only) drop(print_months_ago_cu print_months_ago_sq)
+	
+regress data_type_3 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
+	print_months_ago_sq print_months_ago_cu if data_type_2==0
+	outreg2 using ../output/exclusion.tex, tex label append  ///
+	nocons addtext(Sample, Data-Only) drop(print_months_ago_cu print_months_ago_sq)
+
+regress top5 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
+	print_months_ago_sq print_months_ago_cu if data_type_2==0
+	outreg2 using ../output/exclusion.tex, tex label append  ///
+	nocons addtext(Sample, Data-Only) drop(print_months_ago_cu print_months_ago_sq)
+	
+regress top20 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
+	print_months_ago_sq print_months_ago_cu if data_type_2==0
+	outreg2 using ../output/exclusion.tex, tex label append  ///
+	nocons addtext(Sample, Data-Only) drop(print_months_ago_cu print_months_ago_sq)
