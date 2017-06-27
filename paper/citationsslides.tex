@@ -30,7 +30,7 @@
 {Causal Evidence} % (optional)
 
 \author[Christense, Dafoe, Miguel] % (optional, use only with lots of authors)
-{Garre Christensen\inst{1} \and Allan Daffoe\inst{2} \and Edward Miguel\inst{3}}
+{Garre Christensen\inst{1} \and Allan Dafoe\inst{2} \and Edward Miguel\inst{3}}
 % - Use the \inst{?} command only if the authors have different
 %   affiliation.
 
@@ -82,6 +82,16 @@
 
 
 \begin{document}
+{ % all template changes are local to this group.
+    \setbeamertemplate{navigation symbols}{}
+    \begin{frame}[plain]
+        \begin{tikzpicture}[remember picture,overlay]
+            \node[at=(current page.center)] {
+                \href{https://www.bitss.org/}{\includegraphics[width=\paperwidth]{../Images/bitsslogo.png}}
+            };
+        \end{tikzpicture}
+     \end{frame}
+}
 
 \begin{frame}
   \titlepage
@@ -91,6 +101,7 @@
   \end{large}
   \end{center}
 \end{frame}
+
 
 \begin{frame}{Outline}
   \tableofcontents
