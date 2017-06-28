@@ -15,6 +15,9 @@ save ../external/apsr_2ndCheck.dta, replace
 insheet using ../external/ajps_2ndCheck.csv, clear names
 keep doi citation
 save ../external/ajps_2ndCheck.dta, replace
+insheet using ../external/apsr_centennial.csv, clear names
+keep doi citation
+save ../external/apsr_centennial.dta, replace
 
 *SAVE AUTHOR RANK IN STATA FORMAT
 insheet using ../external/article_author_top_rank.csv, clear names
@@ -75,8 +78,19 @@ destring citation, replace
 summ citation*
 
 *COMBINE AJPS AND APSR
+*MERGING MUST BE DONE THIS WAY SINCE IT WRITES OVER VARS WITH THE SAME NAME
+*MAYBE THERE'S A WAY AROUND THAT?
 replace citation=citation_apsr if citation==. & citation_apsr!=.
 summ citation*
+rename citation citation_hold
+
+*MERGE APSR CENTENNIAL
+merge 1:1 doi using ../external/apsr_centennial.dta
+drop if _merge==2 //There aren't any as of 6/27/17
+replace citation_hold=citation if citation_hold==. & citation!=.
+drop citation
+rename citation_hold citation
+rename _merge merge_apsr_centennial
 
 *NEW VERSION IS BETTER, DROP OLD
 drop citation_apsr citation_count
