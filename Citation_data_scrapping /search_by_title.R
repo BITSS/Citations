@@ -40,7 +40,7 @@ search <- function(doi) {
   clearEle$clickElement()
   
   # in dropdown menu for search criteria chose the element "Title"
-  dropEle = remDr$findElement(using='id', value= 'select2-chosen-1')
+  dropEle = remDr$findElement(using='id', value= 'select2-select1-container')
   chosen = unlist(dropEle$getElementText())
   
   if (chosen != 'Title') {
