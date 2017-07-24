@@ -2,7 +2,6 @@ library(RSelenium)
 library(rvest)
 library(magrittr)
 library(foreach)
-library(doParallel)
 
 # Prior to run the next two lines of code to start the remoteDriver
 # Please make sure to cd to this folder and run this next line of code in the terminal
@@ -11,7 +10,7 @@ remDr <- remoteDriver(port=4444)
 remDr$open()
 
 # Read in the data and split into 3 seperate dataframes to split the task into smaller pieces.
-df <- read.csv('ajps_article_coding_harmonized.csv')
+df <- read.csv('apsr_centennial_reference_coding_template.csv')
 df1 <- df[1:200,]
 df2 <- df[201:401,]
 df3 <- df[402:608,]
@@ -35,7 +34,7 @@ search <- function(doi) {
   clearEle$clickElement()
   
   # in dropdown menu for search criteria chose the element "doi"
-  dropEle = remDr$findElement(using='id', value= 'select2-chosen-1')
+  dropEle = remDr$findElement(using='id', value= 'select2-select1-container')
   chosen = unlist(dropEle$getElementText())
   
   if (chosen != 'DOI') {
@@ -70,8 +69,8 @@ search <- function(doi) {
 }
 
 ## apply search on each data frame
-output <- lapply(df1$doi, search)
-df1$citation <- output
+output <- lapply(df$doi, search)
+df$citation <- output
 df1 <- data.frame(lapply(df1, as.character), stringsAsFactors=FALSE)
 
 output2 <- lapply(df2$doi, search)
