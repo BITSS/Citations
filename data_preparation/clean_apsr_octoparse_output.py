@@ -53,17 +53,24 @@ def extract_article_information(article, script=None):
 
     return article
 
-octoparse_files = [('octoparse/apsr_issue_toc.csv',
-                    'bld/apsr_article_info_from_issue_toc.csv',
-                    'apsr_issue_toc.otd',
-                    ['volume', 'issue', 'issue_date', 'publication_date',
-                     'doi', 'pages', 'authors', 'title']),
-                   ('octoparse/apsr_article_content_2006_2014.csv',
-                    'bld/apsr_article_content_2006_2014.csv',
-                    'apsr_article_content_2006_2014.otd',
-                    ['volume', 'issue', 'publication_date', 'doi',
-                     'pages', 'authors', 'authors_affiliations', 'title',
-                     'content'])]
+octoparse_files = [
+    ('octoparse/apsr_issue_toc.csv',
+     'bld/apsr_article_info_from_issue_toc.csv',
+     'apsr_issue_toc.otd',
+     ['volume', 'issue', 'issue_date', 'publication_date',
+      'doi', 'pages', 'authors', 'title']),
+    ('octoparse/apsr_article_content_2006_2014.csv',
+     'bld/apsr_article_content_2006_2014.csv',
+     'apsr_article_content_2006_2014.otd',
+     ['volume', 'issue', 'publication_date', 'doi',
+      'pages', 'authors', 'authors_affiliations', 'title',
+      'content']),
+    ('octoparse/apsr_centennial_article_content.csv',
+     'bld/apsr_centennial_article_content.csv',
+     'apsr_article_content_2006_2014.otd',
+     ['volume', 'issue', 'publication_date', 'doi',
+      'pages', 'authors', 'authors_affiliations', 'title',
+      'content'])]
 
 for input_file, output_file, script, output_columns in octoparse_files:
     for ix, df in enumerate(pd.read_csv(input_file, encoding='utf-16',

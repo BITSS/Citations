@@ -102,11 +102,11 @@ for pair in resolution_pairs:
                 columns=output_columns, index=None)
 
 
-# Resolve APSR author website coding diffs.
+# Resolve ajps author website coding diffs.
 resolution_pairs = [('KJK', 'RP'), ('RK', 'TC')]
 
-input_file = 'bld/apsr_author_website_coding_diff.csv'
-output_file_prefix = 'bld/apsr_author_website_coding_diff_resolution'
+input_file = 'bld/ajps_author_website_coding_diff.csv'
+output_file_prefix = 'bld/ajps_author_website_coding_diff_resolution'
 
 for pair in resolution_pairs:
     diff = pd.read_csv(input_file)
@@ -156,11 +156,11 @@ diff.replace({conflict_column: bool_printing}, inplace=True)
 diff.to_csv(output_file, columns=output_columns, index=None)
 
 
-# Resolve APSR reference coding diffs.
+# Resolve ajps reference coding diffs.
 resolution_pairs = [('KJK', 'RK'), ('RP', 'TC')]
 
-input_file = 'bld/apsr_reference_coding_diff.csv'
-output_file_prefix = 'bld/apsr_reference_coding_diff_resolution'
+input_file = 'bld/ajps_reference_coding_diff.csv'
+output_file_prefix = 'bld/ajps_reference_coding_diff_resolution'
 
 for pair in resolution_pairs:
     diff = pd.read_csv(input_file)
@@ -187,14 +187,99 @@ for pair in resolution_pairs:
     diff.to_csv(output_file_prefix + suffix + '.csv',
                 columns=output_columns, index=None)
 
-# Resolve APSR article coding diffs.
-resolution_pairs = [('BC', 'EH'), ('RP', 'TC')]
+# Resolve ajps article coding diffs.
+ajps_resolution_pairs = [('BC', 'TC'), ('RP', 'EH')]
+
+# Article topic 1
+input_file = 'bld/ajps_article_coding_diff_topic1.csv'
+output_file_prefix = 'bld/ajps_article_coding_diff_topic1_resolution'
+
+for pair in ajps_resolution_pairs:
+    diff = pd.read_csv(input_file)
+
+    suffix = '_' + '_'.join(pair)
+
+    entry_columns = ['article_topic1_' + x for x in pair]
+    resolution_column = 'article_topic1' + suffix + '_resolved'
+    conflict_column = 'conflict_ignore_skip' + suffix
+
+    output_columns = (['doi', 'title', 'article_ix', 'abstract'] +
+                      entry_columns + [resolution_column,
+                                       conflict_column])
+
+    add_resolution_columns(diff, entry_columns=entry_columns,
+                           conflict_column=conflict_column,
+                           resolution_column=resolution_column)
+
+    bool_printing = {True: 'True', False: ''}
+    diff.replace({conflict_column: bool_printing}, inplace=True)
+
+    diff.to_csv(output_file_prefix + suffix + '.csv',
+                columns=output_columns, index=None)
+
+# Article topic 2
+input_file = 'bld/ajps_article_coding_diff_topic2.csv'
+output_file_prefix = 'bld/ajps_article_coding_diff_topic2_resolution'
+
+for pair in ajps_resolution_pairs:
+    diff = pd.read_csv(input_file)
+
+    suffix = '_' + '_'.join(pair)
+
+    entry_columns = ['article_topic2_' + x for x in pair]
+    resolution_column = 'article_topic2' + suffix + '_resolved'
+    conflict_column = 'conflict_ignore_skip' + suffix
+
+    output_columns = (['doi', 'title', 'article_ix', 'abstract'] +
+                      entry_columns + [resolution_column,
+                                       conflict_column])
+
+    add_resolution_columns(diff, entry_columns=entry_columns,
+                           conflict_column=conflict_column,
+                           resolution_column=resolution_column)
+
+    bool_printing = {True: 'True', False: ''}
+    diff.replace({conflict_column: bool_printing}, inplace=True)
+
+    diff.to_csv(output_file_prefix + suffix + '.csv',
+                columns=output_columns, index=None)
+
+# Article data type
+input_file = 'bld/ajps_article_coding_diff_data_type.csv'
+output_file_prefix = 'bld/ajps_article_coding_diff_data_type_resolution'
+
+for pair in ajps_resolution_pairs:
+    diff = pd.read_csv(input_file)
+
+    suffix = '_' + '_'.join(pair)
+
+    entry_columns = ['article_data_type_' + x for x in pair]
+    resolution_column = 'article_data_type' + suffix + '_resolved'
+    conflict_column = 'conflict_ignore_skip' + suffix
+
+    output_columns = (['doi', 'title', 'article_ix', 'abstract'] +
+                      entry_columns + [resolution_column,
+                                       conflict_column])
+
+    add_resolution_columns(diff, entry_columns=entry_columns,
+                           conflict_column=conflict_column,
+                           resolution_column=resolution_column)
+
+    bool_printing = {True: 'True', False: ''}
+    diff.replace({conflict_column: bool_printing}, inplace=True)
+
+    diff.to_csv(output_file_prefix + suffix + '.csv',
+                columns=output_columns, index=None)
+
+
+# Resolve apsr article coding diffs.
+apsr_resolution_pairs = [('BC', 'EH'), ('RP', 'TC')]
 
 # Article topic 1
 input_file = 'bld/apsr_article_coding_diff_topic1.csv'
 output_file_prefix = 'bld/apsr_article_coding_diff_topic1_resolution'
 
-for pair in resolution_pairs:
+for pair in apsr_resolution_pairs:
     diff = pd.read_csv(input_file)
 
     suffix = '_' + '_'.join(pair)
@@ -221,7 +306,7 @@ for pair in resolution_pairs:
 input_file = 'bld/apsr_article_coding_diff_topic2.csv'
 output_file_prefix = 'bld/apsr_article_coding_diff_topic2_resolution'
 
-for pair in resolution_pairs:
+for pair in apsr_resolution_pairs:
     diff = pd.read_csv(input_file)
 
     suffix = '_' + '_'.join(pair)
@@ -248,7 +333,7 @@ for pair in resolution_pairs:
 input_file = 'bld/apsr_article_coding_diff_data_type.csv'
 output_file_prefix = 'bld/apsr_article_coding_diff_data_type_resolution'
 
-for pair in resolution_pairs:
+for pair in apsr_resolution_pairs:
     diff = pd.read_csv(input_file)
 
     suffix = '_' + '_'.join(pair)
@@ -372,7 +457,7 @@ for pair in resolution_pairs:
     conflict_column = 'conflict_ignore_skip' + suffix
 
     output_columns = (['article_ix', 'result_ix', 'issue_date', 'issue_number',
-                       'issue_pages', 'title', 'authors_ajps_toc',
+                       'issue_pages', 'doi', 'title', 'authors_ajps_toc',
                        'dataverse_name', 'dataverse_authors',
                        'dataverse_description', 'dataverse_query'] +
                       entry_columns + [resolution_column,

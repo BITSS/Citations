@@ -1,0 +1,101 @@
+% !TEX TS-program = pdflatex
+% !TEX encoding = UTF-8 Unicode
+
+% This is a simple template for a LaTeX document using the "article" class.
+% See "book", "report", "letter" for other types of document.
+
+\documentclass[11pt]{article} % use larger type; default would be 10pt
+
+\usepackage[utf8]{inputenc} % set input encoding (not needed with XeLaTeX)
+\usepackage{authblk}
+%%% PAGE DIMENSIONS
+\usepackage{geometry} % to change the page dimensions
+\geometry{letterpaper} % or letterpaper (US) or a5paper or....
+% \geometry{margin=2in} % for example, change the margins to 2 inches all round
+% \geometry{landscape} % set up the page for landscape
+%   read geometry.pdf for detailed page layout information
+
+\usepackage{graphicx} % support the \includegraphics command and options
+\usepackage{standalone}
+
+%%% PACKAGES
+\usepackage{booktabs} % for much better looking tables
+\usepackage{array} % for better arrays (eg matrices) in maths
+\usepackage{paralist} % very flexible & customisable lists (eg. enumerate/itemize, etc.)
+\usepackage{verbatim} % adds environment for commenting out blocks of text & for better verbatim
+\usepackage{subfig} % make it possible to include more than one captioned figure/table in a single float
+% These packages are all incorporated in the memoir class to one degree or another...
+
+
+%%% The "real" document content comes below...
+
+\title{DRAFT, DO NOT CITE OR DISTRIBUTE \\ Citations and Data Sharing}
+\author[1]{Garret Christensen\thanks{garret@berkeley.edu}}
+\author[2]{Allan Dafoe}
+\author[3]{Edward Miguel}
+\affil[1]{Berkeley Institute for Data Science}
+\affil[2]{Yale University Department of Political Science}
+\affil[3]{UC Berkeley Department of Economics and National Bureau of Economic Research}
+\date{} % Activate to display a given date or no date (if empty),
+         % otherwise the current date is printed 
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+This is just a placeholder document so I can put all the figures and tables in one place. People [cite Vision, Piwowar] have found that data sharing is associated with more citations. This preliminary evidence shows that same relationship is present in political science, but seems to be due to confounders.
+
+First, let's graph data availability over time in our two journals.
+
+\includegraphics[scale=0.4]{../output/avail_time.png}
+\pagebreak
+
+What's the overall distribution of citations? Power law, big time.
+
+\includegraphics[scale=0.4]{../output/cite_histo.png}
+
+\includegraphics[scale=0.4]{../output/cite_time.png}
+\pagebreak
+
+Let's test whether we see the same positive association between data and citations as Vision, Piwowar. We do.
+
+\input{../output/naive.tex}
+\clearpage
+\input{../output/naiveLN.tex}
+\clearpage
+
+Does the relationship hold if try to strip out the confounders? The first stage has a sufficiently strong F test, but the second stage shows a noisy effect. Results are significantly more positive if you restrict to the articles with data. (Columns 2, 4, 5)
+
+\scalebox{0.8}{
+\input{../output/ivreg.tex}
+}
+\pagebreak
+
+Now the IV with LN
+
+\scalebox{1.0}{
+\input{../output/ivregLN.tex}
+}
+\pagebreak
+
+Third, what things could be changing at the same time as the policy? Article topic, the type of data used, and the quality of the researcher could change. We have data on all three of these, and none look like they really change, though I haven't run statistical tests yet.
+
+
+\includegraphics[scale=0.4]{../output/topicXjournalXpost2010.png}
+
+\includegraphics[scale=0.4]{../output/topicXjournalXpost2012.png}
+
+\includegraphics[scale=0.4]{../output/typeXjournalXpost2010.png}
+
+\includegraphics[scale=0.4]{../output/typeXjournalXpost2012.png}
+
+Maybe rankings of the top institutions of the authors changes a little?
+
+\includegraphics[scale=0.4]{../output/rankXjournalXpost2010.png}
+
+\includegraphics[scale=0.4]{../output/rankXjournalXpost2012.png}
+
+
+
+\end{document}

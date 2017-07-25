@@ -65,3 +65,9 @@ apsr_input_file = 'bld/apsr_reference_coding_harmonized.csv'
 apsr_output_file = 'bld/apsr_link_coding_template.csv'
 create_link_coding_template(input_file=apsr_input_file,
                             output_file=apsr_output_file)
+
+# APSR Centennial Issue
+apsr_input_file = 'bld/apsr_centennial_reference_coding_harmonized.csv'
+apsr_output_file = 'bld/apsr_centennial_link_coding_template.csv'
+create_link_coding_template(input_file=apsr_input_file,
+                            output_file=apsr_output_file)

@@ -5,6 +5,10 @@ octoparse/*
 dataverse_api_token.txt
 .~lock*
 .vscode
+.Rhistory
+.DS_Store
+*.Rproj
+*.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -190,3 +194,4 @@ TSWLatexianTemp*
 
 # KBibTeX
 *~[0-9]*
+.Rproj.user
