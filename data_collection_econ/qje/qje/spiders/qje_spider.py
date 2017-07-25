@@ -39,7 +39,7 @@ class OxfordSpider(scrapy.Spider):
     title_xpath = "//meta[@name = 'citation_title']/@content"
     abstract_xpath = "//section[@class = 'abstract']//p"
     # JEL_xpath = "//div[@class = 'article-metadata']//a/text()"
-    # content_xpath = "//div[@class='widget-items' and @data-widgetname='ArticleFulltext']"
+    institution_xpath = '//meta[@name = "citation_author_institution"]/@content'
     publication_date_xpath = "//meta[@name = 'citation_publication_date']/@content"
     pdf_url_xpath = "//meta[@name = 'citation_pdf_url']/@content"
 
@@ -75,8 +75,8 @@ class OxfordSpider(scrapy.Spider):
         article_loader.add_xpath('title', self.title_xpath)
         article_loader.add_xpath('author', self.author_xpath)
         article_loader.add_xpath('abstract', self.abstract_xpath)
-        # article_loader.add_xpath('content', self.content_xpath)
         # article_loader.add_xpath('JEL', self.JEL_xpath) 
+        article_loader.add_xpath('institution', self.institution_xpath)
         article_loader.add_xpath('publication_date', self.publication_date_xpath)
         article_loader.add_xpath('pdf_url', self.pdf_url_xpath)
 

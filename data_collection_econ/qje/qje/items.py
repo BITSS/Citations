@@ -20,6 +20,7 @@ class Article(QjeItem):
     author = scrapy.Field()
     abstract = scrapy.Field()
     # JEL = scrapy.Field()
+    institution = scrapy.Field()
     publication_date = scrapy.Field()
     journal = scrapy.Field()
     url = scrapy.Field()
