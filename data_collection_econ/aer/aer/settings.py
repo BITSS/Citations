@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Scrapy settings for qje project
+# Scrapy settings for aer project
 #
 # For simplicity, this file contains only settings considered important or
 # commonly used. You can find more settings consulting the documentation:
@@ -9,14 +9,14 @@
 #     http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME = 'qje'
+BOT_NAME = 'aer'
 
-SPIDER_MODULES = ['qje.spiders']
-NEWSPIDER_MODULE = 'qje.spiders'
+SPIDER_MODULES = ['aer.spiders']
+NEWSPIDER_MODULE = 'aer.spiders'
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = 'qje (+http://www.yourdomain.com)'
+#USER_AGENT = 'aer (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
@@ -47,13 +47,13 @@ DOWNLOAD_DELAY = 1
 # Enable or disable spider middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
 #SPIDER_MIDDLEWARES = {
-#    'qje.middlewares.QjeSpiderMiddleware': 543,
+#    'aer.middlewares.AerSpiderMiddleware': 543,
 #}
 
 # Enable or disable downloader middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #DOWNLOADER_MIDDLEWARES = {
-#    'qje.middlewares.MyCustomDownloaderMiddleware': 543,
+#    'aer.middlewares.MyCustomDownloaderMiddleware': 543,
 #}
 
 # Enable or disable extensions
@@ -65,7 +65,7 @@ DOWNLOAD_DELAY = 1
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 #ITEM_PIPELINES = {
-#    'qje.pipelines.QjePipeline': 300,
+#    'aer.pipelines.AerPipeline': 300,
 #}
 
 # Enable and configure the AutoThrottle extension (disabled by default)

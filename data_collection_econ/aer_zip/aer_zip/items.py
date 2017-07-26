@@ -8,20 +8,24 @@
 import scrapy
 
 
-class QjeItem(scrapy.Item):
+class AerZipItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
     pass
+# -*- coding: utf-8 -*-
 
+# Define here the models for your scraped items
+#
+# See documentation in:
+# http://doc.scrapy.org/en/latest/topics/items.html
 
-class Article(QjeItem):
+class Article(AerZipItem):
     doi = scrapy.Field()
     title = scrapy.Field()
-    author = scrapy.Field()
-    abstract = scrapy.Field()
-    # JEL = scrapy.Field()
-    institution = scrapy.Field()
     publication_date = scrapy.Field()
-    journal = scrapy.Field()
     url = scrapy.Field()
-    pdf_url = scrapy.Field()
+    data_url = scrapy.Field()
+    corr_url = scrapy.Field()
+    app_url = scrapy.Field()
+    ds_url = scrapy.Field()
+    journal = scrapy.Field()
