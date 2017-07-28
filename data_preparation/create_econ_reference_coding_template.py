@@ -74,15 +74,20 @@ regex_reference_indicators = re.compile('(?:' +
 char_match_pre = 100
 char_match_post = char_match_pre
 
-input_file = '../bld/complete_aer.csv'
-output_file = '../bld/aer_reference_coding_template.csv'
+
+input_file = '../bld/aer_with_sample_selection.csv'
+output_file = '../bld/aer_with_sample_selection_reference_coding_template.csv'
 
 # input_file = '../bld/complete_qje.csv'
 # output_file = '../bld/qje_reference_coding_template.csv'
 
+# output_columns = ['publication_date', 'doi',
+#                   'author', 'title', 'article_ix',
+#                   'reference_ix', 'match', 'context', 'reference_category']
+
 output_columns = ['publication_date', 'doi',
                   'author', 'title', 'article_ix',
-                  'reference_ix', 'match', 'context', 'reference_category']
+                  'reference_ix', 'match', 'context', 'reference_category', 'selected_into_sample']
 
 # Process article content chunkwise to reduce memory usage.
 for ix, df in enumerate(pd.read_csv(input_file, chunksize=1000)):

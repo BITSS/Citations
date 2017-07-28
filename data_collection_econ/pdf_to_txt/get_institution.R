@@ -3,9 +3,7 @@ library(stringr)
 library(plyr)
 
 #setwd('C:/Users/caoba/OneDrive/URAP2/Citations/data_collection_econ/pdf_to_txt')
-setwd('C:/Users/caobaiyue/Downloads')
 #setwd('/home/baiyue/Documents/pdf_to_txt')
-
 
 ###################################################################################
 ##################### Extract Footnotes from TXT files ############################
