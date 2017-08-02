@@ -81,6 +81,9 @@ output_file = '../bld/aer_with_sample_selection_reference_coding_template.csv'
 # input_file = '../bld/complete_qje.csv'
 # output_file = '../bld/qje_reference_coding_template.csv'
 
+# input_file = '../bld/complete_aer.csv'
+# output_file = '../bld/aer_reference_coding_template.csv'
+
 # output_columns = ['publication_date', 'doi',
 #                   'author', 'title', 'article_ix',
 #                   'reference_ix', 'match', 'context', 'reference_category']
