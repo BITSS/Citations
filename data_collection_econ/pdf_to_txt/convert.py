@@ -19,27 +19,27 @@ import pandas as pd
 # 		os.system(command)
 # 		os.rename(txt_file, './' + path + '/' + txt_file)
 
-# #turn txt into csv 
-# def txt_to_csv(journal):
-# 	 columns = ['index', 'content']
-# 	 files = os.listdir('./' + journal + 'txt/')
-# 	 df = pd.DataFrame(columns = columns)
-# 	 for file in files:
-# 		 file_path = './' + journal + 'txt/' + file
-# 		 file_index = re.findall(r'\d+', file)[0]
-# 		 file_content = open(file_path, 'r')
-# 		 f = open(file_path)
-# 		 content = " ".join(line.strip() for line in f)
-# 		 df = df.append({'index': file_index, 'content': content}, ignore_index=True)
-# 	 csv_file_name = journal +'_content.csv'
-# 	 df.to_csv(csv_file_name, columns = columns, encoding='utf-8', index = False)
+#turn txt into csv 
+def txt_to_csv(journal):
+	 columns = ['index', 'content']
+	 files = os.listdir('./' + journal + 'txt/')
+	 df = pd.DataFrame(columns = columns)
+	 for file in files:
+		 file_path = './' + journal + 'txt/' + file
+		 file_index = re.findall(r'\d+', file)[0]
+		 file_content = open(file_path, 'r')
+		 f = open(file_path, encoding="utf8")
+		 content = " ".join(line.strip() for line in f)
+		 df = df.append({'index': file_index, 'content': content}, ignore_index=True)
+	 csv_file_name = journal +'_content.csv'
+	 df.to_csv(csv_file_name, columns = columns, encoding='utf-8', index = False)
 
-# txt_to_csv('aer')
+txt_to_csv('aer')
 # txt_to_csv('qje')
 
 #Merge csv with indexed dataframe 
 aer_columns = ['JEL','abstract','author', 'doi','journal', 'pdf_url', 'publication_date', 'title', 'url', 'year', 'article_ix', 'content']
-qje_columns = ['JEL','institution','abstract','author', 'doi','journal', 'pdf_url', 'publication_date', 'title', 'url', 'year', 'article_ix', 'content']
+# qje_columns = ['JEL','institution','abstract','author', 'doi','journal', 'pdf_url', 'publication_date', 'title', 'url', 'year', 'article_ix', 'content']
 
 def merge_indexed(journal, columns):
 	indexed_csv_path = '../econ_data/indexed_'+ journal + '.csv'
@@ -52,7 +52,7 @@ def merge_indexed(journal, columns):
 	complete.rename(columns={'index': 'article_ix'}, inplace=True)
 	complete.to_csv(complete_csv_path, columns = columns, encoding = 'utf-8', index = False)
 
-merge_indexed('qje', qje_columns)
+# merge_indexed('qje', qje_columns)
 merge_indexed('aer', aer_columns)
 
 # in aer Index 122, 123, 959, 960, 1367, 1368, 1561, 1562, 1750, 1751, 
