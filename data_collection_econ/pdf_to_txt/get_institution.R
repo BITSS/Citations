@@ -2,10 +2,8 @@ library(stringi)
 library(stringr)
 library(plyr)
 
-#setwd('C:/Users/caoba/OneDrive/URAP2/Citations/data_collection_econ/pdf_to_txt')
-setwd('C:/Users/caobaiyue/Downloads')
+setwd('C:/Users/caoba/Downloads/Citations/data_collection_econ/pdf_to_txt')
 #setwd('/home/baiyue/Documents/pdf_to_txt')
-
 
 ###################################################################################
 ##################### Extract Footnotes from TXT files ############################
@@ -35,14 +33,14 @@ find_footnote <- function (file){
   }
 }
 
-for (i in c(1:2392)){
+for (i in c(1:925)){
   index_institution[i,] = find_footnote(all_txt_files[i])
 }
 
 #mannually enter for row 2393, because can't read into dataframe
-index_institution[2393,] = c('3361', '*Weiman: Department of Economics, Barnard College,3009 Broadway, NY, NY 10027 (e-mail: dfw5@columbia.edu); James: Department of Economics, University of Virginia, PO Box 400182, Charlottesville, VA 22904 (e-mail:jaj8y@virginia.edu).')
+index_institution[926,] = c('3361', '*Weiman: Department of Economics, Barnard College,3009 Broadway, NY, NY 10027 (e-mail: dfw5@columbia.edu); James: Department of Economics, University of Virginia, PO Box 400182, Charlottesville, VA 22904 (e-mail:jaj8y@virginia.edu).')
 
-for (i in c(2394:length(all_txt_files))){
+for (i in c(927:length(all_txt_files))){
   index_institution[i,] = find_footnote(all_txt_files[i])
 }
 
@@ -50,7 +48,7 @@ colnames(index_institution) = c('index', 'footnote')
 
 # Save for record
 inst<-file('aer_institution.csv',encoding="UTF-8")
-write.csv(index_institution, inst)
+write.csv(index_institution, inst, row.names = F)
 
 index_institution = read.csv('aer_institution.csv', 
                              header = TRUE, 
@@ -66,7 +64,6 @@ indexed_aer = read.csv('indexed_aer.csv',
                        header = TRUE, 
                        stringsAsFactors = FALSE,
                        encoding="UTF-8")
-indexed_aer = indexed_aer[,c(-1)]
 
 schools = read.csv('school_and_country_table.csv', 
                    header = TRUE, 
@@ -104,7 +101,7 @@ strings <- unlist(index_institution$collapse_pre_thank)
 
 matches <- data.frame(sapply(keywords, grepl, strings))
 matches1 <- data.frame(sapply(keywords1, grepl, strings))
-index_institution$uni = NA
+index_institution$institution = NA
 
 #get a list of unique matchings for each article entry
 for (i in c(1: nrow(index_institution))){
@@ -120,7 +117,7 @@ index_institution$uni_collapsed = lapply(index_institution$uni_collapsed,
                                function(x) if(identical(x, character(0))) NA_character_ else x)
 
 
-#23 unmatched 
+#9 unmatched 
 unmatched = subset(index_institution, is.na(uni_collapsed))
 unmatched = subset(unmatched, !is.na(footnote))
 unmatched$pre_thank_sep = lapply(unmatched$pre_thank, 
@@ -136,17 +133,17 @@ for (i in c(1:nrow(index_institution))){
   uni_list1 = lapply(uni_collapsed_list, function (x) {which(schools$collapsed_school == x)})
   uni_list2 = lapply(uni_collapsed_list, function (x) {which(schools$collapsed_other == x)})
   uni_list = unique(c(unlist(uni_list1), unlist(uni_list2)))
-  index_institution$uni[i] = list(schools$school_name[uni_list])
+  index_institution$institution[i] = list(schools$school_name[uni_list])
 }
 
 ######################################################################################
 ################## Download Draf File for inspection #################################
 ######################################################################################
 
-draft = index_institution[,c('index', 'pre_thank', 'uni')]
-draft$uni = lapply(draft$uni, 
-                       function (x) {paste0(x, collapse = ' / ')})
-draft$uni = unlist(draft$uni)
+draft = index_institution[,c('index', 'institution')]
+draft$institution = lapply(draft$institution, 
+                       function (x) {paste(x, collapse = ' / ')})
+draft$institution = unlist(draft$institution)
 write.csv(draft, 'aer_insitution_draft.csv',  row.names = FALSE)
 
 #correction log: 
@@ -180,7 +177,7 @@ unread$index = as.numeric(unlist(unread$index))
 unread = merge(unread, indexed_aer, by=c("index","index"), all.x = TRUE)
 write.csv(unread, 'unread.csv',  row.names = FALSE)
 
-#13, 220, 850, 1056, 2066, 3317, 3468 did not use asterisk for footnote
+#13, 220, 3317, 3468 did not use asterisk for footnote
 #article 3323 has unexpected indentation for asterisk, undetected by code
 #all others are meeting minutes and journal reports or editor's note 
 
@@ -199,19 +196,14 @@ unread = read.csv('unread.csv',
                   stringsAsFactors = FALSE,
                   encoding="UTF-8")
 
-unread$uni = unread$X.1
-unread = subset(unread, X == 1)
-final <- merge(indexed_aer, final[,c('index', 'uni')],by=c("index","index"), all.x = TRUE)
+unread$institution = unread$X
+unread = subset(unread, institution != "")
+final <- merge(indexed_aer, final[,c('index', 'institution')],by=c("index","index"), all.x = TRUE)
 
 
-final$uni[final$index %in% unread$index] = unread$uni
+final$institution[final$index %in% unread$index] = unread$institution
 
 write.csv(final, 'indexed_aer.csv',  row.names = FALSE)
-
-
-
-
-#3237, 3507
 
 
 
