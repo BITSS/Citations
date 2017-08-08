@@ -1,23 +1,23 @@
 import os
-# import pdfminer 
-# import pdf2txt
+import pdfminer 
+import pdf2txt
 import glob 
 import re 
 import pandas as pd
 
-# #turn pdf into txt 
-# aer_pdf_files = os.listdir('../econ_data/aer')
-# qje_pdf_files = os.listdir('../econ_data/qje')
-# def convert(pdf_files, journal):
-# 	path = journal + 'txt'
-# 	os.makedirs(path)
-# 	for pdf_file in pdf_files:
-# 		pdf_path = '../econ_data/' + journal + '/' + pdf_file
-# 		txt_file = re.sub('.pdf', '.txt', pdf_file) #'11qje.txt'
-# 		#glue into command line 
-# 		command = ' '.join(['pdf2txt.py -V -o', txt_file, pdf_path])
-# 		os.system(command)
-# 		os.rename(txt_file, './' + path + '/' + txt_file)
+#turn pdf into txt 
+aer_pdf_files = os.listdir('../econ_data/aer')
+qje_pdf_files = os.listdir('../econ_data/qje')
+def convert(pdf_files, journal):
+	path = journal + 'txt'
+	os.makedirs(path)
+	for pdf_file in pdf_files:
+		pdf_path = '../econ_data/' + journal + '/' + pdf_file
+		txt_file = re.sub('.pdf', '.txt', pdf_file) 
+		#glue into command line 
+		command = ' '.join(['pdf2txt.py -V -o', txt_file, pdf_path])
+		os.system(command)
+		os.rename(txt_file, './' + path + '/' + txt_file)
 
 #turn txt into csv 
 def txt_to_csv(journal):
@@ -35,11 +35,11 @@ def txt_to_csv(journal):
 	 df.to_csv(csv_file_name, columns = columns, encoding='utf-8', index = False)
 
 txt_to_csv('aer')
-# txt_to_csv('qje')
+txt_to_csv('qje')
 
 #Merge csv with indexed dataframe 
 aer_columns = ['JEL','abstract','author', 'doi','journal', 'pdf_url', 'publication_date', 'title', 'url', 'year', 'article_ix', 'content']
-# qje_columns = ['JEL','institution','abstract','author', 'doi','journal', 'pdf_url', 'publication_date', 'title', 'url', 'year', 'article_ix', 'content']
+qje_columns = ['JEL','institution','abstract','author', 'doi','journal', 'pdf_url', 'publication_date', 'title', 'url', 'year', 'article_ix', 'content']
 
 def merge_indexed(journal, columns):
 	indexed_csv_path = '../econ_data/indexed_'+ journal + '.csv'
@@ -52,7 +52,7 @@ def merge_indexed(journal, columns):
 	complete.rename(columns={'index': 'article_ix'}, inplace=True)
 	complete.to_csv(complete_csv_path, columns = columns, encoding = 'utf-8', index = False)
 
-# merge_indexed('qje', qje_columns)
+merge_indexed('qje', qje_columns)
 merge_indexed('aer', aer_columns)
 
 # in aer Index 122, 123, 959, 960, 1367, 1368, 1561, 1562, 1750, 1751, 

@@ -45,8 +45,8 @@ def download_files(csv_file_name):
     download_helper(csv_file_name, 'corr_url', 'corr_file_name')
 
 
-# select_years('aer_additional_material.csv')
-# download_files('2001-2009_aer_additional_material.csv')
+select_years('aer_additional_material.csv')
+download_files('2001-2009_aer_additional_material.csv')
 
 
 
