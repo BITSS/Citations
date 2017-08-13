@@ -67,7 +67,7 @@ def read_data_entry(file_in, **pandas_kwargs):
         dtypes = pandas_kwargs.pop('dtype', None)
         sheet = pd.DataFrame(columns=header, data=content,
                              **pandas_kwargs)
-        #take care of completely empty rows
+        # take care of completely empty rows
         sheet = sheet.dropna(0, 'all')
         if dtypes:
             string_columns = [k for k, v in dtypes.items() if v == 'str']
@@ -76,7 +76,7 @@ def read_data_entry(file_in, **pandas_kwargs):
 
     elif file_ending == 'csv':
         sheet = pd.read_csv(file_in, **pandas_kwargs)
-        
+
     else:
         raise NotImplementedError('File ending {} not supported.'.
                                   format(file_ending))
@@ -140,7 +140,7 @@ def import_data_entries(source, target, output, entry_column, merge_on,
 
     # Create log file showing result from merge and data entry for both files.
     if log:
-        merged.to_csv(log, index_label='merged_row_ix', encoding ='utf-8')
+        merged.to_csv(log, index_label='merged_row_ix', encoding='utf-8')
 
     # Import values to reference category.
     merged.loc[import_dummy, entry_column] = \
@@ -161,7 +161,7 @@ def import_data_entries(source, target, output, entry_column, merge_on,
                          if x not in ['import_candidate', 'target_row_ix',
                                       'import_dummy']] +
                         ['import_dummy']]
-    merged.to_csv(output, index=False, encoding ='utf-8')
+    merged.to_csv(output, index=False, encoding='utf-8')
 
 
 def article_url(doi, journal):
@@ -214,8 +214,13 @@ def hyperlink_google_search(text):
 
     Show 15 results, and turn off personalization of results.
     '''
-    return ('=HYPERLINK("https://google.com/search?q={x}&num=15&pws=0",'
+    return ('=HYPERLINK("https://google.com/search?q={x}&num=15&pws=0";'
             '"{x}")'.format(x=text))
+
+
+def hyperlink_doi(doi):
+    return ('=HYPERLINK("http://dx.doi.org/{x}";'
+            '"{x}")'.format(x=doi))
 
 
 def extract_authors_ajps(article, authors_column='authors'):
@@ -270,7 +275,7 @@ def add_doi(target, source, output=False):
                            'reference_category']]
     df_target.sort_index(inplace=True)
     if output:
-        df_target.to_csv(output, index=None, encoding ='utf-8')
+        df_target.to_csv(output, index=None, encoding='utf-8')
     else:
         return df_target
 
