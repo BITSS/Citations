@@ -51,15 +51,17 @@ def create_author_website_coding_template(df_input, output_file,
     df['website_category'] = np.nan
     df['website'] = np.nan
 
-    df.to_csv(output_file,
-              columns=['article_ix', 'doi', 'title', 'author',
-                       'website_category', 'website'], index=None)
+    output_columns = ['article_ix', 'doi', 'title', 'author',
+                      'website_category', 'website']
+    if 'selected_into_sample' in df.columns:
+        output_columns.append('selected_into_sample')
+
+    df.to_csv(output_file, columns=output_columns, index=None)
 
 # AER
 input_columns = ['doi', 'title', 'author', 'selected_into_sample']
 df = pd.read_csv('data_collection_econ/aer_with_sample_selection.csv',
                  header=0, usecols=input_columns)
-df = df.loc[df['selected_into_sample']]
 df['article_ix'] = df.index + 1
 df['author'].fillna('', inplace=True)
 
