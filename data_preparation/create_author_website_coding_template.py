@@ -8,7 +8,8 @@ import re
 import numpy as np
 import pandas as pd
 
-from tools import hyperlink_google_search, hyperlink_doi
+from tools import (hyperlink_google_search, hyperlink_doi,
+                   extract_authors_aer, extract_authors_qje)
 
 
 def create_author_website_coding_template(df_input, output_file,
@@ -55,18 +56,6 @@ def create_author_website_coding_template(df_input, output_file,
                        'website_category', 'website'], index=None)
 
 # AER
-
-
-def extract_authors_aer(article, authors_column='author'):
-    # Separate authors
-    authors = [x.strip() for x in re.split('\s(?=[^\s,]*,)',
-                                           article[authors_column])]
-    # Put first name before last name
-    authors = [' '.join(a.split(', ')[::-1]) for a in authors]
-
-    return (pd.Series(authors, index=['author_{}'.format(i)
-                                      for i in range(len(authors))]))
-
 input_columns = ['doi', 'title', 'author', 'selected_into_sample']
 df = pd.read_csv('data_collection_econ/aer_with_sample_selection.csv',
                  header=0, usecols=input_columns)
@@ -79,18 +68,6 @@ create_author_website_coding_template(df_input=df,
                                       extract_authors_function=extract_authors_aer)
 
 # QJE
-
-
-def extract_authors_qje(article, authors_column='author'):
-    # Separate authors
-    authors = [x.strip() for x in re.split('\s(?=[^\s,]*,)',
-                                           article[authors_column])]
-    # Put first name before last name
-    authors = [' '.join(a.split(', ')[::-1]) for a in authors]
-
-    return (pd.Series(authors, index=['author_{}'.format(i)
-                                      for i in range(len(authors))]))
-
 input_columns = ['doi', 'title', 'author']
 df = pd.read_csv('data_collection_econ/qje.csv',
                  header=0, usecols=input_columns)

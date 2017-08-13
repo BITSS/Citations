@@ -7,7 +7,8 @@ import requests
 import pandas as pd
 import numpy as np
 from tools import (unique_elements, hyperlink,
-                   extract_authors_apsr, extract_authors_ajps
+                   extract_authors_apsr, extract_authors_ajps,
+                   extract_authors_aer, extract_authors_qje
                    )
 
 
@@ -155,4 +156,57 @@ extract_from_dataverse(df, output_file=output_file,
                        extract_authors=lambda x:
                        extract_authors_apsr(x,
                                             authors_column='authors_apsr_toc'),
+                       api_token=api_token)
+
+# QJE
+input_file = 'data_collection_econ/qje.csv'
+output_file = 'bld/qje_dataverse_search.csv'
+
+select_after = parser.parse('January 1 2006')
+select_before = parser.parse('January 1 2015')
+
+date_column = 'publication_date'
+df = pd.read_csv(input_file, parse_dates=[date_column])
+
+# Select articles from relevant date range.
+df = df[np.all([select_after <= df[date_column],
+                df[date_column] < select_before], axis=0)]
+df.reset_index(inplace=True)
+df['article_ix'] = df.index + 1
+
+# Rename columns to avoid conflict with Dataverse result column.
+df.rename(columns={'author': 'author_qje_toc'}, inplace=True)
+df['author_qje_toc'].fillna('', inplace=True)
+
+extract_from_dataverse(df, output_file=output_file,
+                       extract_authors=lambda x:
+                       extract_authors_qje(x,
+                                           authors_column='author_qje_toc'),
+                       api_token=api_token)
+
+# AER
+input_file = 'data_collection_econ/aer_with_sample_selection.csv'
+output_file = 'bld/aer_dataverse_search.csv'
+
+select_after = parser.parse('January 1 2006')
+select_before = parser.parse('January 1 2015')
+
+date_column = 'publication_date'
+df = pd.read_csv(input_file, parse_dates=[date_column])
+df = df.loc[df['selected_into_sample']]
+
+# Select articles from relevant date range.
+df = df[np.all([select_after <= df[date_column],
+                df[date_column] < select_before], axis=0)]
+df.reset_index(inplace=True)
+df['article_ix'] = df.index + 1
+
+# Rename columns to avoid conflict with Dataverse result column.
+df.rename(columns={'author': 'author_aer_toc'}, inplace=True)
+df['author_aer_toc'].fillna('', inplace=True)
+
+extract_from_dataverse(df, output_file=output_file,
+                       extract_authors=lambda x:
+                       extract_authors_aer(x,
+                                           authors_column='author_aer_toc'),
                        api_token=api_token)
