@@ -162,8 +162,8 @@ extract_from_dataverse(df, output_file=output_file,
 input_file = 'data_collection_econ/qje.csv'
 output_file = 'bld/qje_dataverse_search.csv'
 
-select_after = parser.parse('January 1 2006')
-select_before = parser.parse('January 1 2015')
+select_after = parser.parse('January 1 2001')
+select_before = parser.parse('January 1 2010')
 
 date_column = 'publication_date'
 df = pd.read_csv(input_file, parse_dates=[date_column])
@@ -188,12 +188,11 @@ extract_from_dataverse(df, output_file=output_file,
 input_file = 'data_collection_econ/aer_with_sample_selection.csv'
 output_file = 'bld/aer_dataverse_search.csv'
 
-select_after = parser.parse('January 1 2006')
-select_before = parser.parse('January 1 2015')
+select_after = parser.parse('January 1 2001')
+select_before = parser.parse('January 1 2010')
 
 date_column = 'publication_date'
 df = pd.read_csv(input_file, parse_dates=[date_column])
-df = df.loc[df['selected_into_sample']]
 
 # Select articles from relevant date range.
 df = df[np.all([select_after <= df[date_column],
