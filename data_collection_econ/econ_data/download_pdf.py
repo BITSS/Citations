@@ -8,7 +8,7 @@ def select_years(file_name):
     df = df.loc[(df['year'] >= 2001) & (df['year'] <= 2009)]
     nrow = df.doi.count()
     df['index'] = list(range(0, nrow))
-    df.to_csv('indexed1_' + file_name, encoding = 'utf-8')
+    df.to_csv('indexed_' + file_name, encoding = 'utf-8')
 
 def download_pdf(file_name, journal):
     df = pd.read_csv(file_name, nrows = 5)
@@ -20,8 +20,8 @@ def download_pdf(file_name, journal):
 
 select_years('aer.csv')
 #download_pdf('indexed1_aer.csv', 'aer')
-# select_years('qje.csv')
-# download_pdf('indexed_qje.csv', 'qje')
+select_years('qje.csv')
+download_pdf('indexed_qje.csv', 'qje')
 
 
 

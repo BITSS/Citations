@@ -38,7 +38,7 @@ class OxfordSpider(scrapy.Spider):
     author_xpath = '//meta[@name = "citation_author"]/@content'
     title_xpath = "//meta[@name = 'citation_title']/@content"
     abstract_xpath = "//section[@class = 'abstract']//p"
-    # JEL_xpath = "//div[@class = 'article-metadata']//a/text()"
+    JEL_xpath = "//div[@class = 'article-metadata']//a/text()"
     institution_xpath = '//meta[@name = "citation_author_institution"]/@content'
     publication_date_xpath = "//meta[@name = 'citation_publication_date']/@content"
     pdf_url_xpath = "//meta[@name = 'citation_pdf_url']/@content"
