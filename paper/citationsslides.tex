@@ -48,7 +48,7 @@
 % - Keep it simple, no one is interested in your street address.
 
 \date[Short Occasion] % (optional)
-{June 28, 2017 WEAI}
+{August 31, 2017 BIDS}
 
 \subject{Talks}
 % This is only inserted into the PDF information catalog. Can be left
@@ -87,7 +87,7 @@
     \begin{frame}[plain]
         \begin{tikzpicture}[remember picture,overlay]
             \node[at=(current page.center)] {
-                \href{https://www.bitss.org/}{\includegraphics[width=\paperwidth]{../Images/bitsslogo.png}}
+                \href{https://www.bitss.org/}{\includegraphics[width=\paperwidth]{../images/BITSSlogo.png}}
             };
         \end{tikzpicture}
      \end{frame}
@@ -138,11 +138,38 @@
   \item 
   	 Is there private incentive?
   	 \begin{itemize}
-  	 \item Citations
   	 \item Promotion \& tenure
+  	 \item Citations
   	 \end{itemize} 
   \end{itemize}
 \end{frame}
+
+\begin{frame}{Citations}
+\begin{itemize}
+\item Signal of quality (?)
+\item Facilitates other researchers building off your work
+\end{itemize}
+\end{frame}
+{ % all template changes are local to this group.
+    \setbeamertemplate{navigation symbols}{}
+    \begin{frame}[plain]
+        \begin{tikzpicture}[remember picture,overlay]
+            \node[at=(current page.center)] {
+                \includegraphics[height=\paperheight]{../images/Angrist.png}
+            };
+        \end{tikzpicture}
+     \end{frame}
+}
+{ % all template changes are local to this group.
+    \setbeamertemplate{navigation symbols}{}
+    \begin{frame}[plain]
+        \begin{tikzpicture}[remember picture,overlay]
+            \node[at=(current page.center)] {
+                \includegraphics[width=\paperwidth]{../images/Angrist2.png}
+            };
+        \end{tikzpicture}
+     \end{frame}
+}
 
 \begin{frame}{Existing Evidence}
 \begin{itemize}
@@ -196,15 +223,44 @@ The first issue Wilson edited was published in October 2010. After discussion wi
 There was no policy change at the other top political science journal, \textit{American Political Science Review}, (\textit{APSR}).
 \end{frame}
 
+\begin{frame}{The Case of Economics*}
+\begin{itemize}
+\item The Journal of Money, Credit, and Banking Project \href{http://www.jstor.org/stable/3132121}{Dewald, Thursby, Anderson 1986)}
+\item Verifying the Solution from a Nonlinear Solver: A Case Study \href{http://www.jstor.org/stable/3132121}{(McCullough, Vinod 2003)}
+\item Ben Bernanke made the \textit{American Economic Review} policy mandatory in 2005.
+\item \textit{Quarterly Journal of Economics} didn't require data sharing until 2016.
+\end{itemize}
+\end{frame}
 
+{ % all template changes are local to this group.
+    \setbeamertemplate{navigation symbols}{}
+    \begin{frame}[plain]
+        \begin{tikzpicture}[remember picture,overlay]
+            \node[at=(current page.center)] {
+                \includegraphics[width=\paperwidth]{../images/JMCB1.PNG}
+            };
+        \end{tikzpicture}
+     \end{frame}
+}
 \section{Methods}
 \begin{frame}{Pre-Analysis Plan}
 
 \begin{itemize}
 \item Short pre-analysis plan before data collection.
 \item Available at \url{https://osf.io/qxpr6/}
+\item Use 2SLS to estimate causal effect (LATE)
+\begin{itemize}
+\item \href{http://www.tandfonline.com/doi/abs/10.1080/01621459.1996.10476902}{Angrist, Imbens, Ruben (1993)}
+\item  \href{http://www.nber.org/papers/t0118}{Angrist, Imbens (1994)}
+\end{itemize} 
 \end{itemize}
+\end{frame}
 
+\begin{frame}{2SLS in 60 Seconds or Less}
+
+\end{frame}
+
+\begin{frame}{Our Estimation Strategy}
 \begin{align}\label{firststage} 
 availability_i &= \alpha_1 +\beta_1 AJPS_i + \beta_2 Post2010_i + \beta_3 Post2012_i \\ \notag
 & + {\color{red} \beta_4 AJPS*Post2010_i + \beta_5 AJPS*Post2012_i } \\
