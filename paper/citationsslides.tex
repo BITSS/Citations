@@ -102,12 +102,16 @@
   \end{center}
 \end{frame}
 
+\begin{frame}
+Thanks to David Birke, Terri Cruz, Maxim Guzman, Baiyue Cao, Evey Huang, Rachel Kim, Ravina Pattni, Kevin Khuu
+\end{frame}
 
 \begin{frame}{Outline}
   \tableofcontents
   \begin{center}
+  Slides available at: \url{http://www.github.com/bitss/citations}
   \begin{large}
-  PRELIMINARY--Please do not cite.
+ % PRELIMINARY--Please do not cite.
   \end{large}
   \end{center}
   % You might wish to add the option [pausesections]
@@ -225,7 +229,7 @@ There was no policy change at the other top political science journal, \textit{A
 
 \begin{frame}{The Case of Economics*}
 \begin{itemize}
-\item The Journal of Money, Credit, and Banking Project \href{http://www.jstor.org/stable/3132121}{Dewald, Thursby, Anderson 1986)}
+\item The Journal of Money, Credit, and Banking Project \href{http://www.jstor.org/stable/3132121}{(Dewald, Thursby, Anderson 1986)}
 \item Verifying the Solution from a Nonlinear Solver: A Case Study \href{http://www.jstor.org/stable/3132121}{(McCullough, Vinod 2003)}
 \item Ben Bernanke made the \textit{American Economic Review} policy mandatory in 2005.
 \item \textit{Quarterly Journal of Economics} didn't require data sharing until 2016.
@@ -258,6 +262,39 @@ There was no policy change at the other top political science journal, \textit{A
 
 \begin{frame}{2SLS in 60 Seconds or Less}
 
+$$Y_i=\alpha + \beta \cdot X_i+u_i$$
+Problem: X of interest is endogenous. (Omitted variable bias--some unobservable is correlated with Y and X of interest.)
+
+\vspace{0.25in}
+Solution: Find an instrument. 
+$$corr(Z,u)=0$$
+$$corr(Z,X)\neq 0$$
+
+Biased, but consistent. (Get large N!)
+\end{frame}
+
+\begin{frame}{2SLS in More Detail}
+Implementation: 
+\begin{enumerate}
+\item Predict X with Z. (First Stage)
+\item Regress Y on predicted X's. (Second Stage)
+\item Adjust standard errors.
+\end{enumerate}
+Assumptions:
+\begin{itemize}
+\item Relevance. (Strong first stage, $corr(Z,X)\neq 0; F>10$)
+\item Exclusion Restriction.  ($corr(Z,u)=0$; Instrument only effects outcome through included X's.)
+\end{itemize}
+\end{frame}
+
+\begin{frame}{2SLS Examples}
+\begin{itemize}
+\item Best: Randomized Trial, incomplete adoption, use treatment assignment as instrument for treatment, get TOT and ITT. (Wald Estimator)
+\item Vietnam draft lottery predicts service, get unbiased effect of service on earnings.
+\item Quarter of Birth as instrument for schooling, get effect of schooling on earnings (with no ability bias).
+\item Settler mortality as instrument for institutions, get effect of institutions on GDP.
+\item Rainfall shocks predict GDP, get effect of GDP on civil conflict.
+\end{itemize}
 \end{frame}
 
 \begin{frame}{Our Estimation Strategy}
