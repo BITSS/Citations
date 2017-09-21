@@ -186,51 +186,51 @@ def apply_func_dict(entry_dict, columns, func):
 #                               'dataverse_query'])
 
 
-# # Diff AJPS article coding
+# Diff AJPS article coding
 # urap_initials = ['BC', 'EH', 'RP', 'TC']
-
+#
 # create_diff(input_dict=standard_entry_dict('ajps_article_coding',
 #                                            'article_topic1'),
 #             output_file='bld/ajps_article_coding_diff_topic1.csv',
 #             entry_column='article_topic1',
 #             columns_merge_on=['article_ix', 'doi', 'title', 'abstract'])
-
+#
 # create_diff(input_dict=standard_entry_dict('ajps_article_coding',
 #                                            'article_topic2'),
 #             output_file='bld/ajps_article_coding_diff_topic2.csv',
 #             entry_column='article_topic2',
 #             columns_merge_on=['article_ix', 'doi', 'title', 'abstract'])
-
+#
 # create_diff(input_dict=standard_entry_dict('ajps_article_coding',
 #                                            'article_data_type'),
 #             output_file='bld/ajps_article_coding_diff_data_type.csv',
 #             entry_column='article_data_type',
 #             columns_merge_on=['article_ix', 'doi', 'title', 'abstract'])
-
+#
 # # Diff APSR article coding
 # create_diff(input_dict=standard_entry_dict('apsr_article_coding',
 #                                            'article_topic1'),
 #             output_file='bld/apsr_article_coding_diff_topic1.csv',
 #             entry_column='article_topic1',
 #             columns_merge_on=['article_ix', 'doi', 'title', 'abstract'])
-
+#
 # create_diff(input_dict=standard_entry_dict('apsr_article_coding',
 #                                            'article_topic2'),
 #             output_file='bld/ajps_article_coding_diff_topic2.csv',
 #             entry_column='article_topic2',
 #             columns_merge_on=['article_ix', 'doi', 'title', 'abstract'])
-
+#
 # create_diff(input_dict=standard_entry_dict('apsr_article_coding',
 #                                            'article_data_type'),
 #             output_file='bld/ajps_article_coding_diff_data_type.csv',
 #             entry_column='article_data_type',
 #             columns_merge_on=['article_ix', 'doi', 'title', 'abstract'])
 
-# Diff QJE reference coding
-urap_initials = ['TC', 'MG', 'DS', 'MH', 'MS']
+urap_initials = ['TC', 'MG', 'DS', 'MS', 'MH']
 
 create_diff(input_dict=standard_entry_dict('qje_reference_coding',
                                            'reference_category'),
             output_file='bld/qje_reference_coding_diff.csv',
             entry_column='reference_category',
-            columns_merge_on=['article_ix', 'reference_ix'])
+            columns_merge_on=['article_ix', 'reference_ix', 'publication_date', 'doi',
+                              'title', 'context', 'match'])
