@@ -60,3 +60,6 @@ Please provide a specific article or row number as an example that illustrates y
   A: create a new option: paper.
 
   Thank you for answering my questions.
+
+### Misc
+  1. If an article has in its reference section a paper containing the term `data`, that by itself does not count as a reference. For example, `spectives, 20 (2006), 171–192.  Eden, Benjamin, “Inﬂation and Price Adjustment: An Analysis of MicroDATA,” Re-  view of Economic Dynamics, 4 (2001), 607–636.  Edwards, Sebastian, “The Mexican Peso Crisis:` should be coded as `0`.
