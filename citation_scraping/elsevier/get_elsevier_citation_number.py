@@ -1,4 +1,3 @@
-# import csv
 import aiohttp
 import asyncio
 import aiofiles
@@ -26,6 +25,7 @@ async def main_search(search_type):
                 await asyncio.sleep(1)  # Just in case
 
         elif search_type == 'title':
+            # sequential
             for row in df[df.citations.isnull()].itertuples():
                 await search_by_title(session, journal_name, row.title, row.year)
 
@@ -136,8 +136,8 @@ if __name__ == '__main__':
     loop = asyncio.get_event_loop()
 
     # search by doi
-    # loop.run_until_complete(main_search('doi'))
-    # parse_jsons()
+    loop.run_until_complete(main_search('doi'))
+    parse_jsons()
     print("Searching by DOI: DONE")
 
     # search by title
