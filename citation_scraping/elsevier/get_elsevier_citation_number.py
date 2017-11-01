@@ -18,14 +18,16 @@ async def main_search(search_type):
             yield l[i:i + n]
 
     async with aiohttp.ClientSession() as session:
-        for small_chunk in list(chunks(df[df.citations.isnull()], 100)):
-            if search_type == 'doi':
+        if search_type == 'doi':
+            for small_chunk in list(chunks(df[df.citations.isnull()], 100)):
                 tasks = [search_by_doi(session, row.doi) for row in small_chunk.itertuples()]
-            elif search_type == 'title':
-                tasks = [search_by_title(session, journal_name, row.title, row.year) for row in small_chunk.itertuples()]
 
-            await asyncio.gather(*tasks)
-            await asyncio.sleep(1)  # Just in case
+                await asyncio.gather(*tasks)
+                await asyncio.sleep(1)  # Just in case
+
+        elif search_type == 'title':
+            for row in df[df.citations.isnull()].itertuples():
+                await search_by_title(session, journal_name, row.title, row.year)
 
 
 async def search_by_doi(session, doi):
@@ -51,42 +53,46 @@ async def search_by_title(session, srctitle, title, pubyear):
         data = await response.text()
 
     p = re.compile('[:"?]')
+    filename = re.sub(p, "", title)
 
-    async with aiofiles.open(f'jsons/title/{re.sub(p, "", title)}.json', 'w', encoding='utf-8') as file:
+    async with aiofiles.open(f'jsons/title/{filename}.json', 'w', encoding='utf-8') as file:
         await file.write(data)
 
+    # parse
+    try:
+        with open(f'jsons/title/{filename}.json', 'r', encoding='utf-8') as file:
+            data = json.loads(file.read())
 
-def parse_jsons(search_type):
-    if search_type == 'doi':
-        p = re.compile('"([\w./]+)"')
+            try:
+                # article found
+                if len(data['search-results']['entry']) != 1:
+                    # skip if more than 2 found
+                    df.loc[df.title == title, 'result'] = 'title_multiple'
+                else:
+                    df.loc[df.title == title, 'citations'] = data['search-results']['entry'][0]['citedby-count']
+                    df.loc[df.title == title, 'result'] = 'title'
+            except KeyError:
+                # skip if article not found
+                pass
+    except json.decoder.JSONDecodeError:
+        df.loc[df.title == title, 'result'] = 'error'
+        pass
 
-        for filename in os.listdir('jsons/doi/'):
-            with open(f'jsons/doi/{filename}', 'r', encoding='utf-8') as file:
-                data = json.loads(file.read())
 
-                doi = p.findall(data['search-results']['opensearch:Query']['@searchTerms'].replace('\ufeff', ''))[0]
-                try:
-                    df.loc[df.doi == doi]['citations'] = data['search-results']['entry'][0]['citedby-count']
-                except KeyError:
-                    # skip if article not found
-                    pass
+def parse_jsons():
+    p = re.compile('"([\w./]+)"')
 
-    elif search_type == 'title':
-        for filename in os.listdir('jsons/title/'):
-            with open(f'jsons/title/{filename}', 'r', encoding='utf-8') as file:
-                data = json.loads(file.read())
+    for filename in os.listdir('jsons/doi/'):
+        with open(f'jsons/doi/{filename}', 'r', encoding='utf-8') as file:
+            data = json.loads(file.read())
 
-                try:
-                    # article found
-                    if len(data['search-results']['entry']) != 1:
-                        # skip if more than 2 found
-                        continue
-                    else:
-                        df.loc[df.title.str.lower() == data['search-results']['entry'][0]['dc:title'].lower(), 'citations'] \
-                            = data['search-results']['entry'][0]['citedby-count']
-                except KeyError:
-                    # skip if article not found
-                    pass
+            doi = p.findall(data['search-results']['opensearch:Query']['@searchTerms'].replace('\ufeff', ''))[0]
+            try:
+                df.loc[df.doi == doi]['citations'] = data['search-results']['entry'][0]['citedby-count']
+                df.loc[df.doi == doi]['result'] = 'doi'
+            except KeyError:
+                # skip if article not found
+                pass
 
 
 if __name__ == '__main__':
@@ -111,6 +117,9 @@ if __name__ == '__main__':
         print("No api_key.txt file")
         raise
 
+    if api_key == "":
+        sys.exit("No api key in api_key.txt")
+
     # list of articles
     dois = []
     try:
@@ -119,16 +128,21 @@ if __name__ == '__main__':
         print(f"No {journal}_citations_scopus.csv file")
         raise
 
+    df['result'] = 'not found'
+    df.loc[df.citations.notnull(), 'result'] = 'existing'
+
     # run loop
+    print(f"Searching articles on {journal_name}...")
     loop = asyncio.get_event_loop()
 
     # search by doi
-    loop.run_until_complete(main_search('doi'))
-    parse_jsons('doi')
+    # loop.run_until_complete(main_search('doi'))
+    # parse_jsons()
+    print("Searching by DOI: DONE")
 
     # search by title
     loop.run_until_complete(main_search('title'))
-    parse_jsons('title')
+    print("Searching by title: DONE")
 
     # write to file
     df.to_csv(f'outputs/{journal}_citations_scopus.csv')
