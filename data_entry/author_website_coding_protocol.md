@@ -14,7 +14,7 @@ Add `research` to the search term, and repeat from step 1.
 If that also does not find you the author's website, put `could_not_find` into the `website_category` column. 
 
 ### Some author names look weird
-The extraction of author names is done automatically. Sometimes this will result in author names that are actually not names or repetition of names in slightly different variants (e.g. `James H. Fowler` and `James H. FowlerUniversity of California`). If an author name is clearly not a name or you have already previously looked for an author **in the same article**, you can put `skip` into the `website_category` column.
+The extraction of author names is done automatically. Sometimes this will result in author names that are actually not names or repetition of names in slightly different variants (e.g. `James H. Fowler` and `James H. FowlerUniversity of California`). If an author name is clearly not a name and you have already previously looked for an author **in the same article**, you can put `skip` into the `website_category` column. (Make sure look for each real author name-paper combo at least once, though.) 
 
 ### Some articles have no authors
 Mark these as `skip`.
