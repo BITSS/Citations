@@ -82,8 +82,8 @@ The process for data entry works as follows:
 
 1. Every combination of journal and data entry category has an `ods` template.
 2. Several people can work on filling out a template by copying it to their local machine and adding their initials to the file name.
-3. The data entered from several people on the same template is then compared. Differences in entry will be detected, and marked in a difference resolution template.
-4. Pairs with differing data entry then meet to resolve differences, and record those in a single copy of the difference resolution file.
+3. The data entered from several people on the same template is then compared. Differences in entry will be detected across all filled out versions of the same template.
+4. Detected differences are marked in a difference resolution template. Pairs of people with differing data entry meet to resolve differences, and record those in a single copy of the difference resolution file.
 5. The resolved differences are then "harmonized" across difference resolution pairs into a single file.  
 
 Each of these steps has corresponding scripts and folders:
@@ -95,3 +95,12 @@ Each of these steps has corresponding scripts and folders:
     + Reference: `data_preparation/create_ajps_reference_coding_template.py`, `data_preparation/create_apsr_reference_coding_template.py`, `data_preparation/create_econ_reference_coding_template.py`
     + Link: `data_preparation/create_link_coding_template.py`
 2. Upload template. Individual versions of filled out templates are stored and synchronized in `URAPShared/Data`.
+3. The script `data_preparation/create_diff.py` can be configured to take multiple individually filled out versions of the same templates and create a single file `bld/*_diff.csv` listing inconsistencies for each entry across all versions.
+4. The script `data_preparation/create_diff_resolution_template.py` can be configured to use the `bld/*_diff.csv` file to create templates for resolution pairs to resolve their differences. These templates are also stored and synchronized in `URAPShared/Data`, their file names contain the initials of the resolution pair as well as `diff_resolution`.
+5. The script `data_preparation/harmonize.py` can be configured to take diff resolution files, and match them to the original templates to create a final `bld/*_harmonized.csv` file.
+
+The `data_preparation` folder contains a few more files:
++ `import_old_entries.py`: This script can be configured to import data entry across different filled out templates. This is useful when changes in the protocol or bug fixes led to additional entries. Existing data entry could be preserved, despite a change in the template file.
++ `select_relevant_years.py`: Restrict selection of AJPS articles to articles published in years 2006 to 2014. This was necessary because we collected a wider range of articles with Octoparse.
++ `update_template_rk.py`: This is a script to import old data in response to a very specific change in the template structure.
++ `tools.py`: A collection of helper functions used across multiple scripts.
