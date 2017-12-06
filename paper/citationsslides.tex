@@ -16,7 +16,7 @@
 
 \usepackage[utf8]{inputenc}
 % or whatever
-
+\usepackage[outdir=./]{epstopdf}
 \usepackage{times}
 \usepackage[T1]{fontenc}
 % Or whatever. Note that the encoding and the font should match. If T1
@@ -48,7 +48,7 @@
 % - Keep it simple, no one is interested in your street address.
 
 \date[Short Occasion] % (optional)
-{August 31, 2017 BIDS}
+{December 2017 BITSS Annual Meeting}
 
 \subject{Talks}
 % This is only inserted into the PDF information catalog. Can be left
@@ -103,19 +103,19 @@
 \end{frame}
 
 \begin{frame}
-Thanks to David Birke, Terri Cruz, Maxim Guzman, Baiyue Cao, Evey Huang, Rachel Kim, Ravina Pattni, Kevin Khuu
+Thanks to David Birke, Mu Yang Shin, Don Sun, Manana Hakobyan, Terri Cruz, Maxim Guzman, Baiyue Cao, Evey Huang, Rachel Kim, Ravina Pattni, Kevin Khuu
 \end{frame}
 
-\begin{frame}{Outline}
-  \tableofcontents
-  \begin{center}
-  Slides available at: \url{http://www.github.com/bitss/citations}
-  \begin{large}
+%\begin{frame}{Outline}
+ % \tableofcontents
+  %\begin{center}
+ % Slides available at: \url{http://www.github.com/bitss/citations}
+  %\begin{large}
  % PRELIMINARY--Please do not cite.
-  \end{large}
-  \end{center}
+  %\end{large}
+ % \end{center}
   % You might wish to add the option [pausesections]
-\end{frame}
+%\end{frame}
 
 
 % Since this a solution template for a generic talk, very little can
@@ -323,7 +323,7 @@ citations_i &=\alpha_2 +\eta_1 AJPS_i + \eta_2 Post2010_i+ \eta_3 Post2012_i \\
     \begin{frame}[plain]
         \begin{tikzpicture}[remember picture,overlay]
             \node[at=(current page.center)] {
-                \includegraphics[width=\paperwidth]{../output/cite_histo.png}
+                \includegraphics[width=\paperwidth]{../output/cite_histo.eps}
 
             };
         \end{tikzpicture}
@@ -332,7 +332,7 @@ citations_i &=\alpha_2 +\eta_1 AJPS_i + \eta_2 Post2010_i+ \eta_3 Post2012_i \\
      \begin{frame}[plain]
         \begin{tikzpicture}[remember picture,overlay]
             \node[at=(current page.center)] {
-                \includegraphics[width=\paperwidth]{../output/cite_time.png}
+                \includegraphics[width=\paperwidth]{../output/cite_time.eps}
 
             };
         \end{tikzpicture}
@@ -341,7 +341,7 @@ citations_i &=\alpha_2 +\eta_1 AJPS_i + \eta_2 Post2010_i+ \eta_3 Post2012_i \\
     \begin{frame}[plain]
         \begin{tikzpicture}[remember picture,overlay]
             \node[at=(current page.center)] {
-                \includegraphics[width=\paperwidth]{../output/avail_time.png}
+                \includegraphics[width=\paperwidth]{../output/avail_time.eps}
             };
         \end{tikzpicture}
      \end{frame}
@@ -375,7 +375,8 @@ citations_i &=\alpha_2 +\eta_1 AJPS_i + \eta_2 Post2010_i+ \eta_3 Post2012_i \\
 \end{frame}
 
 \begin{frame}{}
-\scalebox{0.50}{\input{../output/first.tex}}
+\scalebox{0.90}{\input{../output/first.tex}}
+Controls cut for space
 \end{frame}
 
 \begin{frame}{}
@@ -386,12 +387,33 @@ citations_i &=\alpha_2 +\eta_1 AJPS_i + \eta_2 Post2010_i+ \eta_3 Post2012_i \\
 \scalebox{0.68}{\input{../output/ivregLN-simp.tex}}
 \end{frame}
 
+\begin{frame}{Citation Data}
+Citations are interesting data in and of themselves.
+\begin{itemize}
+\item Multiple sources
+\item Not open
+\item Initiative to change that: \href{http://i4oc.org}{I4OC}
+\end{itemize}
+Results robust to source of citation data
+\end{frame}
+
 { % all template changes are local to this group.
     \setbeamertemplate{navigation symbols}{}
     \begin{frame}[plain]
         \begin{tikzpicture}[remember picture,overlay]
             \node[at=(current page.center)] {
-                \includegraphics[width=\paperwidth]{../output/topicXjournalXpost2010.png}
+                \includegraphics[width=\paperwidth]{../output/citationcomparison.eps}
+            };
+        \end{tikzpicture}
+     \end{frame}
+}
+
+{ % all template changes are local to this group.
+    \setbeamertemplate{navigation symbols}{}
+    \begin{frame}[plain]
+        \begin{tikzpicture}[remember picture,overlay]
+            \node[at=(current page.center)] {
+                \includegraphics[width=\paperwidth]{../output/topicXjournalXpost2010.eps}
             };
         \end{tikzpicture}
      \end{frame}
@@ -403,7 +425,7 @@ citations_i &=\alpha_2 +\eta_1 AJPS_i + \eta_2 Post2010_i+ \eta_3 Post2012_i \\
     \begin{frame}[plain]
         \begin{tikzpicture}[remember picture,overlay]
             \node[at=(current page.center)] {
-                \includegraphics[width=\paperwidth]{../output/topicXjournalXpost2012.png}
+                \includegraphics[width=\paperwidth]{../output/topicXjournalXpost2012.eps}
             };
         \end{tikzpicture}
      \end{frame}
@@ -414,7 +436,7 @@ citations_i &=\alpha_2 +\eta_1 AJPS_i + \eta_2 Post2010_i+ \eta_3 Post2012_i \\
     \begin{frame}[plain]
         \begin{tikzpicture}[remember picture,overlay]
             \node[at=(current page.center)] {
-                \includegraphics[width=\paperwidth]{../output/typeXjournalXpost2010.png}
+                \includegraphics[width=\paperwidth]{../output/typeXjournalXpost2010.eps}
             };
         \end{tikzpicture}
      \end{frame}
@@ -425,7 +447,7 @@ citations_i &=\alpha_2 +\eta_1 AJPS_i + \eta_2 Post2010_i+ \eta_3 Post2012_i \\
     \begin{frame}[plain]
         \begin{tikzpicture}[remember picture,overlay]
             \node[at=(current page.center)] {
-                \includegraphics[width=\paperwidth]{../output/typeXjournalXpost2012.png}
+                \includegraphics[width=\paperwidth]{../output/typeXjournalXpost2012.eps}
             };
         \end{tikzpicture}
      \end{frame}
@@ -436,7 +458,7 @@ citations_i &=\alpha_2 +\eta_1 AJPS_i + \eta_2 Post2010_i+ \eta_3 Post2012_i \\
     \begin{frame}[plain]
         \begin{tikzpicture}[remember picture,overlay]
             \node[at=(current page.center)] {
-                \includegraphics[width=\paperwidth]{../output/rankXjournalXpost2010.png}
+                \includegraphics[width=\paperwidth]{../output/rankXjournalXpost2010.eps}
             };
         \end{tikzpicture}
      \end{frame}
@@ -447,14 +469,15 @@ citations_i &=\alpha_2 +\eta_1 AJPS_i + \eta_2 Post2010_i+ \eta_3 Post2012_i \\
     \begin{frame}[plain]
         \begin{tikzpicture}[remember picture,overlay]
             \node[at=(current page.center)] {
-                \includegraphics[width=\paperwidth]{../output/rankXjournalXpost2012.png}
+                \includegraphics[width=\paperwidth]{../output/rankXjournalXpost2012.eps}
             };
         \end{tikzpicture}
      \end{frame}
 }
 
 \begin{frame}{}
-\scalebox{0.60}{\input{../output/exclusion.tex}}
+\scalebox{0.61}{\input{../output/exclusion.tex}}
+Controls dropped for space
 \end{frame}
 
 \section{Conclusion}
@@ -477,8 +500,13 @@ citations_i &=\alpha_2 +\eta_1 AJPS_i + \eta_2 Post2010_i+ \eta_3 Post2012_i \\
 
 \begin{frame}{Future}
 	\begin{itemize}
-	\item Data quality checks.
+	%\item Data quality checks.
 	\item Economics: AER \& QJE 2001-2009
+	\item Collaborate with Don Moore \& Andrew Rose
+	\begin{itemize}
+	\item Expand journals (19 with policy changes)
+	\item Narrow data collection
+	\end{itemize}
 	\end{itemize}
 \end{frame}
 

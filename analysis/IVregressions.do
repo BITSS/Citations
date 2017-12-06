@@ -1,6 +1,6 @@
 set more off
 clear all
-cd "C:\Users\garret\Box Sync\CEGA-Programs-BITSS\3_Publications_Research\Citations\citations\analysis"
+cd "/Users/garret/Box Sync/CEGA-Programs-BITSS/3_Publications_Research/Citations/citations/analysis"
 
 *The R script somehow loses many citations
 *all with a foreign character in title
@@ -166,13 +166,13 @@ label var apsr_y_avg "APSR"
 line ajps_y_avg apsr_y_avg year, title("Yearly Average Availability by Journal") ///
 	bgcolor(white) graphregion(color(white)) ///
 	ylabel(0 0.2 0.4 0.6 0.8 1)
-graph export ../output/avail_time.png, replace
+graph export ../output/avail_time.eps, replace
 
 ****************************
 *GRAPH CITATIONS
 ****************************
 histogram citation, bgcolor(white) graphregion(color(white)) title("Density of Citations")
-graph export ../output/cite_histo.png, replace
+graph export ../output/cite_histo.eps, replace
 
 bysort year ajps: egen cite_j_avg=mean(citation)
 label var cite_j_avg "Cites by Journal and Year"
@@ -183,7 +183,7 @@ label var apsr_y_citeavg "APSR"
 line ajps_y_citeavg apsr_y_citeavg year, title("Yearly Average Citations by Journal") ///
 	bgcolor(white) graphregion(color(white))
 
-graph export ../output/cite_time.png, replace
+graph export ../output/cite_time.eps, replace
 *********************************************************
 *GRAPH TOPIC AND TYPE
 *****************************************************
@@ -201,7 +201,7 @@ graph bar topic_*, stack over(ajps) legend(lab(1 "American") ///
 									lab(3 "Int'l Relations") ///
 									lab(4 "Methodology") ///
 									lab(5 "Theory"))
-graph export ../output/topicXjournal.png, replace
+graph export ../output/topicXjournal.eps, replace
 
 foreach X in 2010 2012{
 graph bar topic_*, stack over(post`X') over(ajps)  legend(lab(1 "American") ///
@@ -211,7 +211,7 @@ graph bar topic_*, stack over(post`X') over(ajps)  legend(lab(1 "American") ///
 	lab(5 "Theory")) ///
 	title("Article Topic by Journal Before and After `X' Policy") ///
 	bgcolor(white) graphregion(color(white))
-graph export ../output/topicXjournalXpost`X'.png, replace
+graph export ../output/topicXjournalXpost`X'.eps, replace
 }
 
 replace data_type="" if data_type=="skip"
@@ -227,7 +227,7 @@ graph bar data_type_*, stack over(post`X') over(ajps)  legend(lab(1 "Experimenta
 	lab(4 "Simulations")) ///
 	title("Data Type by Journal Before and After `X' Policy") ///
 	bgcolor(white) graphregion(color(white))
-graph export ../output/typeXjournalXpost`X'.png, replace
+graph export ../output/typeXjournalXpost`X'.eps, replace
 }
 
 *************************************
@@ -247,7 +247,7 @@ label var top_rank "Top US News Ranking of Author Institutions"
 histogram top_rank, title("Top US News Ranking of Articles") ///
 	bgcolor(white) graphregion(color(white)) ///
 	note("*Rank of 125 implies no author at top-100 ranked institution")
-graph export ../output/histo_authrank.png, replace
+graph export ../output/histo_authrank.eps, replace
 replace top_rank=.a if top_rank==125 //.a is NOT RANKED
 
 gen top1=.
@@ -280,7 +280,7 @@ graph bar top1 top5 top20 top50 top100 unranked, stack over(post`X') over(ajps) 
 	lab(6 "Unranked")) ///
 	title("Institution Rankings by Journal Before and After `X' Policy") ///
 	bgcolor(white) graphregion(color(white))
-graph export ../output/rankXjournalXpost`X'.png, replace
+graph export ../output/rankXjournalXpost`X'.eps, replace
 }
 
 ***********************************************************
@@ -289,52 +289,52 @@ graph export ../output/rankXjournalXpost`X'.png, replace
 
 *NAIVE
 regress citation avail_yn
-	outreg2 using ../output/naive.tex, tex label replace addtext(Sample, All)
-	outreg2 using ../output/naive-simp.tex, tex label replace addtext(Sample, All) ///
+	outreg2 using ../output/naive.tex, dec(3) tex label replace addtext(Sample, All)
+	outreg2 using ../output/naive-simp.tex, dec(3) tex label replace addtext(Sample, All) ///
 	nocons drop(print_months_ago_cu print_months_ago_sq) addnote("Regressions include constant, squared and cubed months since publication.")
 *regress citation avail_yn ajps 
 *	outreg2 using ../output/naive.tex, tex label append
 regress citation avail_yn ajps print_months_ago	print_months_ago_sq print_months_ago_cu
-	outreg2 using ../output/naive.tex, tex label append title("Naive OLS Regression") ///
+	outreg2 using ../output/naive.tex, dec(3) tex label append title("Naive OLS Regression") ///
 	addtext(Sample, All)
-	outreg2 using ../output/naive-simp.tex, tex label append title("Naive OLS Regression") ///
+	outreg2 using ../output/naive-simp.tex, dec(3) tex label append title("Naive OLS Regression") ///
 	addtext(Sample, All) nocons drop(print_months_ago_cu print_months_ago_sq)
 regress citation avail_yn ajps print_months_ago	print_months_ago_sq print_months_ago_cu ///
 	data_type_2
-	outreg2 using ../output/naive.tex, tex label append title("Naive OLS Regression") ///
+	outreg2 using ../output/naive.tex, dec(3) tex label append title("Naive OLS Regression") ///
 	addtext(Sample, All)
-	outreg2 using ../output/naive-simp.tex, tex label append title("Naive OLS Regression") ///
+	outreg2 using ../output/naive-simp.tex, dec(3) tex label append title("Naive OLS Regression") ///
 	addtext(Sample, All) nocons drop(print_months_ago_cu print_months_ago_sq)
 regress citation avail_yn ajps print_months_ago	print_months_ago_sq print_months_ago_cu ///
 	if data_type!="no_data"
-	outreg2 using ../output/naive.tex, tex label append addtext(Sample, Data-Only)
-	outreg2 using ../output/naive-simp.tex, tex label append addtext(Sample, Data-Only) ///
+	outreg2 using ../output/naive.tex, dec(3) tex label append addtext(Sample, Data-Only)
+	outreg2 using ../output/naive-simp.tex, dec(3) tex label append addtext(Sample, Data-Only) ///
 	nocons drop(print_months_ago_cu print_months_ago_sq)
 
 *NAIVE-LN
 gen lncite=ln(citation+1)
 label var lncite "Ln(Cites+1)"
 regress lncite avail_yn
-	outreg2 using ../output/naiveLN.tex, tex label replace addtext(Sample, All)
-	outreg2 using ../output/naiveLN-simp.tex, tex label replace addtext(Sample, All) ///
+	outreg2 using ../output/naiveLN.tex, dec(3) tex label replace addtext(Sample, All)
+	outreg2 using ../output/naiveLN-simp.tex, dec(3) tex label replace addtext(Sample, All) ///
 	nocons drop(print_months_ago_cu print_months_ago_sq)
 *regress lncite avail_yn ajps 
 *	outreg2 using ../output/naiveLN.tex, tex label append
 regress lncite avail_yn ajps print_months_ago	print_months_ago_sq print_months_ago_cu
-	outreg2 using ../output/naiveLN.tex, tex label append title("Naive Log OLS Regression") ///
+	outreg2 using ../output/naiveLN.tex, dec(3) tex label append title("Naive Log OLS Regression") ///
 		addtext(Sample, All)
-		outreg2 using ../output/naiveLN-simp.tex, tex label append title("Naive OLS Regression") ///
+		outreg2 using ../output/naiveLN-simp.tex, dec(3) tex label append title("Naive OLS Regression") ///
 	addtext(Sample, All) nocons drop(print_months_ago_cu print_months_ago_sq)
 regress lncite avail_yn ajps print_months_ago	print_months_ago_sq print_months_ago_cu ///
 	data_type_2
-	outreg2 using ../output/naiveLN.tex, tex label append title("Naive Log OLS Regression") ///
+	outreg2 using ../output/naiveLN.tex, dec(3) tex label append title("Naive Log OLS Regression") ///
 		addtext(Sample, All)
-	outreg2 using ../output/naiveLN-simp.tex, tex label append title("Naive OLS Regression") ///
+	outreg2 using ../output/naiveLN-simp.tex, dec(3) tex label append title("Naive OLS Regression") ///
 	addtext(Sample, All) nocons drop(print_months_ago_cu print_months_ago_sq)
 regress lncite avail_yn ajps print_months_ago	print_months_ago_sq print_months_ago_cu ///
 	if data_type!="no_data"
-	outreg2 using ../output/naiveLN.tex, tex label append addtext(Sample, Data-Only)
-	outreg2 using ../output/naiveLN-simp.tex, tex label append addtext(Sample, Data-Only) ///
+	outreg2 using ../output/naiveLN.tex, dec(3) tex label append addtext(Sample, Data-Only)
+	outreg2 using ../output/naiveLN-simp.tex, dec(3) tex label append addtext(Sample, Data-Only) ///
 	nocons drop(print_months_ago_cu print_months_ago_sq)
 
 	
@@ -345,9 +345,9 @@ ivregress 2sls citation ajps post2010 post2012 print_months_ago ///
 	print_months_ago_sq print_months_ago_cu (avail_yn = ajpsXpost2010 ///
 	ajpsXpost2012), first
 
-	outreg2 using ../output/ivreg.tex, tex label replace ctitle("2SLS") title("2SLS Regression") ///
+	outreg2 using ../output/ivreg.tex, dec(3) tex label replace ctitle("2SLS") title("2SLS Regression") ///
 		nocons addtext(Sample, All)
-	outreg2 using ../output/ivreg-simp.tex, tex label replace ctitle("2SLS") title("2SLS Regression") ///
+	outreg2 using ../output/ivreg-simp.tex, dec(3) tex label replace ctitle("2SLS") title("2SLS Regression") ///
 		nocons addtext(Sample, All) drop(print_months_ago_cu print_months_ago_sq)
 
 *INCLUDE INTERACTIONS
@@ -363,18 +363,18 @@ ivregress 2sls citation ajps post2010 post2012 post2010Xdata post2012Xdata ///
 	print_months_ago print_months_ago_sq print_months_ago_cu data_type_2 (avail_yn = ajpsXpost2010Xdata ///
 	ajpsXpost2012Xdata), first
 
-	outreg2 using ../output/ivreg.tex, tex label append ctitle("2SLS") ///
+	outreg2 using ../output/ivreg.tex, dec(3) tex label append ctitle("2SLS") ///
 		nocons addtext(Sample, IV=Data-Only)
-	outreg2 using ../output/ivreg-simp.tex, tex label append ctitle("2SLS") ///
+	outreg2 using ../output/ivreg-simp.tex, dec(3) tex label append ctitle("2SLS") ///
 		nocons addtext(Sample, IV=Data-Only) drop(print_months_ago_cu print_months_ago_sq)
 
 ivregress 2sls citation ajps post2010 post2012 print_months_ago ///
 	print_months_ago_sq print_months_ago_cu (avail_yn = ajpsXpost2010 ///
 	ajpsXpost2012) if data_type!="no_data", first
 
-	outreg2 using ../output/ivreg.tex, tex label append ctitle("2SLS") ///
+	outreg2 using ../output/ivreg.tex, dec(3) tex label append ctitle("2SLS") ///
 		addtext(Sample, Data-Only) nocons
-	outreg2 using ../output/ivreg-simp.tex, tex label append ctitle("2SLS") ///
+	outreg2 using ../output/ivreg-simp.tex, dec(3) tex label append ctitle("2SLS") ///
 		addtext(Sample, Data-Only) nocons drop(print_months_ago_cu print_months_ago_sq)
 		
 		
@@ -382,9 +382,9 @@ ivregress 2sls citation ajps post2010 post2012 print_months_ago ///
 ivregress 2sls lncite ajps post2010 post2012 print_months_ago ///
 	print_months_ago_sq print_months_ago_cu (avail_yn = ajpsXpost2010 ///
 	ajpsXpost2012), first
-	outreg2 using ../output/ivregLN.tex, tex label replace ctitle("2SLS-Log") ///
+	outreg2 using ../output/ivregLN.tex, dec(3) tex label replace ctitle("2SLS-Log") ///
 		nocons addtext(Sample, All) title("2SLS Regression of ln(citations+1)")
-	outreg2 using ../output/ivregLN-simp.tex, tex label replace ctitle("2SLS-Log") ///
+	outreg2 using ../output/ivregLN-simp.tex, dec(3) tex label replace ctitle("2SLS-Log") ///
 		nocons addtext(Sample, All) title("2SLS Regression of ln(citations+1)") ///
 		drop(print_months_ago_cu print_months_ago_sq)
 		
@@ -392,17 +392,17 @@ ivregress 2sls lncite ajps post2010 post2012 print_months_ago ///
 ivregress 2sls lncite ajps post2010 post2012 post2010Xdata post2012Xdata print_months_ago ///
 	print_months_ago_sq print_months_ago_cu data_type_2 (avail_yn = ajpsXpost2010Xdata ///
 	ajpsXpost2012Xdata), first
-	outreg2 using ../output/ivregLN.tex, tex label append ctitle("2SLS-Log") ///
+	outreg2 using ../output/ivregLN.tex, dec(3) tex label append ctitle("2SLS-Log") ///
 		nocons addtext(Sample, IV=Data-Only)
-	outreg2 using ../output/ivregLN-simp.tex, tex label append ctitle("2SLS-Log") ///
+	outreg2 using ../output/ivregLN-simp.tex, dec(3) tex label append ctitle("2SLS-Log") ///
 		nocons addtext(Sample, IV=Data-Only) drop(print_months_ago_cu print_months_ago_sq)
 		
 ivregress 2sls lncite ajps post2010 post2012 print_months_ago ///
 	print_months_ago_sq print_months_ago_cu (avail_yn = ajpsXpost2010 ///
 	ajpsXpost2012) if data_type!="no_data", first
-	outreg2 using ../output/ivregLN.tex, tex label append ctitle("2SLS-Log") ///
+	outreg2 using ../output/ivregLN.tex, dec(3) tex label append ctitle("2SLS-Log") ///
 		nocons addtext(Sample, Data-Only)		
-	outreg2 using ../output/ivregLN-simp.tex, tex label append ctitle("2SLS-Log") ///
+	outreg2 using ../output/ivregLN-simp.tex, dec(3) tex label append ctitle("2SLS-Log") ///
 		nocons addtext(Sample, Data-Only) drop(print_months_ago_cu print_months_ago_sq)
 		
 *MANUALLY DO THE IV
@@ -411,28 +411,28 @@ regress avail_yn ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months
 	print_months_ago_sq print_months_ago_cu
 	test ajpsXpost2010=ajpsXpost2012=0
 	local F=r(F)
-	outreg2 using ../output/ivreg.tex, tex label append ctitle("First Stage") addstat(F Stat, `F' ) ///
+	outreg2 using ../output/ivreg.tex, dec(3) tex label append ctitle("First Stage") addstat(F Stat, `F' ) ///
 	nocons addtext(Sample, All)
-	outreg2 using ../output/first.tex, tex label replace ctitle("First Stage") ///
-	addstat(F Stat, `F') nocons addtext(Sample, All) drop(print_months_ago_cu print_months_ago_sq)
+	outreg2 using ../output/first.tex, dec(3) keep(ajpsXpost2010 ajpsXpost2012) tex label replace ctitle("First Stage") ///
+	addstat(F Stat, `F') nocons addtext(Sample, All) /*drop(print_months_ago_cu print_months_ago_sq)*/
 
 regress avail_yn ajpsXpost2010Xdata ajpsXpost2012Xdata ajps post2010 post2012 post2010Xdata post2012Xdata ///
 	print_months_ago print_months_ago_sq print_months_ago_cu data_type_2
 	test ajpsXpost2010=ajpsXpost2012=0
 	local F=r(F)
-	outreg2 using ../output/ivreg.tex, tex label append ctitle("First Stage") addstat(F Stat, `F') ///
+	outreg2 using ../output/ivreg.tex, dec(3) tex label append ctitle("First Stage") addstat(F Stat, `F') ///
 	nocons addtext(Sample, IV=Data-Only)
-	outreg2 using ../output/first.tex, tex label append ctitle("First Stage") addstat(F Stat, `F') ///
-	nocons addtext(Sample, IV=Data-Only) drop(print_months_ago_cu print_months_ago_sq)
+	outreg2 using ../output/first.tex, dec(3) keep(ajpsXpost2010 ajpsXpost2012) tex label append ctitle("First Stage") addstat(F Stat, `F') ///
+	nocons addtext(Sample, IV=Data-Only) /*drop(print_months_ago_cu print_months_ago_sq)*/
 	
 regress avail_yn ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
 	print_months_ago_sq print_months_ago_cu if data_type_2==0
 	test ajpsXpost2010=ajpsXpost2012=0
 	local F=r(F)
-	outreg2 using ../output/ivreg.tex, tex label append ctitle("First Stage") addstat(F Stat, `F') ///
+	outreg2 using ../output/ivreg.tex, dec(3) tex label append ctitle("First Stage") addstat(F Stat, `F') ///
 	nocons addtext(Sample, Data-Only)
-	outreg2 using ../output/first.tex, tex label append ctitle("First Stage") addstat(F Stat, `F') ///
-	nocons addtext(Sample, Data-Only) drop(print_months_ago_cu print_months_ago_sq)
+	outreg2 using ../output/first.tex, dec(3) keep(ajpsXpost2010 ajpsXpost2012) tex label append ctitle("First Stage") addstat(F Stat, `F') ///
+	nocons addtext(Sample, Data-Only) /*drop(print_months_ago_cu print_months_ago_sq)*/
 
 	
 
@@ -445,31 +445,81 @@ regress citation avail_hat ajps post2010 post2012 ///
 *********************************************************
 regress topic_1 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
 	print_months_ago_sq print_months_ago_cu if data_type_2==0
-outreg2 using ../output/exclusion.tex, tex label replace  ///
-	nocons addtext(Sample, Data-Only) drop(print_months_ago_cu print_months_ago_sq) ///
+outreg2 using ../output/exclusion.tex, dec(3) tex label replace  ///
+	nocons addtext(Sample, Data-Only) keep(ajpsXpost2010 ajpsXpost2012) ///
+	/*drop(print_months_ago_cu print_months_ago_sq)*/ ///
 	title("Exclusion Restriction")
 	
 regress topic_4 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
 	print_months_ago_sq print_months_ago_cu if data_type_2==0
-	outreg2 using ../output/exclusion.tex, tex label append  ///
-	nocons addtext(Sample, Data-Only) drop(print_months_ago_cu print_months_ago_sq)
+	outreg2 using ../output/exclusion.tex, dec(3) tex label append  ///
+	nocons addtext(Sample, Data-Only) keep(ajpsXpost2010 ajpsXpost2012) /*drop(print_months_ago_cu print_months_ago_sq)*/
 	
 regress data_type_1 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
 	print_months_ago_sq print_months_ago_cu if data_type_2==0
-	outreg2 using ../output/exclusion.tex, tex label append  ///
-	nocons addtext(Sample, Data-Only) drop(print_months_ago_cu print_months_ago_sq)
+	outreg2 using ../output/exclusion.tex, dec(3) tex label append  ///
+	nocons addtext(Sample, Data-Only) keep(ajpsXpost2010 ajpsXpost2012) /*drop(print_months_ago_cu print_months_ago_sq)*/
 	
 regress data_type_3 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
 	print_months_ago_sq print_months_ago_cu if data_type_2==0
-	outreg2 using ../output/exclusion.tex, tex label append  ///
-	nocons addtext(Sample, Data-Only) drop(print_months_ago_cu print_months_ago_sq)
+	outreg2 using ../output/exclusion.tex, dec(3) tex label append  ///
+	nocons addtext(Sample, Data-Only) keep(ajpsXpost2010 ajpsXpost2012) /*drop(print_months_ago_cu print_months_ago_sq)*/
 
 regress top5 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
 	print_months_ago_sq print_months_ago_cu if data_type_2==0
-	outreg2 using ../output/exclusion.tex, tex label append  ///
-	nocons addtext(Sample, Data-Only) drop(print_months_ago_cu print_months_ago_sq)
+	outreg2 using ../output/exclusion.tex, dec(3) tex label append  ///
+	nocons addtext(Sample, Data-Only) keep(ajpsXpost2010 ajpsXpost2012) /*drop(print_months_ago_cu print_months_ago_sq)*/
 	
 regress top20 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
 	print_months_ago_sq print_months_ago_cu if data_type_2==0
-	outreg2 using ../output/exclusion.tex, tex label append  ///
-	nocons addtext(Sample, Data-Only) drop(print_months_ago_cu print_months_ago_sq)
+	outreg2 using ../output/exclusion.tex, dec(3) tex label append  ///
+	nocons addtext(Sample, Data-Only) keep(ajpsXpost2010 ajpsXpost2012) /*drop(print_months_ago_cu print_months_ago_sq)*/
+
+	
+*TRY PRANAY'S DATA
+*WAIT. IS IT WEB OF KNOWLEDGE? I THOUGHT IT WAS ELSEVEIR BUT CORRELATION IS 0.996!
+save ../external/temp.dta, replace
+/*
+import delimited using ../external/citation_counts.csv, delimiter(",") clear
+keep if journalname=="American Journal of Political Science"|journalname=="American Political Science Review"
+drop if doi=="No DOI"
+merge 1:1 doi using ../external/temp.dta
+keep if _merge==3
+gen lnciteE=ln(totalcitations)
+
+ivregress 2sls lncite ajps post2010 post2012 print_months_ago ///
+	print_months_ago_sq print_months_ago_cu (avail_yn = ajpsXpost2010 ///
+	ajpsXpost2012) if data_type!="no_data", first
+ivregress 2sls lnciteE ajps post2010 post2012 print_months_ago ///
+	print_months_ago_sq print_months_ago_cu (avail_yn = ajpsXpost2010 ///
+	ajpsXpost2012) if data_type!="no_data", first
+*/
+	
+*TRY MU YANG'S DATA
+import delimited using ../external/ajps_citations_scopus.csv, delimiter(",") clear
+save ../external/ajps_citations_scopus.dta, replace
+import delimited using ../external/apsr_citations_scopus.csv, delimiter(",") clear
+save ../external/apsr_citations_scopus.dta, replace
+*import delimited using ../external/apsr_centennial_citations_scopus.csv, delimiter(",") clear
+*append using ../external/apsr_citations_scopus.dta
+append using ../external/ajps_citations_scopus.dta
+keep doi citation
+rename citation citationE
+merge 1:1 doi using ../external/temp
+
+gen lnciteE=ln(citationE)
+ivregress 2sls lncite ajps post2010 post2012 print_months_ago ///
+	print_months_ago_sq print_months_ago_cu (avail_yn = ajpsXpost2010 ///
+	ajpsXpost2012) if data_type!="no_data", first
+ivregress 2sls lnciteE ajps post2010 post2012 print_months_ago ///
+	print_months_ago_sq print_months_ago_cu (avail_yn = ajpsXpost2010 ///
+	ajpsXpost2012) if data_type!="no_data", first
+	
+label var citationE "Scopus Citations"
+label var citation "Web of Knowledge Citations"
+rename citation WoK
+rename citationE Scopus
+*scatter citation citationE || lfit citation citationE, title("Comparison of Citation Data") ///
+*	bgcolor(white) graphregion(color(white)) legend(off) ytitle("Web of Knowledge Citations")
+aaplot WoK Scopus, aformat(%3.2f) bformat(%3.2f) bgcolor(white) graphregion(color(white))
+graph export ../output/citationcomparison.eps, replace
