@@ -2,8 +2,8 @@
 Using the files `indexed_are_with_jel_template` and `indexed_qje_with_jel_template`, please code the topic and type of each article. Replace `template` with your initials and save the file to Box.
 
 ### Topic Coding
-The topic of the article is the *Journal of Economic Literature* (JEL) code. This is a list of ~20 codes that economists use to classify articles. Thankfully some journals now require authors to pick these codes themselves, but older articles don't have them pre-assigned. If the JEL column is full, skip to data type coding below. If the JEL column is empty:
- 
+The topic of the article is the *Journal of Economic Literature* (JEL) code. This is a [https://www.aeaweb.org/econlit/jelCodes.php?view=jel](list of ~20 codes)that economists use to classify articles. Thankfully some journals now require authors to pick these codes themselves, but older articles don't have them pre-assigned. If the JEL column is full, skip to data type coding below. If the JEL column is empty:
+
 1. Click on the google scholar search link. Click the 'All X versions' link under the main article link, and try and find a working paper (i.e., draft) version of the paper. This draft may have a JEL code. (If you can find an NBER working paper, that should have the JEL code on the Abstract page.) Enter up to three of the complete codes (in order) in the `article_topicX` columns.
 
 2. If you can't find a working paper with the code, select one or two general codes yourself (letter only, don't worry about the digits), based on reading the abstract. Primary topic first. No pressure to assign multiple codes, but do so if clear. If the paper has no abstract, click the link to read the first paragraph or two of the paper.
