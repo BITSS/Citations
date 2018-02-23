@@ -10,6 +10,13 @@ import numpy as np
 from tools import regex_url_pattern
 
 
+# Assume that ending .[0-9]+ refers to the end of a sentence together with a
+# footnote. Remove this part from the url.
+regex_footnote = re.compile(r'\.[0-9]+$')
+regex_url = re.compile(regex_url_pattern(), re.IGNORECASE)
+link_reference_values = ['data_full_link', 'files_full_link', 'code_full_link']
+
+
 def extract_clickable_url(string):
     url = regex_url.search(string)
 
@@ -35,7 +42,8 @@ def create_link_coding_template(input_file, output_file):
     context_provides_link = np.all(
         [~match_contains_url, link_reference], axis=0)
     df.loc[context_provides_link, 'clickable_link'] =\
-        df.loc[context_provides_link, 'context']
+        df.loc[context_provides_link, 'context'].fillna(
+            '').apply(extract_clickable_url)
 
     df['link_category'] = np.nan
     df['fixed_link'] = np.nan
@@ -47,27 +55,40 @@ def create_link_coding_template(input_file, output_file):
 
     df.to_csv(output_file, index=None)
 
-# Assume that ending .[0-9]+ refers to the end of a sentence together with a
-# footnote. Remove this part from the url.
-regex_footnote = re.compile(r'\.[0-9]+$')
-regex_url = re.compile(regex_url_pattern(), re.IGNORECASE)
-link_reference_values = ['data_full_link', 'files_full_link', 'code_full_link']
 
-# AJPS
-ajps_input_file = 'bld/ajps_reference_coding_harmonized.csv'
-ajps_output_file = 'bld/ajps_link_coding_template.csv'
-create_link_coding_template(input_file=ajps_input_file,
-                            output_file=ajps_output_file)
+def ajps():
+    ajps_input_file = 'bld/ajps_reference_coding_harmonized.csv'
+    ajps_output_file = 'bld/ajps_link_coding_template.csv'
+    create_link_coding_template(input_file=ajps_input_file,
+                                output_file=ajps_output_file)
 
 
-# APSR
-apsr_input_file = 'bld/apsr_reference_coding_harmonized.csv'
-apsr_output_file = 'bld/apsr_link_coding_template.csv'
-create_link_coding_template(input_file=apsr_input_file,
-                            output_file=apsr_output_file)
+def apsr():
+    apsr_input_file = 'bld/apsr_reference_coding_harmonized.csv'
+    apsr_output_file = 'bld/apsr_link_coding_template.csv'
+    create_link_coding_template(input_file=apsr_input_file,
+                                output_file=apsr_output_file)
 
-# APSR Centennial Issue
-apsr_input_file = 'bld/apsr_centennial_reference_coding_harmonized.csv'
-apsr_output_file = 'bld/apsr_centennial_link_coding_template.csv'
-create_link_coding_template(input_file=apsr_input_file,
-                            output_file=apsr_output_file)
+
+def apsr_centennial():
+    apsr_input_file = 'bld/apsr_centennial_reference_coding_harmonized.csv'
+    apsr_output_file = 'bld/apsr_centennial_link_coding_template.csv'
+    create_link_coding_template(input_file=apsr_input_file,
+                                output_file=apsr_output_file)
+
+
+def aer():
+    aer_input_file = 'bld/aer_with_sample_selection_reference_coding_harmonized.csv'
+    aer_output_file = 'bld/aer_with_sample_selection_link_coding_template.csv'
+    create_link_coding_template(input_file=aer_input_file,
+                                output_file=aer_output_file)
+
+
+def qje():
+    qje_input_file = 'bld/qje_reference_coding_harmonized.csv'
+    qje_output_file = 'bld/qje_link_coding_template.csv'
+    create_link_coding_template(input_file=qje_input_file,
+                                output_file=qje_output_file)
+
+if __name__ == '__main__':
+    pass
