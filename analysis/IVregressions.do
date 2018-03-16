@@ -168,6 +168,8 @@ line ajps_y_avg apsr_y_avg year, title("Yearly Average Availability by Journal")
 	ylabel(0 0.2 0.4 0.6 0.8 1)
 graph export ../output/avail_time.eps, replace
 
+*COULD DO FIGURE WITH ONLY DATA ARTICLES--CLOSE TO 100%?
+*MAKE ONE LINE DASHED FOR B&W READERS?
 ****************************
 *GRAPH CITATIONS
 ****************************
@@ -184,6 +186,7 @@ line ajps_y_citeavg apsr_y_citeavg year, title("Yearly Average Citations by Jour
 	bgcolor(white) graphregion(color(white))
 
 graph export ../output/cite_time.eps, replace
+
 *********************************************************
 *GRAPH TOPIC AND TYPE
 *****************************************************
@@ -213,6 +216,7 @@ graph bar topic_*, stack over(post`X') over(ajps)  legend(lab(1 "American") ///
 	bgcolor(white) graphregion(color(white))
 graph export ../output/topicXjournalXpost`X'.eps, replace
 }
+*AGAIN, DO THESE FOR ONLY DATA ARTICLES
 
 replace data_type="" if data_type=="skip"
 tab data_type, generate(data_type_)
@@ -337,6 +341,7 @@ regress lncite avail_yn ajps print_months_ago	print_months_ago_sq print_months_a
 	outreg2 using ../output/naiveLN-simp.tex, dec(3) tex label append addtext(Sample, Data-Only) ///
 	nocons drop(print_months_ago_cu print_months_ago_sq)
 
+*RUN NEGATIVE BINOMIAL HERE?
 	
 *********************************
 *INSTRUMENTAL VARIABLE REGRESSION
