@@ -1,22 +1,17 @@
 #!/usr/bin/env python3
 
 """
-Scrape citation counts from Scopus
+Scrape JEL codes from EconLit
 
-$ python get_elsevier_citation_number.py [journal] [--save]
+$ python get_econlit_jel_codes_api.py [journal]
 
 Args:
     journal: name of the journal you want to search
         aer: 'American Economic Review'
         qje: 'Quarterly Journal of Economics'
-        apsr: 'American Political Science Review'
-        apsr_centennial: 'American Political Science Review Centennial'
-        ajps: 'American Journal of Political Science'
-    --save (optional): save JSONs in citation_scraping/elsevier/jsons/
 
 Example:
     $ python get_elsevier_citation_number.py qje
-    $ python get_elsevier_citation_number.py aer --save
 
 """
 
@@ -25,7 +20,6 @@ import asyncio
 import argparse
 import re
 import numpy as np
-import pandas as pd
 
 from urllib.parse import quote
 from data_preparation.tools import read_data_entry
@@ -147,7 +141,6 @@ if __name__ == '__main__':
     # region ARGUMENTS AND VARIABLES --------------------------------------------------
     parser = argparse.ArgumentParser()
     parser.add_argument("journal", help="name of the journal you want to search")
-    # parser.add_argument("--save", help="save JSONs in citation_scraping/elsevier/jsons/", action='store_true')
     args = parser.parse_args()
 
     journal_names = {
@@ -170,24 +163,7 @@ if __name__ == '__main__':
     # regex patterns for titles
     pattern_remove = re.compile('[?“”]')  # characters to remove
     pattern_space = re.compile('[—/]')  # characters to replace with a space
-
-    # # If --save, create folders in the path
-    # if args.save:
-    #     pathlib.Path(f'citation_scraping/elsevier/jsons/{args.journal}/doi').mkdir(parents=True, exist_ok=True)
-    #     pathlib.Path(f'citation_scraping/elsevier/jsons/{args.journal}/title').mkdir(parents=True, exist_ok=True)
-    # # endregion
-
-    # # region API KEY
-    # try:
-    #     with open('citation_scraping/elsevier/api_key.txt', 'r', encoding='utf-8') as file:
-    #         api_key = file.readline()
-    # except IOError:
-    #     print("No api_key.txt file")
-    #     raise
-    #
-    # if api_key == "":
-    #     sys.exit("No api key in api_key.txt")
-    # # endregion
+    # endregion
 
     # region READ AND CLEAN ------------------------------------------------------------------
     # list of articles
