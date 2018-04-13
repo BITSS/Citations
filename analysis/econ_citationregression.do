@@ -1,12 +1,12 @@
 set more off
 clear all
-cd "\\Client\C$\Users\snake\Box\URAPshared\Data\Econ_data"
+cd "/Users/garret/Box Sync/CEGA-Programs-BITSS/3_Publications_Research/Citations/citations"
 
 ***************************************************
 *LOAD DATA
 ***************************************************
 *LOAD MAIN MERGED DATA
-insheet using external/citations_clean_data.csv, clear names
+insheet using ./external_econ/citations_clean_data.csv, clear names
 
 *****************************************************
 *DROP NON-REAL ARTICLES
@@ -14,33 +14,37 @@ insheet using external/citations_clean_data.csv, clear names
 *NOTES FROM THE EDITOR
 drop if strpos(title,"Notes from the Editor")>0
 
-*ERRATA
-drop if strpos(title,"Errata to")>0 //1
-drop if strpos(title,"ERRATUM")>0 //3
-drop if strpos(title,"Erratum")>0 //1
-drop if strpos(title,"CORRIGENDUM")>0 //2 
+*ERRATA (LEFT OVER FROM AJPS/APSR)
+drop if strpos(title,"Errata to")>0 //0
+drop if strpos(title,"ERRATUM")>0 //0
+drop if strpos(title,"Erratum")>0 //0
+drop if strpos(title,"CORRIGENDUM")>0 //0 
 
+*R MISSING TO STATA MISSING
 replace citation_count="." if citation_count=="NA"
 destring citation_count, replace
 summ citation_count
 
 *GENERATE DATES
+/*Is this print or Internet publication date? 
+SEEMS LIKE PRINT DATE--ALL FIRST OF MONTH*/
 gen date=date(publication_date,"YMD")
+*UPDATE THIS?
 local scrapedate=date("2017-05-15","YMD")
-gen months_ago=(`scrapedate'-date)/30.42
-gen months_ago_sq=months_ago*months_ago
-gen months_ago_cu=months_ago_sq*months_ago
+gen print_months_ago=(`scrapedate'-date)/30.42
+gen print_months_ago_sq=print_months_ago*print_months_ago
+gen print_months_ago_cu=print_months_ago_sq*print_months_ago
 
 gen avail_yn=(availability=="files")
 gen aer=(journal=="aer")
 
 local Mar2005=date("2005-03-01","YMD")
-gen post2005=(print_date>`Oct2005')
+gen post2005=(date>`Mar2005')
 
 gen aerXpost2005=aer*post2005
 label var aerXpost2005 "aer post-2005 Policy"
 
-gen year=substr(publication_date_print, 1, 4)
+gen year=substr(publication_date, 1, 4)
 destring year, replace
 drop if year>2009 //2001-2009 is what we said we'd cover
 
