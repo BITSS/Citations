@@ -87,7 +87,7 @@ article_coding <- article_coding %>%
          data_type = parse_factor(article_data_type, levels = article_data_type_levels))
 
 article_coding <- article_coding %>%
-  select(author, journal, doi, title, publication_date, abstract, topic, data_type)
+  select(author, journal, doi, title, publication_date, abstract, topic, data_type, institution)
 
 # Author website
 ## Import harmonized files
@@ -446,7 +446,7 @@ df <- df %>%
 
 # Order columns
 df <- df %>% select(journal, publication_date, citation_count, doi, topic, data_type, title, author, abstract,
-                    availability, starts_with('availability_'), starts_with('reference_'))
+                    availability, starts_with('availability_'), starts_with('reference_'), institution)
 
 # Fixing problem with publication date
 df <- df %>%
