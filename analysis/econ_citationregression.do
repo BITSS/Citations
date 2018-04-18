@@ -30,7 +30,7 @@ summ citation_count
 SEEMS LIKE PRINT DATE--ALL FIRST OF MONTH*/
 gen date=date(publication_date,"YMD")
 *UPDATE THIS?
-local scrapedate=date("2017-05-15","YMD")
+local scrapedate=date("2017-11-21","YMD")
 gen print_months_ago=(`scrapedate'-date)/30.42
 gen print_months_ago_sq=print_months_ago*print_months_ago
 gen print_months_ago_cu=print_months_ago_sq*print_months_ago
@@ -178,6 +178,7 @@ replace top_rank=".a" if top_rank=="NA"
 destring top_rank, replace
 replace top_rank=.b if top_rank==. //.b is TRULY MISSING
 replace top_rank=125 if top_rank==.a //temp! 
+*/
 label var top_rank "Top US News Ranking of Author Institutions"
 histogram top_rank, title("Top US News Ranking of Articles") ///
 	bgcolor(white) graphregion(color(white)) ///
@@ -218,7 +219,7 @@ graph bar top1 top5 top20 top50 top100 unranked, stack over(post`X') over(aer)  
 	bgcolor(white) graphregion(color(white))
 graph export ../output/econ_rankXjournalXpost`X'.eps, replace
 }
-*/
+
 ***********************************************************
 *REGRESSIONS
 ***********************************************************
@@ -351,7 +352,7 @@ regress avail_yn aerXpost2005Xdata aer post2005  post2005Xdata ///
 	local F=r(F)
 	outreg2 using ../output/econ_ivreg.tex, dec(3) tex label append ctitle("First Stage") addstat(F Stat, `F') ///
 	nocons addtext(Sample, IV=Data-Only)
-	outreg2 using ../output/econ_first.tex, dec(3) keep(aerXpost2005) tex label append ctitle("First Stage") addstat(F Stat, `F') ///
+	outreg2 using ../output/econ_first.tex, dec(3) keep(aerXpost2005Xdata) tex label append ctitle("First Stage") addstat(F Stat, `F') ///
 	nocons addtext(Sample, IV=Data-Only) /*drop(print_months_ago_cu print_months_ago_sq)*/
 	
 regress avail_yn aerXpost2005 aer post2005  print_months_ago ///
