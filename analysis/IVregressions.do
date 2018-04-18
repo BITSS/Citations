@@ -108,7 +108,7 @@ replace publication_date_internet = "2014-12-16" if doi=="10.1111/ajps.12152"
 *GENERATE DATES
 gen print_date=date(publication_date_print,"YMD")
 gen online_date=date(publication_date_internet,"YMD")
-local scrapedate=date("2017-05-15","YMD")
+local scrapedate=date("2017-11-21","YMD")
 gen print_months_ago=(`scrapedate'-print_date)/30.42
 gen online_months_ago=(`scrapedate'-online_date)/30.42
 gen print_months_ago_sq=print_months_ago*print_months_ago
@@ -150,9 +150,6 @@ label value post2012 beforeafter
 label var avail_yn "Data and Code Available" 
 
 
-*****************************************************
-save ../external/cleaned/mergedforregs.dta, replace
-
 ********************************************************
 *GRAPH SHARING OVER TIME
 *******************************************************
@@ -186,6 +183,41 @@ line ajps_y_citeavg apsr_y_citeavg year, title("Yearly Average Citations by Jour
 	bgcolor(white) graphregion(color(white))
 
 graph export ../output/cite_time.eps, replace
+save ../external/temp.dta, replace
+
+*TRY MU YANG'S ELSEVIER API DATA
+import delimited using ../external/ajps_citations_scopus.csv, delimiter(",") clear
+save ../external/ajps_citations_scopus.dta, replace
+import delimited using ../external/apsr_citations_scopus.csv, delimiter(",") clear
+save ../external/apsr_citations_scopus.dta, replace
+append using ../external/ajps_citations_scopus.dta
+*APSR Centennial is duplicated, so don't need to include separately.
+keep doi citation
+rename citation citationE
+merge 1:1 doi using ../external/temp
+rename _merge merge_Scopus
+
+gen lnciteE=ln(citationE)
+ivregress 2sls lncite ajps post2010 post2012 print_months_ago ///
+	print_months_ago_sq print_months_ago_cu (avail_yn = ajpsXpost2010 ///
+	ajpsXpost2012) if data_type!="no_data", first
+ivregress 2sls lnciteE ajps post2010 post2012 print_months_ago ///
+	print_months_ago_sq print_months_ago_cu (avail_yn = ajpsXpost2010 ///
+	ajpsXpost2012) if data_type!="no_data", first
+	
+label var citationE "Scopus Citations"
+label var citation "Web of Knowledge Citations"
+rename citation WoK
+rename citationE Scopus
+*scatter citation citationE || lfit citation citationE, title("Comparison of Citation Data") ///
+*	bgcolor(white) graphregion(color(white)) legend(off) ytitle("Web of Knowledge Citations")
+aaplot WoK Scopus, aformat(%3.2f) bformat(%3.2f) bgcolor(white) graphregion(color(white))
+graph export ../output/citationcomparison.eps, replace
+
+*APRIL 18, 2018
+*CHANGE MAIN CITATION VARIABLE TO SCOPUS
+*CHANGE SCRAPE DATE TO MU YANG'S ACTUAL DATE: 11/21/17
+rename Scopus citation
 
 *********************************************************
 *GRAPH TOPIC AND TYPE
@@ -286,6 +318,8 @@ graph bar top1 top5 top20 top50 top100 unranked, stack over(post`X') over(ajps) 
 	bgcolor(white) graphregion(color(white))
 graph export ../output/rankXjournalXpost`X'.eps, replace
 }
+
+*****************************************************
 
 ***********************************************************
 *REGRESSIONS
@@ -480,6 +514,9 @@ regress top20 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ag
 	outreg2 using ../output/exclusion.tex, dec(3) tex label append  ///
 	nocons addtext(Sample, Data-Only) keep(ajpsXpost2010 ajpsXpost2012) /*drop(print_months_ago_cu print_months_ago_sq)*/
 
+*SAVE DATA AFTER ALL MERGES/NEW VARS
+save ../external/cleaned/ps_mergedforregs.dta, replace
+
 	
 *TRY PRANAY'S DATA
 *WAIT. IS IT WEB OF KNOWLEDGE? I THOUGHT IT WAS ELSEVEIR BUT CORRELATION IS 0.996!
@@ -500,31 +537,3 @@ ivregress 2sls lnciteE ajps post2010 post2012 print_months_ago ///
 	ajpsXpost2012) if data_type!="no_data", first
 */
 	
-*TRY MU YANG'S DATA
-import delimited using ../external/ajps_citations_scopus.csv, delimiter(",") clear
-save ../external/ajps_citations_scopus.dta, replace
-import delimited using ../external/apsr_citations_scopus.csv, delimiter(",") clear
-save ../external/apsr_citations_scopus.dta, replace
-*import delimited using ../external/apsr_centennial_citations_scopus.csv, delimiter(",") clear
-*append using ../external/apsr_citations_scopus.dta
-append using ../external/ajps_citations_scopus.dta
-keep doi citation
-rename citation citationE
-merge 1:1 doi using ../external/temp
-
-gen lnciteE=ln(citationE)
-ivregress 2sls lncite ajps post2010 post2012 print_months_ago ///
-	print_months_ago_sq print_months_ago_cu (avail_yn = ajpsXpost2010 ///
-	ajpsXpost2012) if data_type!="no_data", first
-ivregress 2sls lnciteE ajps post2010 post2012 print_months_ago ///
-	print_months_ago_sq print_months_ago_cu (avail_yn = ajpsXpost2010 ///
-	ajpsXpost2012) if data_type!="no_data", first
-	
-label var citationE "Scopus Citations"
-label var citation "Web of Knowledge Citations"
-rename citation WoK
-rename citationE Scopus
-*scatter citation citationE || lfit citation citationE, title("Comparison of Citation Data") ///
-*	bgcolor(white) graphregion(color(white)) legend(off) ytitle("Web of Knowledge Citations")
-aaplot WoK Scopus, aformat(%3.2f) bformat(%3.2f) bgcolor(white) graphregion(color(white))
-graph export ../output/citationcomparison.eps, replace
