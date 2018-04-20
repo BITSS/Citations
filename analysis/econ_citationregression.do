@@ -25,6 +25,9 @@ replace citation_count="." if citation_count=="NA"
 destring citation_count, replace
 summ citation_count
 
+*DROP NON-ARTICLES
+drop if citation_count == .
+
 *GENERATE DATES
 /*Is this print or Internet publication date? 
 SEEMS LIKE PRINT DATE--ALL FIRST OF MONTH*/
@@ -62,7 +65,7 @@ label values post2005 beforeafter
 label var avail_yn "Data and Code Available" 
 
 *****************************************************
-save ../external/cleaned/mergedforregs.dta, replace
+save ../external_econ/cleaned/mergedforregs.dta, replace
 
 ********************************************************
 *GRAPH SHARING OVER TIME
@@ -114,33 +117,33 @@ graph export ../output/econ_cite_time.eps, replace
 *GRAPH TOPIC AND TYPE
 *****************************************************
 replace topic="" if topic=="skip"
-gen topic_1=(topic=="Economic Systems")
-gen topic_2=(topic=="Economic History")
-gen topic_3=(topic=="Industrial Organization")
-gen topic_4=(topic=="Public Economics")
-gen topic_5=(topic=="Law and Economics")
-gen topic_6=(topic=="International Economics")
+gen topic_1=(topic=="Microeconomics")
+gen topic_2=(topic=="Macroeconomics and Monetary Economics")
+gen topic_3=(topic=="Labor and Demographic Economics")
+gen topic_4=(topic=="Health, Education, and Welfare")
+gen topic_5=(topic=="International Economics")
+gen topic_6=(topic=="Financial Economics")
 gen topic_7=(topic_1==0&topic_2==0&topic_3==0&topic_4==0&topic_5==0&topic_6==0)
 
 label define journal 0 "QJE" 1 "AER"
 label values aer journal
-graph bar topic_*, stack over(aer) legend(lab(1 "Systems") ///
-									lab(2 "History") ///
-									lab(3 "IO") ///
-									lab(4 "Public") ///
-									lab(5 "Law") ///
-									lab(6 "Int'l") ///
+graph bar topic_*, stack over(aer) legend(lab(1 "Micro") ///
+									lab(2 "Macro") ///
+									lab(3 "Labor") ///
+									lab(4 "Health") ///
+									lab(5 "Int'l") ///
+									lab(6 "Finance") ///
 									lab(7 "Other"))
 graph export ../output/econ_topicXjournal.eps, replace
 
 * check range of dates?
 foreach X in 2005 {
-graph bar topic_*, stack over(post`X') over(aer)  legend(lab(1 "Systems") ///
-									lab(2 "History") ///
-									lab(3 "IO") ///
-									lab(4 "Public") ///
-									lab(5 "Law") ///
-									lab(6 "Int'l") ///
+graph bar topic_*, stack over(post`X') over(aer)  legend(lab(1 "Micro") ///
+									lab(2 "Macro") ///
+									lab(3 "Labor") ///
+									lab(4 "Health") ///
+									lab(5 "Int'l") ///
+									lab(6 "Finance") ///
 									lab(7 "Other")) ///
 	title("Article Topic by Journal Before and After `X' Policy") ///
 	bgcolor(white) graphregion(color(white))
@@ -379,7 +382,7 @@ outreg2 using ../output/econ_exclusion.tex, dec(3) tex label replace  ///
 	/*drop(print_months_ago_cu print_months_ago_sq)*/ ///
 	title("Exclusion Restriction")
 	
-regress topic_4 aerXpost2005 aer post2005  print_months_ago ///
+regress topic_3 aerXpost2005 aer post2005  print_months_ago ///
 	print_months_ago_sq print_months_ago_cu if data_type_2==0
 	outreg2 using ../output/econ_exclusion.tex, dec(3) tex label append  ///
 	nocons addtext(Sample, Data-Only) keep(aerXpost2005) /*drop(print_months_ago_cu print_months_ago_sq)*/
@@ -394,7 +397,7 @@ regress data_type_3 aerXpost2005 aer post2005  print_months_ago ///
 	outreg2 using ../output/econ_exclusion.tex, dec(3) tex label append  ///
 	nocons addtext(Sample, Data-Only) keep(aerXpost2005) /*drop(print_months_ago_cu print_months_ago_sq)*/
 
-regress top5 aerXpost2005 aer post2005  print_months_ago ///
+regress top1 aerXpost2005 aer post2005  print_months_ago ///
 	print_months_ago_sq print_months_ago_cu if data_type_2==0
 	outreg2 using ../output/econ_exclusion.tex, dec(3) tex label append  ///
 	nocons addtext(Sample, Data-Only) keep(aerXpost2005) /*drop(print_months_ago_cu print_months_ago_sq)*/
