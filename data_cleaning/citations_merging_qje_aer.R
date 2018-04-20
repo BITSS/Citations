@@ -1,61 +1,36 @@
-# Setup
-library(tidyr)
-library(dplyr)
-library(forcats)
-library(stringr)
-library(rvest)
-library(readr)
+# Setup -------------------------------------------------------------------
+
+library(tidyverse)
 library(rprojroot) # find project root
 setwd(find_root('README.md'))
 
-# Tools
+# Tools -------------------------------------------------------------------
+
 remove_hyperlink <- function(text, hyperlink_separator = ';'){
   hyperlink <- paste0('^=HYPERLINK\\(".+?"', hyperlink_separator, '"(.+?)"\\)$')
   str_replace(text, hyperlink, '\\1')
 }
 
-join_columns = c('journal', 'doi', 'title')
+join_columns = c('journal', 'doi')
 
-# Article JEL coding
+
+# Article JEL coding ------------------------------------------------------
+
 ## Import harmonized files
-article_coding_jel <- read.csv('Econ_data/external_econ/econlit_data_with_jel_topics.csv') %>%
-  mutate(journal = aer.qje) %>%
-  mutate(article_topic = JEL_econlit) %>%
-  select(doi, journal, title, article_topic)
+article_coding_jel <- read.csv('Econ_data/external_econ/econlit_data_with_jel_topics.csv', stringsAsFactors = F) %>%
+  mutate(
+    journal = aer.qje,
+    article_topic = JEL_econlit
+    ) %>%
+  select(doi, journal, article_topic)
 
-## Define JEL levels
-article_jel_levels <- c(
-  'General Economics and Teaching',
-  'History of Economic Thought, Methodology, and Heterodox Approaches',
-  'Mathematical and Quantitative Methods',
-  'Microeconomics',
-  'Macroeconomics and Monetary Economics',
-  'International Economics',
-  'Financial Economics',
-  'Public Economics',
-  'Health, Education and Welfare',
-  'Labor and Demographic Economics',
-  'Law and Economics',
-  'Industrial Organization',
-  'Business Administration and Business Economics; Marketing; Accounting; Personnel Economics',
-  'Economic History',
-  'Economic Development, Innovation, Technological Change, and Growth',
-  'Economic Systems',
-  'Agricultural and National Resource Economics; Environmental and Ecological Economics',
-  'Urban, Rural, Regional, Real Estate, and Transportation Economics',
-  'Miscellaneous Categories',
-  'Other Special Topics',
-  'skip'
-)
 
-levels(article_coding_jel$article_topic) <- article_jel_levels
-article_coding_jel$article_topic[is.na(article_coding_jel$article_topic)] <- 'skip'
+# Article data types ------------------------------------------------------
 
-# Article data types
 ## Import harmonized files
-aer_article_type <- read.csv('Econ_data/external_econ/indexed_aer_with_jel_harmonized.csv') %>%
+aer_article_type <- read.csv('Econ_data/external_econ/indexed_aer_with_jel_harmonized.csv', stringsAsFactors = F) %>%
   mutate(journal = 'aer')
-qje_article_type <- read.csv('Econ_data/external_econ/indexed_qje_with_jel_harmonized.csv') %>%
+qje_article_type <- read.csv('Econ_data/external_econ/indexed_qje_with_jel_harmonized.csv', stringsAsFactors = F) %>%
   mutate(journal = 'qje')
 
 ## Combine data from AER, and QJE into a single dataframe
@@ -65,43 +40,24 @@ article_coding_type <- bind_rows(aer_article_type, qje_article_type)
 article_coding <- article_coding_jel %>%
   left_join(article_coding_type, join_columns)
 
-## Remove hyperlinking
 article_coding <- article_coding %>%
-  mutate_at('title', remove_hyperlink)
+  rename(topic = article_topic,
+         data_type = article_data_type) %>%
+  select(journal, doi, title, author, abstract, publication_date, topic, data_type, institution)
 
-## Define data type levels
-article_data_type_levels <- c(
-  'experimental',
-  'observational',
-  'simulations',
-  'no_data',
-  'skip'
-)
 
-## If jel  is 'skip', set data type to 'skip' as well
-article_coding <- article_coding %>% 
-  mutate(article_data_type = if_else(article_topic == 'skip', 'skip', article_data_type))
+# Author website ----------------------------------------------------------
 
-article_coding <- article_coding %>%
-  mutate(topic = parse_factor(article_topic, levels = article_jel_levels),
-         data_type = parse_factor(article_data_type, levels = article_data_type_levels))
-
-article_coding <- article_coding %>%
-  select(author, journal, doi, title, publication_date, abstract, topic, data_type, institution)
-
-# Author website
 ## Import harmonized files
-aer_author_website <- read.csv('Econ_data/external_econ/aer_author_website_coding_harmonized.csv') %>%
+aer_author_website <- read.csv('Econ_data/external_econ/aer_author_website_coding_harmonized.csv', stringsAsFactors = F) %>%
+  select(doi, website_category) %>%
   mutate(journal = 'aer')
-qje_author_website <- read.csv('Econ_data/external_econ/qje_author_website_coding_harmonized.csv') %>%
+qje_author_website <- read.csv('Econ_data/external_econ/qje_author_website_coding_harmonized.csv', stringsAsFactors = F) %>%
+  select(doi, website_category) %>%
   mutate(journal = 'qje')
 
 ## Combine data from AER and QJE into a single dataframe
 author_website <- bind_rows(aer_author_website, qje_author_website)
-
-## Remove hyperlinking
-author_website <- author_website %>%
-  mutate_at('author', remove_hyperlink, hyperlink_separator = ',')
 
 ## Define website category levels
 availability_website_levels <- c(
@@ -144,20 +100,20 @@ author_website <- author_website %>%
     ) %>%
       parse_factor(levels = availability_website_levels, ordered = TRUE)
   ) %>%
-  group_by(doi) %>%
-  mutate_at('availability_website', max)
+  group_by(journal, doi) %>%
+  summarise(availability_website = max(availability_website)) %>%
+  mutate(availability_website = as.character(availability_website))
 
-## Summarize to one row per article
-author_website <- author_website %>%
-  ungroup() %>%
-  distinct(journal, doi, title, availability_website)
 
-# Dataverse
+# Dataverse ---------------------------------------------------------------
+
 ## Import harmonized files
 ## Dataverse files were coded only by RP and TC, so take their resolution file as source
-qje_dataverse <- read.csv('Econ_data/external_econ/qje_dataverse_search_GC.csv') %>%
+qje_dataverse <- read.csv('Econ_data/external_econ/qje_dataverse_search_GC.csv', stringsAsFactors = F) %>%
+  select(doi, result_category, confirmed_category) %>%
   mutate(journal = 'qje')
-aer_dataverse <- read.csv('Econ_data/external_econ/aer_dataverse_search_GC.csv') %>%
+aer_dataverse <- read.csv('Econ_data/external_econ/aer_dataverse_search_GC.csv', stringsAsFactors = F) %>%
+  select(doi, result_category, confirmed_category) %>%
   mutate(journal = 'aer')
 
 ## Combine data from AJPS and APSR into a single dataframe
@@ -165,57 +121,21 @@ dataverse <- bind_rows(qje_dataverse, aer_dataverse)
 
 ## Relabel variable and levels to be consistent with other files
 dataverse <- dataverse %>%
-  mutate(availability_dataverse = result_category) %>%
-  mutate_at('availability_dataverse', fct_collapse, `0` = c('none'))
+  unite("availability_dataverse", c("result_category", "confirmed_category"), sep = "") %>%
+  mutate(availability_dataverse = ifelse(availability_dataverse == 'none', '0', availability_dataverse))
 
-## Define dataverse category levels
-availability_dataverse_levels <- c(
-  '0',
-  'data',
-  'code',
-  'files'
-)
 
-## Find highest level of availability
-dataverse <- dataverse %>%
-  mutate_at('availability_dataverse', parse_factor, levels = availability_dataverse_levels, ordered = TRUE) %>%
-  mutate(availability_dataverse_data = availability_dataverse %>%
-           fct_collapse(`0` = c('code'),
-                        data = c('data', 'files')
-           ),
-         availability_dataverse_code = availability_dataverse %>%
-           fct_collapse(`0` = c('data'),
-                        code = c('code', 'files')
-           ))
+# Links -------------------------------------------------------------------
 
-dataverse <- dataverse %>%
-  group_by(doi) %>%
-  mutate_at(c('availability_dataverse_data', 'availability_dataverse_code'), max) %>%
-  # Using 'case_when' in 'mutate' is still experimental
-  # https://stackoverflow.com/a/38649748/
-  ungroup %>%
-  mutate(
-    availability_dataverse = case_when(
-      .$availability_dataverse_data == 'data' & .$availability_dataverse_code == 'code' ~ 'files',
-      TRUE ~ as.character(.$availability_dataverse)
-    ) %>%
-      parse_factor(levels = availability_dataverse_levels, ordered = TRUE)
-  ) %>%
-  group_by(doi) %>%
-  mutate_at('availability_dataverse', max) %>%
-  ungroup
-
-## Summarize to one row per article
-dataverse <- dataverse %>%
-  distinct(journal, doi, title, availability_dataverse)
-
-# Links
-aer_link <- read.csv('Econ_data/external_econ/aer_with_sample_selection_link_coding_harmonized.csv') %>%
+aer_link <- read.csv('Econ_data/external_econ/aer_with_sample_selection_link_coding_harmonized.csv', stringsAsFactors = F) %>%
+  select(doi, link_category) %>%
   mutate(journal = 'aer')
-qje_link <- read.csv('Econ_data/external_econ/qje_link_coding_harmonized.csv') %>%
+qje_link <- read.csv('Econ_data/external_econ/qje_link_coding_harmonized.csv', stringsAsFactors = F) %>%
+  select(doi, link_category) %>%
   mutate(journal = 'qje')
 
-link <- bind_rows(aer_link, qje_link)
+link <- bind_rows(aer_link, qje_link) %>%
+  mutate(link_category = ifelse(link_category == "", NA, link_category))
 
 availability_link_levels <- c(
   'dead',
@@ -256,28 +176,22 @@ link <- link %>%
     ) %>%
       parse_factor(levels = availability_link_levels, ordered = TRUE)
   ) %>%
-  group_by(doi) %>%
-  mutate_at('availability_link', max) %>%
-  ungroup
+  group_by(journal, doi) %>%
+  summarise(availability_link = max(availability_link))
 
-## Summarize to one row per article
-link <- link %>%
-  distinct(journal, doi, title, availability_link)
 
-# References
+# References --------------------------------------------------------------
+
 ## Import harmonized files
-aer_reference <- read.csv('Econ_data/external_econ/aer_with_sample_selection_reference_coding_harmonized.csv') %>%
+aer_reference <- read.csv('Econ_data/external_econ/aer_with_sample_selection_reference_coding_harmonized.csv', stringsAsFactors = F) %>%
+  select(doi, reference_category) %>%
   mutate(journal = 'aer')
-qje_reference <- read.csv('Econ_data/external_econ/qje_reference_coding_harmonized.csv') %>%
+qje_reference <- read.csv('Econ_data/external_econ/qje_reference_coding_harmonized.csv', stringsAsFactors = F) %>%
+  select(doi, reference_category) %>%
   mutate(journal = 'qje')
-
 
 ## Combine data from AER and QJE into a single dataframe
 reference <- bind_rows(aer_reference, qje_reference)
-
-## Remove hyperlinking
-reference <- reference %>%
-  mutate_at('title', remove_hyperlink, hyperlink_separator = ',')
 
 ## Define reference levels
 reference <- reference %>%
@@ -318,8 +232,8 @@ reference <- reference %>%
   mutate_at('reference_how', parse_factor, levels = reference_how_levels, ordered = TRUE)
 
 ## Find highest level of stated availability
-reference_strict_levels <- c('link', 'dataverse')
-reference_easy_levels <- c('link', 'dataverse', 'paper' ,'name')
+reference_strict_levels <- c('link')
+reference_easy_levels <- c('link', 'paper' ,'name')
 reference_united_levels <- c(
   '0_0',
   '0_1',
@@ -344,7 +258,7 @@ reference <- reference %>%
   ungroup %>%
   unite(reference, reference_strict, reference_easy, remove = FALSE) %>%
   mutate_at('reference', parse_factor, levels = reference_united_levels, ordered = TRUE) %>%
-  select(journal, doi, title, reference_what_how_much, reference) %>%
+  select(journal, doi, reference_what_how_much, reference) %>%
   # As of Jun 2, 2017 'drop = FALSE' in 'spread' is not working as intended.
   # https://github.com/tidyverse/tidyr/issues/254
   # Add 'NA' as level of 'reference_what_how_much_levels' to preserve articles with only '0_0' reference values
@@ -362,7 +276,7 @@ reference <- reference %>%
          data_full = max(data_full, files_full),
          files_partial = min(code_partial, data_partial),
          files_full = min(code_full, data_full)) %>%
-  ungroup
+  ungroup()
 
 ## Create separate variables for 'strict' and 'easy' definition of availability
 reference <- reference %>%
@@ -373,37 +287,28 @@ reference <- reference %>%
   separate(data_full, paste0('reference_data_full_', c('strict', 'easy'))) %>%
   separate(files_full, paste0('reference_files_full_', c('strict', 'easy')))
 
-# File Extensions (from AEA website, only applicable to AER)
-file_extensions <- read.csv('Econ_data/external_econ/aer_fileext_SZ.csv') %>%
-  mutate(journal = 'aer')
 
-## Define file extension category levels
-availability_fileext_levels <- c(
-  '0',
-  'data',
-  'code',
-  'files'
-)
+# File Extensions ---------------------------------------------------------
+
+# File Extensions (from AEA website, only applicable to AER)
+file_extensions <- read.csv('Econ_data/external_econ/aer_fileext_SZ.csv', stringsAsFactors = F) %>%
+  select(doi, data, code) %>%
+  mutate(journal = 'aer')
 
 ## Find highest level of availability
 file_extensions <- file_extensions %>%
-  mutate(availability_fileext_data = ifelse(data == TRUE, "data", 0)) %>% 
-  mutate(availability_fileext_code = ifelse(code == TRUE, "code", 0)) %>%
+  mutate(availability_fileext_data = ifelse(data == TRUE, "data", "0")) %>% 
+  mutate(availability_fileext_code = ifelse(code == TRUE, "code", "0")) %>%
   mutate(availability_fileext = case_when(
     data == TRUE & code == TRUE ~ "files",
     data == TRUE & code == FALSE ~ "data",
     data == FALSE & code == TRUE ~ "code",
     data == FALSE & code == FALSE ~ "0"
-  ) %>%
-    parse_factor(levels = availability_fileext_levels, ordered = TRUE)
-  ) %>%
-  group_by(doi) %>%
-  mutate_at('availability_fileext', max)
+  )) %>%
+  select(journal, doi, availability_fileext)
 
-## Summarize to one row per article
-file_extensions <- file_extensions %>%
-  ungroup() %>%
-  distinct(journal, doi, title, availability_fileext)
+
+# Merge -------------------------------------------------------------------
 
 # Merge all article information
 df <- article_coding %>%
@@ -432,9 +337,9 @@ df <- df %>%
               select(availability))
 
 # Merge with citation_count data
-aer_citation_count <- read.csv('Econ_data/external_econ/aer_citations_scopus.csv') %>%
+aer_citation_count <- read.csv('Econ_data/external_econ/aer_citations_scopus.csv', stringsAsFactors = F) %>%
   mutate(journal = 'aer')
-qje_citation_count <- read.csv('Econ_data/external_econ/qje_citations_scopus.csv') %>%
+qje_citation_count <- read.csv('Econ_data/external_econ/qje_citations_scopus.csv', stringsAsFactors = F) %>%
   mutate(journal = 'qje')
 
 ## Values for title appear in both right-hand side and citation data. Choose value from right-hand side data.
@@ -458,14 +363,14 @@ for (i in 1:length(df$publication_date)) {
 }
 
 # merge university ranking 
-aer_university_rank <- read.csv('Econ_data/external_econ/article_author_top_rank_aer.csv')
-qje_university_rank <- read.csv('Econ_data/external_econ/article_author_top_rank_qje.csv')
+aer_university_rank <- read.csv('Econ_data/external_econ/article_author_top_rank_aer.csv', stringsAsFactors = F)
+qje_university_rank <- read.csv('Econ_data/external_econ/article_author_top_rank_qje.csv', stringsAsFactors = F)
 university_rank <- bind_rows(aer_university_rank, qje_university_rank)
 
 df <- df %>%
-  left_join(university_rank)
+  left_join(university_rank, by = "doi")
 df$top_rank[is.na(df$top_rank)] <- 125
 
 # Write dataframe to file
-output_file <- 'citations_clean_data.csv'
+output_file <- 'Econ_data/external_econ/citations_clean_data.csv'
 df %>% write.csv(output_file)
