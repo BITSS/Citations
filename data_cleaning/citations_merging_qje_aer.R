@@ -1,12 +1,9 @@
 # Setup
-library(tidyr)
-library(dplyr)
+library(tidyvers)
 library(forcats)
 library(stringr)
 library(rvest)
 library(readr)
-library(rprojroot) # find project root
-setwd(find_root('README.md'))
 
 # Tools
 remove_hyperlink <- function(text, hyperlink_separator = ';'){
@@ -14,48 +11,52 @@ remove_hyperlink <- function(text, hyperlink_separator = ';'){
   str_replace(text, hyperlink, '\\1')
 }
 
-join_columns = c('journal', 'doi', 'title')
+join_columns = c('journal', 'doi')
 
 # Article JEL coding
 ## Import harmonized files
-article_coding_jel <- read.csv('Econ_data/external_econ/econlit_data_with_jel_topics.csv') %>%
-  mutate(journal = aer.qje) %>%
-  mutate(article_topic = JEL_econlit) %>%
+article_coding_jel <- read.csv('external_econ/econlit_data_with_jel_topics.csv', stringsAsFactors = F) %>%
+  mutate(
+    journal = aer.qje,
+    article_topic = JEL_econlit
+    ) %>%
   select(doi, journal, title, article_topic)
 
-## Define JEL levels
-article_jel_levels <- c(
-  'General Economics and Teaching',
-  'History of Economic Thought, Methodology, and Heterodox Approaches',
-  'Mathematical and Quantitative Methods',
-  'Microeconomics',
-  'Macroeconomics and Monetary Economics',
-  'International Economics',
-  'Financial Economics',
-  'Public Economics',
-  'Health, Education and Welfare',
-  'Labor and Demographic Economics',
-  'Law and Economics',
-  'Industrial Organization',
-  'Business Administration and Business Economics; Marketing; Accounting; Personnel Economics',
-  'Economic History',
-  'Economic Development, Innovation, Technological Change, and Growth',
-  'Economic Systems',
-  'Agricultural and National Resource Economics; Environmental and Ecological Economics',
-  'Urban, Rural, Regional, Real Estate, and Transportation Economics',
-  'Miscellaneous Categories',
-  'Other Special Topics',
-  'skip'
-)
-
-levels(article_coding_jel$article_topic) <- article_jel_levels
-article_coding_jel$article_topic[is.na(article_coding_jel$article_topic)] <- 'skip'
+# ## Define JEL levels
+# article_jel_levels <- c(
+#   'General Economics and Teaching',
+#   'History of Economic Thought, Methodology, and Heterodox Approaches',
+#   'Mathematical and Quantitative Methods',
+#   'Microeconomics',
+#   'Macroeconomics and Monetary Economics',
+#   'International Economics',
+#   'Financial Economics',
+#   'Public Economics',
+#   'Health, Education and Welfare',
+#   'Labor and Demographic Economics',
+#   'Law and Economics',
+#   'Industrial Organization',
+#   'Business Administration and Business Economics; Marketing; Accounting; Personnel Economics',
+#   'Economic History',
+#   'Economic Development, Innovation, Technological Change, and Growth',
+#   'Economic Systems',
+#   'Agricultural and National Resource Economics; Environmental and Ecological Economics',
+#   'Urban, Rural, Regional, Real Estate, and Transportation Economics',
+#   'Miscellaneous Categories',
+#   'Other Special Topics',
+#   'skip'
+# )
+# 
+# levels(article_coding_jel$article_topic) <- article_jel_levels
+# article_coding_jel$article_topic[is.na(article_coding_jel$article_topic)] <- 'skip'
 
 # Article data types
 ## Import harmonized files
-aer_article_type <- read.csv('Econ_data/external_econ/indexed_aer_with_jel_harmonized.csv') %>%
+aer_article_type <- read.csv('external_econ/indexed_aer_with_jel_harmonized.csv', stringsAsFactors = F) %>%
+  select(doi, article_data_type) %>%
   mutate(journal = 'aer')
-qje_article_type <- read.csv('Econ_data/external_econ/indexed_qje_with_jel_harmonized.csv') %>%
+qje_article_type <- read.csv('external_econ/indexed_qje_with_jel_harmonized.csv', stringsAsFactors = F) %>%
+  select(doi, article_data_type) %>%
   mutate(journal = 'qje')
 
 ## Combine data from AER, and QJE into a single dataframe
@@ -65,18 +66,18 @@ article_coding_type <- bind_rows(aer_article_type, qje_article_type)
 article_coding <- article_coding_jel %>%
   left_join(article_coding_type, join_columns)
 
-## Remove hyperlinking
-article_coding <- article_coding %>%
-  mutate_at('title', remove_hyperlink)
+# ## Remove hyperlinking
+# article_coding <- article_coding %>%
+#   mutate_at('title', remove_hyperlink)
 
-## Define data type levels
-article_data_type_levels <- c(
-  'experimental',
-  'observational',
-  'simulations',
-  'no_data',
-  'skip'
-)
+# ## Define data type levels
+# article_data_type_levels <- c(
+#   'experimental',
+#   'observational',
+#   'simulations',
+#   'no_data',
+#   'skip'
+# )
 
 ## If jel  is 'skip', set data type to 'skip' as well
 article_coding <- article_coding %>% 
@@ -91,9 +92,9 @@ article_coding <- article_coding %>%
 
 # Author website
 ## Import harmonized files
-aer_author_website <- read.csv('Econ_data/external_econ/aer_author_website_coding_harmonized.csv') %>%
+aer_author_website <- read.csv('external_econ/aer_author_website_coding_harmonized.csv') %>%
   mutate(journal = 'aer')
-qje_author_website <- read.csv('Econ_data/external_econ/qje_author_website_coding_harmonized.csv') %>%
+qje_author_website <- read.csv('external_econ/qje_author_website_coding_harmonized.csv') %>%
   mutate(journal = 'qje')
 
 ## Combine data from AER and QJE into a single dataframe
@@ -155,9 +156,9 @@ author_website <- author_website %>%
 # Dataverse
 ## Import harmonized files
 ## Dataverse files were coded only by RP and TC, so take their resolution file as source
-qje_dataverse <- read.csv('Econ_data/external_econ/qje_dataverse_search_GC.csv') %>%
+qje_dataverse <- read.csv('external_econ/qje_dataverse_search_GC.csv') %>%
   mutate(journal = 'qje')
-aer_dataverse <- read.csv('Econ_data/external_econ/aer_dataverse_search_GC.csv') %>%
+aer_dataverse <- read.csv('external_econ/aer_dataverse_search_GC.csv') %>%
   mutate(journal = 'aer')
 
 ## Combine data from AJPS and APSR into a single dataframe
@@ -210,9 +211,9 @@ dataverse <- dataverse %>%
   distinct(journal, doi, title, availability_dataverse)
 
 # Links
-aer_link <- read.csv('Econ_data/external_econ/aer_with_sample_selection_link_coding_harmonized.csv') %>%
+aer_link <- read.csv('external_econ/aer_with_sample_selection_link_coding_harmonized.csv') %>%
   mutate(journal = 'aer')
-qje_link <- read.csv('Econ_data/external_econ/qje_link_coding_harmonized.csv') %>%
+qje_link <- read.csv('external_econ/qje_link_coding_harmonized.csv') %>%
   mutate(journal = 'qje')
 
 link <- bind_rows(aer_link, qje_link)
@@ -266,9 +267,9 @@ link <- link %>%
 
 # References
 ## Import harmonized files
-aer_reference <- read.csv('Econ_data/external_econ/aer_with_sample_selection_reference_coding_harmonized.csv') %>%
+aer_reference <- read.csv('external_econ/aer_with_sample_selection_reference_coding_harmonized.csv') %>%
   mutate(journal = 'aer')
-qje_reference <- read.csv('Econ_data/external_econ/qje_reference_coding_harmonized.csv') %>%
+qje_reference <- read.csv('external_econ/qje_reference_coding_harmonized.csv') %>%
   mutate(journal = 'qje')
 
 
@@ -374,7 +375,7 @@ reference <- reference %>%
   separate(files_full, paste0('reference_files_full_', c('strict', 'easy')))
 
 # File Extensions (from AEA website, only applicable to AER)
-file_extensions <- read.csv('Econ_data/external_econ/aer_fileext_SZ.csv') %>%
+file_extensions <- read.csv('external_econ/aer_fileext_SZ.csv') %>%
   mutate(journal = 'aer')
 
 ## Define file extension category levels
@@ -432,9 +433,9 @@ df <- df %>%
               select(availability))
 
 # Merge with citation_count data
-aer_citation_count <- read.csv('Econ_data/external_econ/aer_citations_scopus.csv') %>%
+aer_citation_count <- read.csv('external_econ/aer_citations_scopus.csv') %>%
   mutate(journal = 'aer')
-qje_citation_count <- read.csv('Econ_data/external_econ/qje_citations_scopus.csv') %>%
+qje_citation_count <- read.csv('external_econ/qje_citations_scopus.csv') %>%
   mutate(journal = 'qje')
 
 ## Values for title appear in both right-hand side and citation data. Choose value from right-hand side data.
@@ -458,8 +459,8 @@ for (i in 1:length(df$publication_date)) {
 }
 
 # merge university ranking 
-aer_university_rank <- read.csv('Econ_data/external_econ/article_author_top_rank_aer.csv')
-qje_university_rank <- read.csv('Econ_data/external_econ/article_author_top_rank_qje.csv')
+aer_university_rank <- read.csv('external_econ/article_author_top_rank_aer.csv')
+qje_university_rank <- read.csv('external_econ/article_author_top_rank_qje.csv')
 university_rank <- bind_rows(aer_university_rank, qje_university_rank)
 
 df <- df %>%
