@@ -291,7 +291,7 @@ ivregress 2sls citation aer post2005  print_months_ago ///
 
 *INCLUDE INTERACTIONS
 gen aerXpost2005Xdata=aerXpost2005*(data_type_2==0)
-label var aerXpost2005Xdata "aer Post-2005 with Data"				
+label var aerXpost2005Xdata "AER Post-2005 with Data"				
 gen post2005Xdata=post2005*(data_type_2==0)
 label var post2005Xdata "Post-2005 with Data"
 	
