@@ -1,0 +1,206 @@
+\documentclass{beamer}
+
+\mode<presentation>
+{
+  \usetheme{Warsaw}
+  % or ...
+
+  \setbeamercovered{transparent}
+  % or whatever (possibly just delete it)
+}
+
+\usepackage{standalone}
+\usepackage{tikz}
+\usepackage[english]{babel}
+% or whatever
+
+\usepackage[utf8]{inputenc}
+% or whatever
+\usepackage[outdir=./]{epstopdf}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+% Or whatever. Note that the encoding and the font should match. If T1
+% does not look nice, try deleting the line with the fontenc.
+
+
+\title[Data Sharing and Citations] % (optional, use only with long paper titles)
+{Data Sharing and Citations}
+
+\subtitle
+{Causal Evidence} % (optional)
+
+\author[Christensen, Dafoe, Miguel] % (optional, use only with lots of authors)
+{Garret Christensen\inst{1} \and Allan Dafoe\inst{2} \and Edward Miguel\inst{3}}
+% - Use the \inst{?} command only if the authors have different
+%   affiliation.
+
+\institute[Universities of Somewhere and Elsewhere] % (optional, but mostly needed)
+{
+  \inst{1}%
+  Berkeley Institute for Data Science, UC Berkeley
+  \and
+  \inst{2}%
+  Department of Political Science, Yale University
+  \and
+  \inst{3}%
+  Department of Economics, UC Berkeley}
+% - Use the \inst command only if there are several affiliations.
+% - Keep it simple, no one is interested in your street address.
+
+\date[Short Occasion] % (optional)
+{December 2017 BITSS Annual Meeting}
+
+\subject{Talks}
+% This is only inserted into the PDF information catalog. Can be left
+% out. 
+
+
+
+% If you have a file called "university-logo-filename.xxx", where xxx
+% is a graphic format that can be processed by latex or pdflatex,
+% resp., then you can add a logo as follows:
+
+% \pgfdeclareimage[height=0.5cm]{university-logo}{university-logo-filename}
+% \logo{\pgfuseimage{university-logo}}
+
+
+
+% Delete this, if you do not want the table of contents to pop up at
+% the beginning of each subsection:
+%\AtBeginSubsection[]
+%{
+%  \begin{frame}<beamer>{Outline}
+%    \tableofcontents[currentsection,currentsubsection]
+%  \end{frame}
+%}
+
+
+% If you wish to uncover everything in a step-wise fashion, uncomment
+% the following command: 
+
+%\beamerdefaultoverlayspecification{<+->}
+
+
+\begin{document}
+%{ % all template changes are local to this group.
+%    \setbeamertemplate{navigation symbols}{}
+%    \begin{frame}[plain]
+%        \begin{tikzpicture}[remember picture,overlay]
+%            \node[at=(current page.center)] {
+%                \href{https://www.bitss.org/}{\includegraphics[width=\paperwidth]{../images/BITSSlogo.png}}
+%            };
+%        \end{tikzpicture}
+%     \end{frame}
+%}
+%
+%\begin{frame}
+%  \titlepage
+%  \begin{center}
+%  \begin{large}
+%  PRELIMINARY--Please do not cite.
+%  \end{large}
+%  \end{center}
+%\end{frame}
+%
+%\begin{frame}
+%Thanks to David Birke, Mu Yang Shin, Don Sun, Manana Hakobyan, Terri Cruz, Maxim Guzman, Baiyue Cao, Evey Huang, Rachel Kim, Ravina Pattni, Kevin Khuu
+%\end{frame}
+%
+%%\begin{frame}{Outline}
+% % \tableofcontents
+%  %\begin{center}
+% % Slides available at: \url{http://www.github.com/bitss/citations}
+%  %\begin{large}
+% % PRELIMINARY--Please do not cite.
+%  %\end{large}
+% % \end{center}
+%  % You might wish to add the option [pausesections]
+%%\end{frame}
+%
+%
+%% Since this a solution template for a generic talk, very little can
+%% be said about how it should be structured. However, the talk length
+%% of between 15min and 45min and the theme suggest that you stick to
+%% the following rules:  
+%
+%% - Exactly two or three sections (other than the summary).
+%% - At *most* three subsections per section.
+%% - Talk about 30s to 2min per frame. So there should be between about
+%%   15 and 30 frames, all told.
+%
+
+
+\section{Results}
+\begin{frame}
+	\begin{itemize}
+		\item Naive OLS results
+		\item First stage
+		\item 2SLS
+		\item Exclusion Restriction
+	\end{itemize}
+\end{frame}
+
+%\begin{frame}{}
+%	\begin{center}
+%		\scalebox{0.7}{\input{../output/econ_naive.tex}}
+%	\end{center}
+%\end{frame}
+
+\begin{frame}{Naive OLS}
+	\begin{center}
+		\scalebox{0.75}{\input{../output/econ_naive-simp.tex}}
+	\end{center}
+\end{frame}
+
+%\begin{frame}{}
+%\scalebox{0.75}{\input{../output/econ_naiveLN.tex}}
+%\end{frame}
+
+\begin{frame}{Naive OLS LN}
+	\begin{center}
+		\scalebox{0.8}{\input{../output/econ_naiveLN-simp.tex}}
+	\end{center}
+\end{frame}
+
+\begin{frame}{First Stage}
+	\begin{center}
+		\scalebox{0.90}{\input{../output/econ_first.tex}}
+	\end{center}
+	
+	\begin{itemize}
+		\item  		Controls cut for space
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{2SLS}
+	\begin{center}
+		\scalebox{0.75}{\input{../output/econ_ivreg-simp.tex}}
+	\end{center}
+\end{frame}
+
+\begin{frame}{2SLS LN}
+	\begin{center}
+		\scalebox{0.7}{\input{../output/econ_ivregLN-simp.tex}}
+	\end{center}
+\end{frame}
+
+\begin{frame}{Citation Data}
+Citations are interesting data in and of themselves.
+\begin{itemize}
+\item Multiple sources
+\item Not open
+\item Initiative to change that: \href{http://i4oc.org}{I4OC}
+\end{itemize}
+Results robust to source of citation data
+\end{frame}
+
+\begin{frame}{Exclusion Restriction}
+	\scalebox{0.61}{\input{../output/econ_exclusion.tex}}
+	\begin{itemize}
+		\item Controls dropped for space
+	\end{itemize}
+\end{frame}
+
+\end{document}
+
+
