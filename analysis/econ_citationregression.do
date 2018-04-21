@@ -39,6 +39,7 @@ gen print_months_ago_sq=print_months_ago*print_months_ago
 gen print_months_ago_cu=print_months_ago_sq*print_months_ago
 
 gen avail_yn=(availability=="files")
+gen avail_data=(availability=="files"|availability=="data")
 *Should be OK, no missing values.
 gen aer=(journal=="aer")
 
@@ -192,28 +193,28 @@ replace top_rank=.a if top_rank==125 //.a is NOT RANKED
 gen top1=.
 replace top1=1 if top_rank==1
 replace top1=0 if top_rank>1 & top_rank<.b
-gen top5=.
-replace top5=1 if (top_rank>1 & top_rank<=5)
-replace top5=0 if top1==1 | (top_rank>5 & top_rank<.b)
+gen top10=.
+replace top10=1 if (top_rank>1 & top_rank<=10)
+replace top10=0 if top1==1 |(top_rank>10 & top_rank<.b)
 gen top20=.
-replace top20=1 if (top_rank>5 & top_rank<=20)
-replace top20=0 if top1==1|top5==1|(top_rank>20 & top_rank<.b)
+replace top20=1 if (top_rank>1 & top_rank<=20)
+replace top20=0 if top1==1|top10==1|(top_rank>20 & top_rank<.b)
 gen top50=.
 replace top50=1 if (top_rank>20 & top_rank<=50)
-replace top50=0 if top1==1|top5==1|top20==1|(top_rank>50 & top_rank<.b)
+replace top50=0 if top1==1|top10==1|top20==1|(top_rank>50 & top_rank<.b)
 gen top100=.
 replace top100=1 if (top_rank>50 & top_rank <=100)
-replace top100=0 if top1==1|top5==1|top20==1|top50==1|(top_rank>100 & top_rank<.b)
+replace top100=0 if top1==1|top10==1|top20==1|top50==1|(top_rank>100 & top_rank<.b)
 gen unranked=.
 replace unranked=1 if top_rank==.a
 replace unranked=0 if top_rank<.
-label var top5 "Top 5"
+label var top10 "Top 10"
 label var top20 "Top 20"
 
 
 foreach X in 2005{
-graph bar top1 top5 top20 top50 top100 unranked, stack over(post`X') over(aer)  legend(lab(1 "Top 1") ///
-	lab(2 "Top 5") ///
+graph bar top1 top10 top20 top50 top100 unranked, stack over(post`X') over(aer)  legend(lab(1 "Top 1*") ///
+	lab(2 "Top 10") ///
 	lab(3 "Top 20") ///
 	lab(4 "Top 50") ///
 	lab(5 "Top 100") ///
