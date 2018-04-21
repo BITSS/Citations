@@ -17,7 +17,7 @@ join_columns = c('journal', 'doi')
 # Article JEL coding ------------------------------------------------------
 
 ## Import harmonized files
-article_coding_jel <- read.csv('/external_econ/econlit_data_with_jel_topics.csv', stringsAsFactors = F) %>%
+article_coding_jel <- read.csv('external_econ/econlit_data_with_jel_topics.csv', stringsAsFactors = F) %>%
   mutate(
     journal = aer.qje,
     article_topic = JEL_econlit
@@ -28,9 +28,9 @@ article_coding_jel <- read.csv('/external_econ/econlit_data_with_jel_topics.csv'
 # Article data types ------------------------------------------------------
 
 ## Import harmonized files
-aer_article_type <- read.csv('/external_econ/indexed_aer_with_jel_harmonized.csv', stringsAsFactors = F) %>%
+aer_article_type <- read.csv('external_econ/indexed_aer_with_jel_harmonized.csv', stringsAsFactors = F) %>%
   mutate(journal = 'aer')
-qje_article_type <- read.csv('/external_econ/indexed_qje_with_jel_harmonized.csv', stringsAsFactors = F) %>%
+qje_article_type <- read.csv('external_econ/indexed_qje_with_jel_harmonized.csv', stringsAsFactors = F) %>%
   mutate(journal = 'qje')
 
 ## Combine data from AER, and QJE into a single dataframe
@@ -49,10 +49,10 @@ article_coding <- article_coding %>%
 # Author website ----------------------------------------------------------
 
 ## Import harmonized files
-aer_author_website <- read.csv('/external_econ/aer_author_website_coding_harmonized.csv', stringsAsFactors = F) %>%
+aer_author_website <- read.csv('external_econ/aer_author_website_coding_harmonized.csv', stringsAsFactors = F) %>%
   select(doi, website_category) %>%
   mutate(journal = 'aer')
-qje_author_website <- read.csv('/external_econ/qje_author_website_coding_harmonized.csv', stringsAsFactors = F) %>%
+qje_author_website <- read.csv('external_econ/qje_author_website_coding_harmonized.csv', stringsAsFactors = F) %>%
   select(doi, website_category) %>%
   mutate(journal = 'qje')
 
@@ -109,10 +109,10 @@ author_website <- author_website %>%
 
 ## Import harmonized files
 ## Dataverse files were coded only by RP and TC, so take their resolution file as source
-qje_dataverse <- read.csv('/external_econ/qje_dataverse_search_GC.csv', stringsAsFactors = F) %>%
+qje_dataverse <- read.csv('external_econ/qje_dataverse_search_GC.csv', stringsAsFactors = F) %>%
   select(doi, result_category, confirmed_category) %>%
   mutate(journal = 'qje')
-aer_dataverse <- read.csv('/external_econ/aer_dataverse_search_GC.csv', stringsAsFactors = F) %>%
+aer_dataverse <- read.csv('external_econ/aer_dataverse_search_GC.csv', stringsAsFactors = F) %>%
   select(doi, result_category, confirmed_category) %>%
   mutate(journal = 'aer')
 
@@ -127,10 +127,10 @@ dataverse <- dataverse %>%
 
 # Links -------------------------------------------------------------------
 
-aer_link <- read.csv('/external_econ/aer_with_sample_selection_link_coding_harmonized.csv', stringsAsFactors = F) %>%
+aer_link <- read.csv('external_econ/aer_with_sample_selection_link_coding_harmonized.csv', stringsAsFactors = F) %>%
   select(doi, link_category) %>%
   mutate(journal = 'aer')
-qje_link <- read.csv('/external_econ/qje_link_coding_harmonized.csv', stringsAsFactors = F) %>%
+qje_link <- read.csv('external_econ/qje_link_coding_harmonized.csv', stringsAsFactors = F) %>%
   select(doi, link_category) %>%
   mutate(journal = 'qje')
 
@@ -183,10 +183,10 @@ link <- link %>%
 # References --------------------------------------------------------------
 
 ## Import harmonized files
-aer_reference <- read.csv('/external_econ/aer_with_sample_selection_reference_coding_harmonized.csv', stringsAsFactors = F) %>%
+aer_reference <- read.csv('external_econ/aer_with_sample_selection_reference_coding_harmonized.csv', stringsAsFactors = F) %>%
   select(doi, reference_category) %>%
   mutate(journal = 'aer')
-qje_reference <- read.csv('/external_econ/qje_reference_coding_harmonized.csv', stringsAsFactors = F) %>%
+qje_reference <- read.csv('external_econ/qje_reference_coding_harmonized.csv', stringsAsFactors = F) %>%
   select(doi, reference_category) %>%
   mutate(journal = 'qje')
 
@@ -291,7 +291,7 @@ reference <- reference %>%
 # File Extensions ---------------------------------------------------------
 
 # File Extensions (from AEA website, only applicable to AER)
-file_extensions <- read.csv('/external_econ/aer_fileext_SZ.csv', stringsAsFactors = F) %>%
+file_extensions <- read.csv('external_econ/aer_fileext_SZ.csv', stringsAsFactors = F) %>%
   select(doi, data, code) %>%
   mutate(journal = 'aer')
 
@@ -337,9 +337,9 @@ df <- df %>%
               select(availability))
 
 # Merge with citation_count data
-aer_citation_count <- read.csv('/external_econ/aer_citations_scopus.csv', stringsAsFactors = F) %>%
+aer_citation_count <- read.csv('external_econ/aer_citations_scopus.csv', stringsAsFactors = F) %>%
   mutate(journal = 'aer')
-qje_citation_count <- read.csv('/external_econ/qje_citations_scopus.csv', stringsAsFactors = F) %>%
+qje_citation_count <- read.csv('external_econ/qje_citations_scopus.csv', stringsAsFactors = F) %>%
   mutate(journal = 'qje')
 
 ## Values for title appear in both right-hand side and citation data. Choose value from right-hand side data.
@@ -363,8 +363,8 @@ for (i in 1:length(df$publication_date)) {
 }
 
 # merge university ranking 
-aer_university_rank <- read.csv('/external_econ/article_author_top_rank_aer.csv', stringsAsFactors = F)
-qje_university_rank <- read.csv('/external_econ/article_author_top_rank_qje.csv', stringsAsFactors = F)
+aer_university_rank <- read.csv('external_econ/article_author_top_rank_aer.csv', stringsAsFactors = F)
+qje_university_rank <- read.csv('external_econ/article_author_top_rank_qje.csv', stringsAsFactors = F)
 university_rank <- bind_rows(aer_university_rank, qje_university_rank)
 
 df <- df %>%
@@ -372,5 +372,5 @@ df <- df %>%
 df$top_rank[is.na(df$top_rank)] <- 125
 
 # Write dataframe to file
-output_file <- '/external_econ/citations_clean_data.csv'
+output_file <- 'external_econ/citations_clean_data.csv'
 df %>% write.csv(output_file)
