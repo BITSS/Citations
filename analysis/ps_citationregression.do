@@ -26,6 +26,7 @@ save ../external/article_author_top_rank.dta, replace
 
 *LOAD MAIN MERGED DATA
 insheet using ../external/citations_clean_data.csv, clear names
+count
 rename abstractx abstract
 
 *****************************************************

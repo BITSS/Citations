@@ -8,6 +8,7 @@ cd "/Users/garret/Box Sync/CEGA-Programs-BITSS/3_Publications_Research/Citations
 ***************************************************
 *LOAD MAIN MERGED DATA
 insheet using ../external_econ/citations_clean_data.csv, clear names
+count
 
 *****************************************************
 *DROP NON-REAL ARTICLES
@@ -56,6 +57,8 @@ tab journal
 count
 append using ../external/cleaned/ps_mergedforregs.dta
 count
+save ../external/cleaned/combined_spotcheck.dta, replace 
+
 drop lncite
 *institution (name) only exists for Econ--PS only brought in rank
 *date vars
@@ -64,7 +67,8 @@ drop lncite
 *v2: 2005 for econ, 2012 for PS)
 
 *PS data comes with avail_yn, but create _data for both disc after append
-gen avail_data=(availability=="files"|availability=="data")
+replace avail_data=(availability=="files"|availability=="data")
+label var avail_data "Data Available"
 gen discipline="econ" if journal=="aer"|journal=="qje"
 replace discipline="ps" if journal=="apsr"|journal=="ajps"
 gen aer=(journal=="aer")
@@ -86,7 +90,7 @@ label var lncite "Ln(Cites+1)"
 *DROP PRE-EXISTING ONES FROM PS DATA
 *post2005 post2010 post2012 aerXpost2005 ajpsXpost2010 ajpsXpost2012
 drop post2010 post2012 ajpsXpost2010 ajpsXpost2012 avail_hat data_type_* ///
-	top1 top5 top20 top50 top100 unranked post2010Xdata post2012Xdata ///
+	top1 top10 top20 top50 top100 unranked post2010Xdata post2012Xdata ///
 	ajpsXpost2010Xdata ajpsXpost2012Xdata
 
 local Mar2005=date("2005-03-01","YMD")
@@ -211,25 +215,22 @@ histogram top_rank, title("Top US News Ranking of Articles, Econ & PS") ///
 graph export ../output/histo_authrank.eps, replace
 replace top_rank=.a if top_rank==125 //.a is NOT RANKED
 
+
 gen top1=.
 replace top1=1 if top_rank==1
 replace top1=0 if top_rank>1 & top_rank<.b
-*STUPID FOR ECON, SINCE THERE ARE >5 #1s
-gen top5=.
-replace top5=1 if (top_rank>1 & top_rank<=5)
-replace top5=0 if top1==1 | (top_rank>5 & top_rank<.b)
 gen top10=.
 replace top10=1 if (top_rank>1 & top_rank<=10)
-replace top10=0 if top1==1|top5==1|(top_rank>10 & top_rank<.b)
+replace top10=0 if top1==1|(top_rank>10 & top_rank<.b)
 gen top20=.
 replace top20=1 if (top_rank>10 & top_rank<=20)
-replace top20=0 if top1==1|top5==1|top10==1|(top_rank>20 & top_rank<.b)
+replace top20=0 if top1==1|top10==1|(top_rank>20 & top_rank<.b)
 gen top50=.
 replace top50=1 if (top_rank>20 & top_rank<=50)
-replace top50=0 if top1==1|top5==1|top10==1|top20==1|(top_rank>50 & top_rank<.b)
+replace top50=0 if top1==1|top10==1|top20==1|(top_rank>50 & top_rank<.b)
 gen top100=.
 replace top100=1 if (top_rank>50 & top_rank <=100)
-replace top100=0 if top1==1|top5==1|top10==1|top20==1|top50==1|(top_rank>100 & top_rank<.b)
+replace top100=0 if top1==1|top10==1|top20==1|top50==1|(top_rank>100 & top_rank<.b)
 gen unranked=.
 replace unranked=1 if top_rank==.a
 replace unranked=0 if top_rank<.
@@ -259,54 +260,90 @@ foreach time in "print_months_ago print_months_ago_sq print_months_ago_cu" "i.ye
 if "`time'"=="print_months_ago print_months_ago_sq print_months_ago_cu" local t="months"
 if "`time'"=="i.year#econ" local t="FE"
 
-
 *NAIVE
 regress citation avail_`data'
-	outreg2 using ../output/both_naive_`data'_`t'.tex, dec(3) tex label replace addtext(Sample, All)
-	outreg2 using ../output/both_naive-simp_`data'_`t'.tex, dec(3) tex label replace addtext(Sample, All) ///
-	nocons drop(`time') addnote("Regressions include constant, squared and cubed months since publication.")
+	summ citation if e(sample)==1
+	local depvarmean=r(mean)
+	if "`t'"=="months" {
+	outreg2 using ../output/both_naive_`data'_`t'.tex, dec(3) tex label replace ///
+		addtext(Sample, All) keep(avail_`data') addstat(Mean Dep. Var., `depvarmean')
+	outreg2 using ../output/both_naive-simp_`data'_`t'.tex, dec(3) tex label replace ///
+		addstat(Mean Dep. Var., `depvarmean') addtext(Sample, All) keep(avail_`data') nocons  ///
+		addnote("Regressions include constant, squared and cubed months since publication.")
+	}
+	if "`t'"=="FE" {
+	outreg2 using ../output/both_naive_`data'_`t'.tex, dec(3) tex label replace ///
+		addtext(Year-Discipline FE, No, Sample, All) keep(avail_`data') addstat(Mean Dep. Var., `depvarmean')
+	outreg2 using ../output/both_naive-simp_`data'_`t'.tex, dec(3) tex label replace ///
+		addstat(Mean Dep. Var., `depvarmean') addtext(Year-Discipline FE, No, Sample, All) keep(avail_`data') nocons ///
+		addnote("Regressions include constant, squared and cubed months since publication.")
+	}
 *regress citation avail_`data' aer
 *	outreg2 using ../output/both_naive_`data'_`t'.tex, tex label append
 regress citation avail_`data' aer ajps apsr `time'
+	if "`t'"=="months" {
 	outreg2 using ../output/both_naive_`data'_`t'.tex, dec(3) tex label append title("Naive OLS Regression") ///
-	addtext(Sample, All)
+		 addstat(Mean Dep. Var., `depvarmean') addtext(Sample, All)
 	outreg2 using ../output/both_naive-simp_`data'_`t'.tex, dec(3) tex label append title("Naive OLS Regression") ///
-	addtext(Sample, All) nocons drop(`time')
-regress citation avail_`data' aer ajps apsr `time' ///
-	data_type_2
+		addstat(Mean Dep. Var., `depvarmean') addtext(Sample, All) nocons keep(avail_`data' aer ajps apsr)	
+	}
+	if "`t'"=="FE" {
 	outreg2 using ../output/both_naive_`data'_`t'.tex, dec(3) tex label append title("Naive OLS Regression") ///
-	addtext(Sample, All)
+		addstat(Mean Dep. Var., `depvarmean') addtext(Year-Discipline FE, Yes, Sample, All)
 	outreg2 using ../output/both_naive-simp_`data'_`t'.tex, dec(3) tex label append title("Naive OLS Regression") ///
-	addtext(Sample, All) nocons drop(`time')
-regress citation avail_`data' aer ajps apsr `time' ///
-	if data_type!="no_data"
-	outreg2 using ../output/both_naive_`data'_`t'.tex, dec(3) tex label append addtext(Sample, Data-Only)
-	outreg2 using ../output/both_naive-simp_`data'_`t'.tex, dec(3) tex label append addtext(Sample, Data-Only) ///
-	nocons drop(`time')
-
+		addstat(Mean Dep. Var., `depvarmean') addtext(Year-Discipline FE, Yes, Sample, All) nocons keep(avail_`data' aer ajps apsr) 	
+	}
+regress citation avail_`data' aer ajps apsr data_type_2 `time'	
+	if "`t'"=="months" {
+	outreg2 using ../output/both_naive_`data'_`t'.tex, dec(3) tex label append ///
+	addstat(Mean Dep. Var., `depvarmean') addtext(Sample, All)
+	outreg2 using ../output/both_naive-simp_`data'_`t'.tex, dec(3) tex label append ///
+	addstat(Mean Dep. Var., `depvarmean') addtext(Sample, All) nocons keep(avail_`data' aer ajps apsr data_type_2) 
+	}
+	if "`t'"=="FE" {
+	outreg2 using ../output/both_naive_`data'_`t'.tex, dec(3) tex label append ///
+	addstat(Mean Dep. Var., `depvarmean') addtext(Year-Discipline FE, Yes, Sample, All)
+	outreg2 using ../output/both_naive-simp_`data'_`t'.tex, dec(3) tex label append ///
+	addstat(Mean Dep. Var., `depvarmean') addtext(Year-Discipline FE, Yes, Sample, All) nocons keep(avail_`data' aer ajps apsr data_type_2)
+	}
+regress citation avail_`data' aer ajps apsr `time' if data_type!="no_data"
+	if "`t'"=="months" {
+	outreg2 using ../output/both_naive_`data'_`t'.tex, dec(3) tex label append addstat(Mean Dep. Var., `depvarmean') ///
+		addtext(Sample, Data-Only)
+	outreg2 using ../output/both_naive-simp_`data'_`t'.tex, dec(3) tex label append addstat(Mean Dep. Var., `depvarmean') ///
+		addtext(Sample, Data-Only) nocons keep(avail_`data' aer ajps apsr) 
+	}
+	if "`t'"=="FE" {
+	outreg2 using ../output/both_naive_`data'_`t'.tex, dec(3) tex label append addstat(Mean Dep. Var., `depvarmean')  ///
+		addtext(Year-Discipline FE, Yes,Sample, Data-Only)
+	outreg2 using ../output/both_naive-simp_`data'_`t'.tex, dec(3) tex label append addstat(Mean Dep. Var., `depvarmean') ///
+		addtext(Year-Discipline FE, Yes,Sample, Data-Only) nocons keep(avail_`data' aer ajps apsr)
+	}	
 *NAIVE-LN
 regress lncite avail_`data'
-	outreg2 using ../output/both_naiveLN_`data'_`t'.tex, dec(3) tex label replace addtext(Sample, All)
-	outreg2 using ../output/both_naiveLN-simp_`data'_`t'.tex, dec(3) tex label replace addtext(Sample, All) ///
-	nocons drop(`time')
+	outreg2 using ../output/both_naiveLN_`data'_`t'.tex, dec(3) tex label replace addstat(Mean Dep. Var., `depvarmean') ///
+		addtext(Sample, All)
+	outreg2 using ../output/both_naiveLN-simp_`data'_`t'.tex, dec(3) tex label replace addstat(Mean Dep. Var., `depvarmean') ///
+		addtext(Sample, All) nocons drop(`time')
 *regress lncite avail_`data' aer
 *	outreg2 using ../output/both_naiveLN_`data'_`t'.tex, tex label append
 regress lncite avail_`data' aer ajps apsr `time'
 	outreg2 using ../output/both_naiveLN_`data'_`t'.tex, dec(3) tex label append title("Naive Log OLS Regression") ///
-		addtext(Sample, All)
-		outreg2 using ../output/both_naiveLN-simp_`data'_`t'.tex, dec(3) tex label append title("Naive OLS Regression") ///
-	addtext(Sample, All) nocons drop(`time')
+		addstat(Mean Dep. Var., `depvarmean') addtext(Sample, All)
+	outreg2 using ../output/both_naiveLN-simp_`data'_`t'.tex, dec(3) tex label append title("Naive OLS Regression") ///
+	addstat(Mean Dep. Var., `depvarmean') addtext(Sample, All) nocons drop(`time')
 regress lncite avail_`data' aer ajps apsr `time' ///
 	data_type_2
 	outreg2 using ../output/both_naiveLN_`data'_`t'.tex, dec(3) tex label append title("Naive Log OLS Regression") ///
-		addtext(Sample, All)
+		addstat(Mean Dep. Var., `depvarmean') addtext(Sample, All)
 	outreg2 using ../output/both_naiveLN-simp_`data'_`t'.tex, dec(3) tex label append title("Naive OLS Regression") ///
-	addtext(Sample, All) nocons drop(`time')
+		addstat(Mean Dep. Var., `depvarmean') addtext(Sample, All) nocons drop(`time')
 regress lncite avail_`data' aer ajps apsr `time' ///
 	if data_type!="no_data"
-	outreg2 using ../output/both_naiveLN_`data'_`t'.tex, dec(3) tex label append addtext(Sample, Data-Only)
-	outreg2 using ../output/both_naiveLN-simp_`data'_`t'.tex, dec(3) tex label append addtext(Sample, Data-Only) ///
-	nocons drop(`time')
+	outreg2 using ../output/both_naiveLN_`data'_`t'.tex, dec(3) tex label append addstat(Mean Dep. Var., `depvarmean') ///
+		addtext(Sample, Data-Only)
+	outreg2 using ../output/both_naiveLN-simp_`data'_`t'.tex, dec(3) tex label append addstat(Mean Dep. Var., `depvarmean') ///
+		addtext(Sample, Data-Only) nocons drop(`time')
 
 
 *********************************
