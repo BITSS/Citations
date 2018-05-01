@@ -348,7 +348,7 @@ Thanks to David Birke, Mu Yang Shin, Don Sun, Manana Hakobyan, Terri Cruz, Maxim
 %}
 
 
-\section{Results}
+\section{Results: OLS}
 \begin{frame}
 \begin{itemize}
 \item Naive OLS results
@@ -519,7 +519,8 @@ Data. FE.
 
 
 
-\subsection{2SLS}
+\section{2SLS}
+\subsection{2SLS Level}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%2SLS LEVEL
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -726,6 +727,7 @@ Data. FE.
 %     \end{frame}
 %}
 
+\section{Robustness}
 \subsection{Exclusion Restriction}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%Exclusion Restriction
@@ -754,6 +756,167 @@ Data. FE.
 \scalebox{0.61}{\input{../output/both_exclusion_data_FE.tex}}
 \end{frame}
 
+\subsection{Partial/Stated Availability-OLS}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%Partial/Stated OLS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Naive OLS-Partial/Stated Availability}
+Simple Print:
+
+Stated Full. Months.
+
+Stated Full. FE.
+
+Stated Partial. Months.
+
+Stated Partial. FE.
+\end{frame}
+
+\begin{frame}{}
+\scalebox{0.65}{\input{../output/both_naive-simp_state_full_months.tex}}
+\end{frame}
+
+\begin{frame}{}
+\scalebox{0.65}{\input{../output/both_naive-simp_state_full_FE.tex}}
+\end{frame}
+
+\begin{frame}{}
+\scalebox{0.65}{\input{../output/both_naive-simp_state_part_months.tex}}
+\end{frame}
+
+\begin{frame}{}
+\scalebox{0.65}{\input{../output/both_naive-simp_state_part_FE.tex}}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%Partial/Stated Log
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Naive OLS Log-Partial/Stated Availability}
+Simple Print:
+
+Stated Full. Months.
+
+Stated Full. FE.
+
+Stated Partial. Months.
+
+Stated Partial. FE.
+\end{frame}
+
+\begin{frame}{}
+\scalebox{0.65}{\input{../output/both_naiveln-simp_state_full_months.tex}}
+\end{frame}
+
+\begin{frame}{}
+\scalebox{0.65}{\input{../output/both_naiveln-simp_state_full_FE.tex}}
+\end{frame}
+
+\begin{frame}{}
+\scalebox{0.65}{\input{../output/both_naiveln-simp_state_part_months.tex}}
+\end{frame}
+
+\begin{frame}{}
+\scalebox{0.65}{\input{../output/both_naiveln-simp_state_part_FE.tex}}
+\end{frame}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Partial/Stated:First Stage}
+%% PARTIAL/STATED-FIRST STAGE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Partial/Stated Availability-First Stage}
+Full Print:
+
+State Full. Months.
+
+State Full. FE.
+
+State Part. Months.
+
+State Part. FE.
+\end{frame}
+
+
+\begin{frame}{}
+\scalebox{0.5}{\input{../output/both_first_state_full_months.tex}}
+\end{frame}
+
+\begin{frame}{}
+\scalebox{0.5}{\input{../output/both_first_state_full_FE.tex}}
+\end{frame}
+
+\begin{frame}{}
+\scalebox{0.5}{\input{../output/both_first_state_part_months.tex}}
+\end{frame}
+
+\begin{frame}{}
+\scalebox{0.5}{\input{../output/both_first_state_part_FE.tex}}
+\end{frame}
+
+
+\subsection{Partial/Stated Availability-2SLS}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%2SLS LEVEL-Partial/Stated
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{2SLS Level-Partial/Stated}
+Simple Print:
+
+State Full. Months.
+
+State Full. FE.
+
+State Part. Months.
+
+State Part. FE.
+\end{frame}
+\begin{frame}{}
+\scalebox{0.6}{\input{../output/both_ivreg-simp_state_full_months.tex}}
+\end{frame}
+
+\begin{frame}{}
+\scalebox{0.6}{\input{../output/both_ivreg-simp_state_full_FE.tex}}
+\end{frame}
+
+\begin{frame}{}
+\scalebox{0.6}{\input{../output/both_ivreg-simp_state_part_months.tex}}
+\end{frame}
+
+\begin{frame}{}
+\scalebox{0.6}{\input{../output/both_ivreg-simp_state_part_FE.tex}}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%2SLS LOG-Partial/Stated
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{2SLS Log-Partial/Stated}
+Simple Print:
+
+State Full. Months.
+
+State Full. FE.
+
+State Part. Months.
+
+State Part. FE.
+\end{frame}
+
+\begin{frame}{}
+\scalebox{0.6}{\input{../output/both_ivregln-simp_state_full_months.tex}}
+\end{frame}
+
+\begin{frame}{}
+\scalebox{0.6}{\input{../output/both_ivregln-simp_state_full_FE.tex}}
+\end{frame}
+
+\begin{frame}{}
+\scalebox{0.6}{\input{../output/both_ivregln-simp_state_part_months.tex}}
+\end{frame}
+
+\begin{frame}{}
+\scalebox{0.6}{\input{../output/both_ivregln-simp_state_part_FE.tex}}
+\end{frame}
 
 
 %\section{Conclusion}

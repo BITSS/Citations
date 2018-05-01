@@ -38,11 +38,13 @@ gen print_months_ago=(`scrapedate'-date)/30.42
 gen print_months_ago_sq=print_months_ago*print_months_ago
 gen print_months_ago_cu=print_months_ago_sq*print_months_ago
 
+*GENERATE AVAILABILITY
 gen avail_yn=(availability=="files")
 
 gen year=substr(publication_date, 1, 4)
 destring year, replace
 drop if year>2009 //2001-2009 is what we said we'd cover
+
 
 *LABEL DATA
 label var year "Year"
@@ -69,6 +71,17 @@ drop lncite
 *PS data comes with avail_yn, but create _data for both disc after append
 replace avail_data=(availability=="files"|availability=="data")
 label var avail_data "Data Available"
+*CREATE STATED/PARTIAL AVAILABILITY
+foreach var in reference_code_partial_strict reference_code_partial_easy reference_data_partial_strict reference_data_partial_easy reference_files_partial_strict reference_files_partial_easy reference_code_full_strict reference_code_full_easy reference_data_full_strict reference_data_full_easy reference_files_full_strict reference_files_full_easy{
+	replace `var'="." if `var'=="NA"
+	destring `var', replace
+}
+gen avail_state_full=(reference_data_full_strict==1| reference_data_full_easy==1| reference_files_full_strict==1| reference_files_full_easy==1)
+gen avail_state_part=(avail_state_full==1)|(reference_code_partial_strict==1| reference_code_partial_easy==1| reference_data_partial_strict==1| reference_data_partial_easy==1| reference_files_partial_strict==1| reference_files_partial_easy==1)
+label var avail_state_full "Stated Availability" 
+label var avail_state_part "Stated Availability:Part"
+
+
 gen discipline="econ" if journal=="aer"|journal=="qje"
 replace discipline="ps" if journal=="apsr"|journal=="ajps"
 gen aer=(journal=="aer")
@@ -239,6 +252,7 @@ label var top5 "Top 5"
 label var top10 "Top 10"
 label var top20 "Top 20"
 label var top50 "Top 50"
+label var top100 "Top 100"
 
 /*
 foreach X in 2005{
@@ -256,7 +270,7 @@ graph export ../output/both_rankXjournalXpost`X'.eps, replace
 ***********************************************************
 *REGRESSIONS
 ***********************************************************
-foreach data in yn data{
+foreach data in yn data state_full state_part{
 foreach time in "print_months_ago print_months_ago_sq print_months_ago_cu" "i.year#econ" {
 if "`time'"=="print_months_ago print_months_ago_sq print_months_ago_cu" local t="months"
 if "`time'"=="i.year#econ" local t="FE"
