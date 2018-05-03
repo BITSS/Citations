@@ -165,7 +165,8 @@ label var apsr_y_avg "APSR"
 line ajps_y_avg apsr_y_avg year, title("Yearly Average Availability by Journal") ///
 	bgcolor(white) graphregion(color(white)) ///
 	ylabel(0 0.2 0.4 0.6 0.8 1)
-graph export ../output/avail_time.eps, replace
+graph export ../output/ps_avail_time.eps, replace
+graph export ../output/ps_avail_time.png, replace
 
 *COULD DO FIGURE WITH ONLY DATA ARTICLES--CLOSE TO 100%?
 *MAKE ONE LINE DASHED FOR B&W READERS?
@@ -173,7 +174,8 @@ graph export ../output/avail_time.eps, replace
 *GRAPH CITATIONS
 ****************************
 histogram citation, bgcolor(white) graphregion(color(white)) title("Density of Citations")
-graph export ../output/cite_histo.eps, replace
+graph export ../output/ps_cite_histo.eps, replace
+graph export ../output/ps_cite_histo.png, replace
 
 bysort year ajps: egen cite_j_avg=mean(citation)
 label var cite_j_avg "Cites by Journal and Year"
@@ -183,8 +185,8 @@ gen apsr_y_citeavg=cite_j_avg if ajps==0
 label var apsr_y_citeavg "APSR"
 line ajps_y_citeavg apsr_y_citeavg year, title("Yearly Average Citations by Journal") ///
 	bgcolor(white) graphregion(color(white))
-
-graph export ../output/cite_time.eps, replace
+graph export ../output/ps_cite_time.png, replace
+graph export ../output/ps_cite_time.eps, replace
 save ../external/temp.dta, replace
 
 *TRY MU YANG'S ELSEVIER API DATA
@@ -214,7 +216,8 @@ rename citationE Scopus
 *scatter citation citationE || lfit citation citationE, title("Comparison of Citation Data") ///
 *	bgcolor(white) graphregion(color(white)) legend(off) ytitle("Web of Knowledge Citations")
 aaplot WoK Scopus, aformat(%3.2f) bformat(%3.2f) bgcolor(white) graphregion(color(white))
-graph export ../output/citationcomparison.eps, replace
+graph export ../output/ps_citationcomparison.eps, replace
+graph export ../output/ps_citationcomparison.png, replace
 
 *APRIL 18, 2018
 *CHANGE MAIN CITATION VARIABLE TO SCOPUS
@@ -248,7 +251,8 @@ graph bar topic_*, stack over(post`X') over(ajps)  legend(lab(1 "American") ///
 	lab(5 "Theory")) ///
 	title("Article Topic by Journal Before and After `X' Policy") ///
 	bgcolor(white) graphregion(color(white))
-graph export ../output/topicXjournalXpost`X'.eps, replace
+graph export ../output/ps_topicXjournalXpost`X'.eps, replace
+graph export ../output/ps_topicXjournalXpost`X'.png, replace
 }
 *AGAIN, DO THESE FOR ONLY DATA ARTICLES
 
@@ -265,7 +269,8 @@ graph bar data_type_*, stack over(post`X') over(ajps)  legend(lab(1 "Experimenta
 	lab(4 "Simulations")) ///
 	title("Data Type by Journal Before and After `X' Policy") ///
 	bgcolor(white) graphregion(color(white))
-graph export ../output/typeXjournalXpost`X'.eps, replace
+graph export ../output/ps_typeXjournalXpost`X'.eps, replace
+graph export ../output/ps_typeXjournalXpost`X'.png, replace
 }
 
 *************************************
@@ -285,7 +290,8 @@ label var top_rank "Top US News Ranking of Author Institutions"
 histogram top_rank, title("Top US News Ranking of Articles") ///
 	bgcolor(white) graphregion(color(white)) ///
 	note("*Rank of 125 implies no author at top-100 ranked institution")
-graph export ../output/histo_authrank.eps, replace
+graph export ../output/ps_histo_authrank.eps, replace
+graph export ../output/ps_histo_authrank.png, replace
 replace top_rank=.a if top_rank==125 //.a is NOT RANKED
 
 gen top1=.
@@ -318,7 +324,8 @@ graph bar top1 top10 top20 top50 top100 unranked, stack over(post`X') over(ajps)
 	lab(6 "Unranked")) ///
 	title("Institution Rankings by Journal Before and After `X' Policy") ///
 	bgcolor(white) graphregion(color(white))
-graph export ../output/rankXjournalXpost`X'.eps, replace
+graph export ../output/ps_rankXjournalXpost`X'.eps, replace
+graph export ../output/ps_rankXjournalXpost`X'.png, replace
 }
 
 *****************************************************
