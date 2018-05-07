@@ -61,6 +61,9 @@ append using ../external/cleaned/ps_mergedforregs.dta
 count
 save ../external/cleaned/combined_spotcheck.dta, replace 
 
+*Run the file of spotcheck cleans
+do ../analysis/spotcheck.do
+
 drop lncite
 *institution (name) only exists for Econ--PS only brought in rank
 *date vars
@@ -569,25 +572,7 @@ regress top50 aer ajps apsr aerXpost2005 ajpsXpost2010 post2005 post2010 post201
 
 
 exit
-/*OLD GARBAGE--DON'T USE!//
-*LOG
-ivregress 2sls lncite aer ajps apsr post2005 post2010 post2012 `time' (avail_`data' = aerXpost2005 ajpsXpost2010 ajpsXpost2012), first
-	outreg2 using ../output/both_ivregLN_`data'_`t'.tex, dec(3) tex label replace ctitle("2SLS-Log") ///
-		nocons addtext(Sample, All) title("2SLS Regression of ln(citations+1)") ///
-		drop(`time')
-	outreg2 using ../output/both_ivregLN-simp_`data'_`t'.tex, dec(3) tex label replace ctitle("2SLS-Log") ///
-		nocons addtext(Sample, All) title("2SLS Regression of ln(citations+1)") ///
-		drop(`time' post2005 post2010 post2012)
+*HEY! Want the latest results copied to the ShareLaTeX folder of the paper? 
+*Run this line!
+! cp -r /Users/garret/Box\ Sync/CEGA-Programs-BITSS/3_Publications_Research/Citations/citations/output /Users/garret/Dropbox/Apps/ShareLaTeX/citations
 
-
-ivregress 2sls lncite aer ajps apsr post2005 post2010 post2012  post2005Xdata post2010Xdata post2012Xdata `time' data_type_2 (avail_`data' = aerXpost2005Xdata ajpsXpost2010Xdata ajpsXpost2012Xdata), first
-	outreg2 using ../output/both_ivregLN_`data'_`t'.tex, dec(3) tex label append ctitle("2SLS-Log") ///
-		nocons addtext(Sample, IV=Data-Only) drop(`time')
-	outreg2 using ../output/both_ivregLN-simp_`data'_`t'.tex, dec(3) tex label append ctitle("2SLS-Log") ///
-		nocons addtext(Sample, IV=Data-Only) drop(`time' post2005 post2010 post2012  post2005Xdata post2010Xdata post2012Xdata)
-
-ivregress 2sls lncite aer ajps apsr post2005 post2010 post2012 `time' (avail_`data' = aerXpost2005 ajpsXpost2010 ajpsXpost2012) if data_type!="no_data", first
-	outreg2 using ../output/both_ivregLN_`data'_`t'.tex, dec(3) tex label append ctitle("2SLS-Log") ///
-		nocons addtext(Sample, Data-Only) drop(`time')
-	outreg2 using ../output/both_ivregLN-simp_`data'_`t'.tex, dec(3) tex label append ctitle("2SLS-Log") ///
-		nocons addtext(Sample, Data-Only) drop(`time' post2005 post2010 post2012)
