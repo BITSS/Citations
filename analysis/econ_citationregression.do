@@ -66,19 +66,34 @@ label define beforeafter 0 "Before" 1 "After"
 label values post2005 beforeafter
 label var avail_yn "Data and Code Available" 
 
-*****************************************************
-save ../external_econ/cleaned/mergedforregs.dta, replace
-
-********************************************************
-*GRAPH SHARING OVER TIME
-*******************************************************
 gen pp=1 if journal=="aer" & (publication_date=="2001/05/01"|publication_date=="2001/05/01"| ///
 	publication_date=="2002/05/01"|publication_date=="2003/05/01"|publication_date=="2004/05/01"| ///
 	publication_date=="2005/05/01"|publication_date=="2006/05/01"|publication_date=="2007/05/01"| ///
 	publication_date=="2008/05/01"|publication_date=="2009/05/01")
 replace pp=0 if pp==.
-label var pp "Papers & Proceedings Issue of AER"
+label var pp "P\&P Issue of AER"
 
+replace data_type="" if data_type=="skip"
+tab data_type, generate(data_type_)
+label var data_type_1 "Experimental"
+label var data_type_2 "No Data in Article" 
+label var data_type_3 "Observational"
+label var data_type_4 "Simulations"
+
+gen aerXpost2005Xdata=aerXpost2005*(data_type_2==0)
+label var aerXpost2005Xdata "AER Post-2005 with Data"				
+gen post2005Xdata=post2005*(data_type_2==0)
+label var post2005Xdata "Post-2005 with Data"
+
+gen lncitation=ln(citation+1)
+label var lncitation "Ln(Cites+1)"
+
+*****************************************************
+save ../external_econ/cleaned/econ_mergedforregs.dta, replace
+
+********************************************************
+*GRAPH SHARING OVER TIME
+*******************************************************
 foreach data in yn data /*state_full state_part*/{
 if "`data'"=="yn" local t="Data & Code"
 if "`data'"=="data" local t="Data"
@@ -186,12 +201,6 @@ graph bar topic_*, stack over(post`X') over(aer)  legend(lab(1 "Micro") ///
 	bgcolor(white) graphregion(color(white))
 graph export ../output/econ_topicXjournalXpost`X'.eps, replace
 }
-replace data_type="" if data_type=="skip"
-tab data_type, generate(data_type_)
-label var data_type_1 "Experimental"
-label var data_type_2 "No Data in Article" 
-label var data_type_3 "Observational"
-label var data_type_4 "Simulations"
 
 
 foreach X in 2005{
@@ -289,26 +298,25 @@ regress citation avail_yn aer print_months_ago	print_months_ago_sq print_months_
 	nocons drop(print_months_ago_cu print_months_ago_sq)
 
 *NAIVE-LN
-gen lncite=ln(citation+1)
-label var lncite "Ln(Cites+1)"
-regress lncite avail_yn
+
+regress lncitation avail_yn
 	outreg2 using ../output/econ_naiveLN.tex, dec(3) tex label replace addtext(Sample, All)
 	outreg2 using ../output/econ_naiveLN-simp.tex, dec(3) tex label replace addtext(Sample, All) ///
 	nocons drop(print_months_ago_cu print_months_ago_sq)
-*regress lncite avail_yn aer 
+*regress lncitation avail_yn aer 
 *	outreg2 using ../output/econ_naiveLN.tex, tex label append
-regress lncite avail_yn aer print_months_ago	print_months_ago_sq print_months_ago_cu
+regress lncitation avail_yn aer print_months_ago	print_months_ago_sq print_months_ago_cu
 	outreg2 using ../output/econ_naiveLN.tex, dec(3) tex label append title("Naive Log OLS Regression") ///
 		addtext(Sample, All)
 		outreg2 using ../output/econ_naiveLN-simp.tex, dec(3) tex label append title("Naive OLS Regression") ///
 	addtext(Sample, All) nocons drop(print_months_ago_cu print_months_ago_sq)
-regress lncite avail_yn aer print_months_ago	print_months_ago_sq print_months_ago_cu ///
+regress lncitation avail_yn aer print_months_ago	print_months_ago_sq print_months_ago_cu ///
 	data_type_2
 	outreg2 using ../output/econ_naiveLN.tex, dec(3) tex label append title("Naive Log OLS Regression") ///
 		addtext(Sample, All)
 	outreg2 using ../output/econ_naiveLN-simp.tex, dec(3) tex label append title("Naive OLS Regression") ///
 	addtext(Sample, All) nocons drop(print_months_ago_cu print_months_ago_sq)
-regress lncite avail_yn aer print_months_ago	print_months_ago_sq print_months_ago_cu ///
+regress lncitation avail_yn aer print_months_ago	print_months_ago_sq print_months_ago_cu ///
 	if data_type!="no_data"
 	outreg2 using ../output/econ_naiveLN.tex, dec(3) tex label append addtext(Sample, Data-Only)
 	outreg2 using ../output/econ_naiveLN-simp.tex, dec(3) tex label append addtext(Sample, Data-Only) ///
@@ -327,10 +335,7 @@ ivregress 2sls citation aer post2005  print_months_ago ///
 		nocons addtext(Sample, All) drop(print_months_ago_cu print_months_ago_sq)
 
 *INCLUDE INTERACTIONS
-gen aerXpost2005Xdata=aerXpost2005*(data_type_2==0)
-label var aerXpost2005Xdata "AER Post-2005 with Data"				
-gen post2005Xdata=post2005*(data_type_2==0)
-label var post2005Xdata "Post-2005 with Data"
+
 	
 ivregress 2sls citation aer post2005 post2005Xdata ///
 	print_months_ago print_months_ago_sq print_months_ago_cu data_type_2 (avail_yn = aerXpost2005Xdata), ///
@@ -352,7 +357,7 @@ ivregress 2sls citation aer post2005  print_months_ago ///
 		
 		
 *LOG		
-ivregress 2sls lncite aer post2005  print_months_ago ///
+ivregress 2sls lncitation aer post2005  print_months_ago ///
 	print_months_ago_sq print_months_ago_cu (avail_yn = aerXpost2005), first
 	outreg2 using ../output/econ_ivregLN.tex, dec(3) tex label replace ctitle("2SLS-Log") ///
 		nocons addtext(Sample, All) title("2SLS Regression of ln(citations+1)")
@@ -361,14 +366,14 @@ ivregress 2sls lncite aer post2005  print_months_ago ///
 		drop(print_months_ago_cu print_months_ago_sq)
 		
 		
-ivregress 2sls lncite aer post2005  post2005Xdata print_months_ago ///
+ivregress 2sls lncitation aer post2005  post2005Xdata print_months_ago ///
 	print_months_ago_sq print_months_ago_cu data_type_2 (avail_yn = aerXpost2005Xdata), first
 	outreg2 using ../output/econ_ivregLN.tex, dec(3) tex label append ctitle("2SLS-Log") ///
 		nocons addtext(Sample, IV=Data-Only)
 	outreg2 using ../output/econ_ivregLN-simp.tex, dec(3) tex label append ctitle("2SLS-Log") ///
 		nocons addtext(Sample, IV=Data-Only) drop(print_months_ago_cu print_months_ago_sq)
 		
-ivregress 2sls lncite aer post2005  print_months_ago ///
+ivregress 2sls lncitation aer post2005  print_months_ago ///
 	print_months_ago_sq print_months_ago_cu (avail_yn = aerXpost2005) if data_type!="no_data", first
 	outreg2 using ../output/econ_ivregLN.tex, dec(3) tex label append ctitle("2SLS-Log") ///
 		nocons addtext(Sample, Data-Only)		

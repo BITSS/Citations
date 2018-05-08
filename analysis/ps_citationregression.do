@@ -228,11 +228,11 @@ rename citation citationE
 merge 1:1 doi using ../external/temp
 rename _merge merge_Scopus
 
-gen lnciteE=ln(citationE)
-ivregress 2sls lncite ajps post2010 post2012 print_months_ago ///
+gen lncitationE=ln(citationE)
+ivregress 2sls lncitation ajps post2010 post2012 print_months_ago ///
 	print_months_ago_sq print_months_ago_cu (avail_yn = ajpsXpost2010 ///
 	ajpsXpost2012) if data_type!="no_data", first
-ivregress 2sls lnciteE ajps post2010 post2012 print_months_ago ///
+ivregress 2sls lncitationE ajps post2010 post2012 print_months_ago ///
 	print_months_ago_sq print_months_ago_cu (avail_yn = ajpsXpost2010 ///
 	ajpsXpost2012) if data_type!="no_data", first
 	
@@ -386,26 +386,26 @@ regress citation avail_yn ajps print_months_ago	print_months_ago_sq print_months
 	nocons drop(print_months_ago_cu print_months_ago_sq)
 
 *NAIVE-LN
-gen lncite=ln(citation+1)
-label var lncite "Ln(Cites+1)"
-regress lncite avail_yn
+gen lncitation=ln(citation+1)
+label var lncitation "Ln(Cites+1)"
+regress lncitation avail_yn
 	outreg2 using ../output/naiveLN.tex, dec(3) tex label replace addtext(Sample, All)
 	outreg2 using ../output/naiveLN-simp.tex, dec(3) tex label replace addtext(Sample, All) ///
 	nocons drop(print_months_ago_cu print_months_ago_sq)
-*regress lncite avail_yn ajps 
+*regress lncitation avail_yn ajps 
 *	outreg2 using ../output/naiveLN.tex, tex label append
-regress lncite avail_yn ajps print_months_ago	print_months_ago_sq print_months_ago_cu
+regress lncitation avail_yn ajps print_months_ago	print_months_ago_sq print_months_ago_cu
 	outreg2 using ../output/naiveLN.tex, dec(3) tex label append title("Naive Log OLS Regression") ///
 		addtext(Sample, All)
 		outreg2 using ../output/naiveLN-simp.tex, dec(3) tex label append title("Naive OLS Regression") ///
 	addtext(Sample, All) nocons drop(print_months_ago_cu print_months_ago_sq)
-regress lncite avail_yn ajps print_months_ago	print_months_ago_sq print_months_ago_cu ///
+regress lncitation avail_yn ajps print_months_ago	print_months_ago_sq print_months_ago_cu ///
 	data_type_2
 	outreg2 using ../output/naiveLN.tex, dec(3) tex label append title("Naive Log OLS Regression") ///
 		addtext(Sample, All)
 	outreg2 using ../output/naiveLN-simp.tex, dec(3) tex label append title("Naive OLS Regression") ///
 	addtext(Sample, All) nocons drop(print_months_ago_cu print_months_ago_sq)
-regress lncite avail_yn ajps print_months_ago	print_months_ago_sq print_months_ago_cu ///
+regress lncitation avail_yn ajps print_months_ago	print_months_ago_sq print_months_ago_cu ///
 	if data_type!="no_data"
 	outreg2 using ../output/naiveLN.tex, dec(3) tex label append addtext(Sample, Data-Only)
 	outreg2 using ../output/naiveLN-simp.tex, dec(3) tex label append addtext(Sample, Data-Only) ///
@@ -454,7 +454,7 @@ ivregress 2sls citation ajps post2010 post2012 print_months_ago ///
 		
 		
 *LOG		
-ivregress 2sls lncite ajps post2010 post2012 print_months_ago ///
+ivregress 2sls lncitation ajps post2010 post2012 print_months_ago ///
 	print_months_ago_sq print_months_ago_cu (avail_yn = ajpsXpost2010 ///
 	ajpsXpost2012), first
 	outreg2 using ../output/ivregLN.tex, dec(3) tex label replace ctitle("2SLS-Log") ///
@@ -464,7 +464,7 @@ ivregress 2sls lncite ajps post2010 post2012 print_months_ago ///
 		drop(print_months_ago_cu print_months_ago_sq)
 		
 		
-ivregress 2sls lncite ajps post2010 post2012 post2010Xdata post2012Xdata print_months_ago ///
+ivregress 2sls lncitation ajps post2010 post2012 post2010Xdata post2012Xdata print_months_ago ///
 	print_months_ago_sq print_months_ago_cu data_type_2 (avail_yn = ajpsXpost2010Xdata ///
 	ajpsXpost2012Xdata), first
 	outreg2 using ../output/ivregLN.tex, dec(3) tex label append ctitle("2SLS-Log") ///
@@ -472,7 +472,7 @@ ivregress 2sls lncite ajps post2010 post2012 post2010Xdata post2012Xdata print_m
 	outreg2 using ../output/ivregLN-simp.tex, dec(3) tex label append ctitle("2SLS-Log") ///
 		nocons addtext(Sample, IV=Data-Only) drop(print_months_ago_cu print_months_ago_sq)
 		
-ivregress 2sls lncite ajps post2010 post2012 print_months_ago ///
+ivregress 2sls lncitation ajps post2010 post2012 print_months_ago ///
 	print_months_ago_sq print_months_ago_cu (avail_yn = ajpsXpost2010 ///
 	ajpsXpost2012) if data_type!="no_data", first
 	outreg2 using ../output/ivregLN.tex, dec(3) tex label append ctitle("2SLS-Log") ///
@@ -563,12 +563,12 @@ keep if journalname=="American Journal of Political Science"|journalname=="Ameri
 drop if doi=="No DOI"
 merge 1:1 doi using ../external/temp.dta
 keep if _merge==3
-gen lnciteE=ln(totalcitations)
+gen lncitationE=ln(totalcitations)
 
-ivregress 2sls lncite ajps post2010 post2012 print_months_ago ///
+ivregress 2sls lncitation ajps post2010 post2012 print_months_ago ///
 	print_months_ago_sq print_months_ago_cu (avail_yn = ajpsXpost2010 ///
 	ajpsXpost2012) if data_type!="no_data", first
-ivregress 2sls lnciteE ajps post2010 post2012 print_months_ago ///
+ivregress 2sls lncitationE ajps post2010 post2012 print_months_ago ///
 	print_months_ago_sq print_months_ago_cu (avail_yn = ajpsXpost2010 ///
 	ajpsXpost2012) if data_type!="no_data", first
 */

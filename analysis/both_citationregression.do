@@ -6,65 +6,18 @@ cd "/Users/garret/Box Sync/CEGA-Programs-BITSS/3_Publications_Research/Citations
 ***************************************************
 *LOAD DATA
 ***************************************************
-*LOAD MAIN MERGED DATA
-insheet using ../external_econ/citations_clean_data.csv, clear names
-count
-
 *****************************************************
-*DROP NON-REAL ARTICLES
-******************************************************
-*NOTES FROM THE EDITOR
-drop if strpos(title,"Notes from the Editor")>0
-
-*ERRATA (LEFT OVER FROM AJPS/APSR)
-drop if strpos(title,"Errata to")>0 //0
-drop if strpos(title,"ERRATUM")>0 //0
-drop if strpos(title,"Erratum")>0 //0
-drop if strpos(title,"CORRIGENDUM")>0 //0
-
-*R MISSING TO STATA MISSING
-replace citation_count="." if citation_count=="NA"
-destring citation_count, replace
-summ citation_count
-
-*GENERATE DATES
-/*Is this print or Internet publication date?
-SEEMS LIKE PRINT DATE--ALL FIRST OF MONTH*/
-gen date=date(publication_date,"YMD")
-*MU YANG SCRAPED ELSEVIER 11/21/17
-*PRANAY SCRAPED WoK BASICALLY THE SAME TIME
-local scrapedate=date("2017-11-21","YMD")
-gen print_months_ago=(`scrapedate'-date)/30.42
-gen print_months_ago_sq=print_months_ago*print_months_ago
-gen print_months_ago_cu=print_months_ago_sq*print_months_ago
-
-*GENERATE AVAILABILITY
-gen avail_yn=(availability=="files")
-
-gen year=substr(publication_date, 1, 4)
-destring year, replace
-drop if year>2009 //2001-2009 is what we said we'd cover
-
-
-*LABEL DATA
-label var year "Year"
-label var print_months_ago "Months since Pub'd"
-label var print_months_ago_sq "Months since Pub'd$^2$"
-label var print_months_ago_cu "Months since Pub'd$^3$"
-label var avail_yn "Data and Code Available"
-
-*****************************************************
-save ../external/cleaned/econ_mergedforregs.dta, replace
+use ../external_econ/cleaned/econ_mergedforregs.dta, replace
 tab journal
 count
 append using ../external/cleaned/ps_mergedforregs.dta
 count
 save ../external/cleaned/combined_spotcheck.dta, replace 
 
+*SHIT! Need to do this before the econ or ps analysis!
 *Run the file of spotcheck cleans
 do ../analysis/spotcheck.do
 
-drop lncite
 *institution (name) only exists for Econ--PS only brought in rank
 *date vars
 *COUNT looks OK, but vars are half-half often. Fill in!
@@ -87,20 +40,15 @@ label var avail_state_part "Stated Availability:Part"
 
 gen discipline="econ" if journal=="aer"|journal=="qje"
 replace discipline="ps" if journal=="apsr"|journal=="ajps"
-gen aer=(journal=="aer")
+replace aer=(journal=="aer")
 replace ajps=(journal=="ajps")
 gen apsr=(journal=="apsr")
 gen econ=(discipline=="econ")
 label var aer "AER"
 label var ajps "AJPS"
 label var apsr "APSR"
+replace pp=0 if discipline=="ps"
 
-*Make one combined cite count var
-replace citation=citation_count if citation==. & discipline=="econ"
-label var citation "Cites"
-drop citation_count
-gen lncitation=ln(citation+1)
-label var lncitation "Ln(Cites+1)"
 
 *GENERATE VARS AFTER APPEND SO THEY'RE FILLED FOR ALL OBS
 *DROP PRE-EXISTING ONES FROM PS DATA
@@ -111,13 +59,13 @@ drop post2010 post2012 ajpsXpost2010 ajpsXpost2012 avail_hat data_type_* ///
 	cite_j_avg ajps_y_citeavg apsr_y_citeavg citation_year
 
 local Mar2005=date("2005-03-01","YMD")
-gen post2005=(date>`Mar2005')
+replace post2005=(date>`Mar2005')
 label var post2005 "Post-Mar 2005"
 label drop _all
 label define beforeafter 0 "Before" 1 "After"
 label values post2005 beforeafter
 
-gen aerXpost2005=aer*post2005
+replace aerXpost2005=aer*post2005
 label var aerXpost2005 "AER post-2005 Policy"
 
 local Oct2010=date("2010-10-01","YMD")
@@ -274,10 +222,15 @@ label var data_type_3 "Observational"
 label var data_type_4 "Simulations"
 
 *GENERATE INTERACTIONS
-gen aerXpost2005Xdata=aerXpost2005*(data_type_2==0)
+replace aerXpost2005Xdata=aerXpost2005*(data_type_2==0)
 label var aerXpost2005Xdata "AER Post-2005 with Data"
-gen post2005Xdata=post2005*(data_type_2==0)
+replace post2005Xdata=post2005*(data_type_2==0)
 label var post2005Xdata "Post-2005 with Data"
+gen post2005XdataXpp=post2005Xdata*(pp!=1)
+label var post2005XdataXpp "Data non-PP article post-2005"
+gen aerXpost2005XdataXpp=aerXpost2005Xdata*(pp!=1)
+label var aerXpost2005XdataXpp "AER Data non-PP article post-2005"
+
 gen ajpsXpost2010Xdata=ajpsXpost2010*(data_type_2==0)
 label var ajpsXpost2010Xdata "AJPS Post-2010 with Data"
 gen post2010Xdata=post2010*(data_type_2==0)
@@ -390,35 +343,37 @@ regress `ln'citation avail_`data' aer ajps apsr `time'
 	outreg2 using ../output/both_naive`ln'-simp_`data'_`t'.tex, dec(3) tex label append title("Naive OLS Regression") ///
 		addstat(Mean Dep. Var., `depvarmean') addtext(Year-Discipline FE, Yes, Sample, All) nocons keep(avail_`data' aer ajps apsr) 	
 	}
-regress `ln'citation avail_`data' aer ajps apsr data_type_2 `time'	
+regress `ln'citation avail_`data' aer ajps apsr data_type_2 pp `time'	
 	summ `ln'citation if e(sample)==1
 	local depvarmean=r(mean)
 	if "`t'"=="months" {
 	outreg2 using ../output/both_naive`ln'_`data'_`t'.tex, dec(3) tex label append ///
 	addstat(Mean Dep. Var., `depvarmean') addtext(Months since Publication, Cubic, Sample, All)
 	outreg2 using ../output/both_naive`ln'-simp_`data'_`t'.tex, dec(3) tex label append ///
-	addstat(Mean Dep. Var., `depvarmean') addtext(Months since Publication, Cubic, Sample, All) nocons keep(avail_`data' aer ajps apsr data_type_2) 
+	addstat(Mean Dep. Var., `depvarmean') addtext(Months since Publication, Cubic, Sample, All) nocons ///
+	keep(avail_`data' aer ajps apsr data_type_2 pp) 
 	}
 	if "`t'"=="FE" {
 	outreg2 using ../output/both_naive`ln'_`data'_`t'.tex, dec(3) tex label append ///
 	addstat(Mean Dep. Var., `depvarmean') addtext(Year-Discipline FE, Yes, Sample, All)
 	outreg2 using ../output/both_naive`ln'-simp_`data'_`t'.tex, dec(3) tex label append ///
-	addstat(Mean Dep. Var., `depvarmean') addtext(Year-Discipline FE, Yes, Sample, All) nocons keep(avail_`data' aer ajps apsr data_type_2)
+	addstat(Mean Dep. Var., `depvarmean') addtext(Year-Discipline FE, Yes, Sample, All) nocons ///
+	keep(avail_`data' aer ajps apsr data_type_2 pp)
 	}
-regress `ln'citation avail_`data' aer ajps apsr `time' if data_type!="no_data"
+regress `ln'citation avail_`data' aer ajps apsr `time' if data_type!="no_data" & pp!=1
 	summ `ln'citation if e(sample)==1
 	local depvarmean=r(mean)
 	if "`t'"=="months" {
 	outreg2 using ../output/both_naive`ln'_`data'_`t'.tex, dec(3) tex label append addstat(Mean Dep. Var., `depvarmean') ///
-		addtext(Months since Publication, Cubic, Sample, Data-Only)
+		addtext(Months since Publication, Cubic, Sample, Data-NoPP)
 	outreg2 using ../output/both_naive`ln'-simp_`data'_`t'.tex, dec(3) tex label append addstat(Mean Dep. Var., `depvarmean') ///
-		addtext(Months since Publication, Cubic, Sample, Data-Only) nocons keep(avail_`data' aer ajps apsr) 
+		addtext(Months since Publication, Cubic, Sample, Data-NoPP) nocons keep(avail_`data' aer ajps apsr) 
 	}
 	if "`t'"=="FE" {
 	outreg2 using ../output/both_naive`ln'_`data'_`t'.tex, dec(3) tex label append addstat(Mean Dep. Var., `depvarmean')  ///
-		addtext(Year-Discipline FE, Yes,Sample, Data-Only)
+		addtext(Year-Discipline FE, Yes,Sample, Data-NoPP)
 	outreg2 using ../output/both_naive`ln'-simp_`data'_`t'.tex, dec(3) tex label append addstat(Mean Dep. Var., `depvarmean') ///
-		addtext(Year-Discipline FE, Yes,Sample, Data-Only) nocons keep(avail_`data' aer ajps apsr)
+		addtext(Year-Discipline FE, Yes,Sample, Data-NoPP) nocons keep(avail_`data' aer ajps apsr)
 	}	
 *********************************
 *INSTRUMENTAL VARIABLE REGRESSION
@@ -440,9 +395,9 @@ ivregress 2sls `ln'citation aer ajps apsr post2005 post2010 post2012  `time' (av
 		addstat(Mean Dep. Var., `depvarmean') addtext(Year-Discipline FE, Yes, Sample, All) nocons keep(avail_`data' aer ajps apsr post2005 post2010 post2012) 	
 	}
 *INCLUDE INTERACTIONS
-ivregress 2sls `ln'citation aer ajps apsr post2005 post2005Xdata ///
+ivregress 2sls `ln'citation aer ajps apsr pp post2005 post2005XdataXpp ///
 	post2010 post2010Xdata post2012 post2012Xdata ///
-	`time' data_type_2 (avail_`data' = aerXpost2005Xdata ajpsXpost2010Xdata ajpsXpost2012Xdata), ///
+	`time' data_type_2 (avail_`data' = aerXpost2005XdataXpp ajpsXpost2010Xdata ajpsXpost2012Xdata), ///
 	first
 
 	summ `ln'citation if e(sample)==1
@@ -460,24 +415,50 @@ ivregress 2sls `ln'citation aer ajps apsr post2005 post2005Xdata ///
 	outreg2 using ../output/both_ivreg`ln'-simp_`data'_`t'.tex, dec(3) tex label append  ///
 		addstat(Mean Dep. Var., `depvarmean') addtext(Year-Discipline FE, Yes, Sample, IV=Data-Only) nocons keep(avail_`data' aer ajps apsr post2005 post2010 post2012) 	
 	}
+	
 ivregress 2sls `ln'citation aer ajps apsr post2005 post2010 post2012  `time' (avail_`data' = aerXpost2005 ajpsXpost2010 ajpsXpost2012) ///
     if data_type!="no_data", first
 	summ `ln'citation if e(sample)==1
 	local depvarmean=r(mean)
-	
+
 	if "`t'"=="months" {
 	outreg2 using ../output/both_ivreg`ln'_`data'_`t'.tex, dec(3) tex label append  ///
 		 addstat(Mean Dep. Var., `depvarmean') addtext(Months since Publication, Cubic, Sample, Data-Only)
 	outreg2 using ../output/both_ivreg`ln'-simp_`data'_`t'.tex, dec(3) tex label append  ///
-		addstat(Mean Dep. Var., `depvarmean') addtext(Months since Publication, Cubic, Sample, Data-Only) nocons keep(avail_`data' aer ajps apsr post2005 post2010 post2012)	
+		addstat(Mean Dep. Var., `depvarmean') addtext(Months since Publication, Cubic, Sample, Data-Only) nocons ///
+		keep(avail_`data' aer ajps apsr post2005 post2010 post2012)	
 	}
 	if "`t'"=="FE" {
 	outreg2 using ../output/both_ivreg`ln'_`data'_`t'.tex, dec(3) tex label append  ///
 		addstat(Mean Dep. Var., `depvarmean') addtext(Year-Discipline FE, Yes, Sample, Data-Only)
 	outreg2 using ../output/both_ivreg`ln'-simp_`data'_`t'.tex, dec(3) tex label append  ///
-		addstat(Mean Dep. Var., `depvarmean') addtext(Year-Discipline FE, Yes, Sample, Data-Only) nocons keep(avail_`data' aer ajps apsr post2005 post2010 post2012) 	
+		addstat(Mean Dep. Var., `depvarmean') addtext(Year-Discipline FE, Yes, Sample, Data-Only) nocons ///
+		keep(avail_`data' aer ajps apsr post2005 post2010 post2012) 	
+	}
+	
+	
+	
+ivregress 2sls `ln'citation aer ajps apsr post2005 post2010 post2012  `time' (avail_`data' = aerXpost2005 ajpsXpost2010 ajpsXpost2012) ///
+    if data_type!="no_data" & pp!=1, first
+	summ `ln'citation if e(sample)==1
+	local depvarmean=r(mean)
+	
+	if "`t'"=="months" {
+	outreg2 using ../output/both_ivreg`ln'_`data'_`t'.tex, dec(3) tex label append  ///
+		 addstat(Mean Dep. Var., `depvarmean') addtext(Months since Publication, Cubic, Sample, Data-NoPP)
+	outreg2 using ../output/both_ivreg`ln'-simp_`data'_`t'.tex, dec(3) tex label append  ///
+		addstat(Mean Dep. Var., `depvarmean') addtext(Months since Publication, Cubic, Sample, Data-NoPP) nocons ///
+		keep(avail_`data' aer ajps apsr post2005 post2010 post2012)	
+	}
+	if "`t'"=="FE" {
+	outreg2 using ../output/both_ivreg`ln'_`data'_`t'.tex, dec(3) tex label append  ///
+		addstat(Mean Dep. Var., `depvarmean') addtext(Year-Discipline FE, Yes, Sample, Data-NoPP)
+	outreg2 using ../output/both_ivreg`ln'-simp_`data'_`t'.tex, dec(3) tex label append  ///
+		addstat(Mean Dep. Var., `depvarmean') addtext(Year-Discipline FE, Yes, Sample, Data-NoPP) nocons ///
+		keep(avail_`data' aer ajps apsr post2005 post2010 post2012) 	
 	}
 } //end ln-normal citations
+
 
 *MANUALLY DO THE IV
 *FIRST STAGE
@@ -517,7 +498,8 @@ regress avail_`data' aerXpost2005Xdata ajpsXpost2010Xdata ajpsXpost2012Xdata aer
 	addstat(Mean Dep. Var., `depvarmean', F Stat, `F') nocons addtext(Year-Discipline FE, Yes, Sample, IV=Data-Only) /*drop(`time')*/
 	}
 
-regress avail_`data' aerXpost2005 aer post2005 ajps apsr ajpsXpost2010 post2010 ajpsXpost2012 post2012 `time' if data_type_2==0
+regress avail_`data' aerXpost2005 aer post2005 ajps apsr ajpsXpost2010 post2010 ajpsXpost2012 post2012 `time' ///
+	if data_type_2==0 
 	summ `ln'citation if e(sample)==1
 	local depvarmean=r(mean)
 	test aerXpost2005=ajpsXpost2010=ajpsXpost2012=0
@@ -533,6 +515,27 @@ regress avail_`data' aerXpost2005 aer post2005 ajps apsr ajpsXpost2010 post2010 
 	*nocons addtext(Sample, All)
 	outreg2 using ../output/both_first_`data'_`t'.tex, dec(3) keep(aerXpost2005 ajpsXpost2010 ajpsXpost2012) tex label append /*ctitle("First Stage")*/ ///
 	addstat(Mean Dep. Var., `depvarmean', F Stat, `F') nocons addtext(Year-Discipline FE, Yes, Sample, Data-Only) /*drop(`time')*/
+	}
+	
+	
+	
+regress avail_`data' aerXpost2005 aer post2005 ajps apsr ajpsXpost2010 post2010 ajpsXpost2012 post2012 `time' ///
+	if data_type_2==0 & pp!=1
+	summ `ln'citation if e(sample)==1
+	local depvarmean=r(mean)
+	test aerXpost2005=ajpsXpost2010=ajpsXpost2012=0
+	local F=r(F)
+	if "`t'"=="months" {
+	*outreg2 using ../output/both_ivreg_`data'_`t'.tex, dec(3) tex label append /*ctitle("First Stage")*/ addstat(F Stat, `F' ) ///
+	*nocons addtext(Sample, All)
+	outreg2 using ../output/both_first_`data'_`t'.tex, dec(3) keep(aerXpost2005 ajpsXpost2010 ajpsXpost2012) tex label append /*ctitle("First Stage")*/ ///
+	addstat(Mean Dep. Var., `depvarmean', F Stat, `F') nocons addtext(Months since Publication, Cubic, Sample, Data-NoPP) /*drop(`time')*/
+	}
+	if "`t'"=="FE" {
+	*outreg2 using ../output/both_ivreg_`data'_`t'.tex, dec(3) tex label append /*ctitle("First Stage")*/ addstat(F Stat, `F' ) ///
+	*nocons addtext(Sample, All)
+	outreg2 using ../output/both_first_`data'_`t'.tex, dec(3) keep(aerXpost2005 ajpsXpost2010 ajpsXpost2012) tex label append /*ctitle("First Stage")*/ ///
+	addstat(Mean Dep. Var., `depvarmean', F Stat, `F') nocons addtext(Year-Discipline FE, Yes, Sample, Data-NoPP) /*drop(`time')*/
 	}
 cap drop avail_hat
 predict avail_hat
@@ -553,7 +556,8 @@ regress topic_4 aerXpost2005 aer post2005 ajps apsr ajpsXpost2010 post2010 ajpsX
 	outreg2 using ../output/both_exclusion_`data'_`t'.tex, dec(3) tex label append  ///
 	nocons addtext(Sample, Data-Only) keep(aerXpost2005) /*drop(`time')*/
 IF YOU FIX THIS FIX APPEND REPLACE*/
-regress data_type_1  post2005 aer ajps apsr aerXpost2005 ajpsXpost2010 post2010 ajpsXpost2012 post2012 `time' if data_type_2==0
+regress data_type_1  post2005 aer ajps apsr aerXpost2005 ajpsXpost2010 post2010 ajpsXpost2012 post2012 `time' ///
+	if data_type_2==0 & pp!=1
 	summ data_type_1 if e(sample)==1
 	local depvarmean=r(mean)
 	
@@ -568,7 +572,8 @@ regress data_type_1  post2005 aer ajps apsr aerXpost2005 ajpsXpost2010 post2010 
 		keep(aerXpost2005 ajpsXpost2010 ajpsXpost2012) /*drop(`time')*/
 	}
 	
-regress data_type_3  post2005 aer ajps apsr aerXpost2005 ajpsXpost2010 post2010 ajpsXpost2012 post2012 `time' if data_type_2==0
+regress data_type_3  post2005 aer ajps apsr aerXpost2005 ajpsXpost2010 post2010 ajpsXpost2012 post2012 `time' ///
+	if data_type_2==0 & pp!=1
 	summ data_type_3 if e(sample)==1
 	local depvarmean=r(mean)
 	
@@ -583,7 +588,8 @@ regress data_type_3  post2005 aer ajps apsr aerXpost2005 ajpsXpost2010 post2010 
 		keep(aerXpost2005 ajpsXpost2010 ajpsXpost2012) /*drop(`time')*/
 	}
 	
-regress top1  post2005 aer ajps apsr aerXpost2005 ajpsXpost2010 post2010 ajpsXpost2012 post2012 `time' if data_type_2==0
+regress top1  post2005 aer ajps apsr aerXpost2005 ajpsXpost2010 post2010 ajpsXpost2012 post2012 `time' ///
+	if data_type_2==0 & pp!=1
 	summ top1 if e(sample)==1
 	local depvarmean=r(mean)
 	
@@ -598,7 +604,8 @@ regress top1  post2005 aer ajps apsr aerXpost2005 ajpsXpost2010 post2010 ajpsXpo
 		keep(aerXpost2005 ajpsXpost2010 ajpsXpost2012) /*drop(`time')*/
 	}
 	
-regress top10  post2005 aer ajps apsr aerXpost2005 ajpsXpost2010 post2010 ajpsXpost2012 post2012 `time' if data_type_2==0
+regress top10  post2005 aer ajps apsr aerXpost2005 ajpsXpost2010 post2010 ajpsXpost2012 post2012 `time' ///
+	if data_type_2==0 & pp!=1
 	summ top10 if e(sample)==1
 	local depvarmean=r(mean)
 	
@@ -613,7 +620,8 @@ regress top10  post2005 aer ajps apsr aerXpost2005 ajpsXpost2010 post2010 ajpsXp
 		keep(aerXpost2005 ajpsXpost2010 ajpsXpost2012) /*drop(`time')*/
 	}
 	
-regress top20  post2005 aer ajps apsr aerXpost2005 ajpsXpost2010 post2010 ajpsXpost2012 post2012 `time' if data_type_2==0
+regress top20  post2005 aer ajps apsr aerXpost2005 ajpsXpost2010 post2010 ajpsXpost2012 post2012 `time' ///
+	if data_type_2==0 & pp!=1
 	summ top20 if e(sample)==1
 	local depvarmean=r(mean)
 	
@@ -628,7 +636,8 @@ regress top20  post2005 aer ajps apsr aerXpost2005 ajpsXpost2010 post2010 ajpsXp
 		keep(aerXpost2005 ajpsXpost2010 ajpsXpost2012) /*drop(`time')*/
 	}
 	
-regress top50 aer ajps apsr aerXpost2005 ajpsXpost2010 post2005 post2010 post2012 ajpsXpost2012  `time' if data_type_2==0
+regress top50 aer ajps apsr aerXpost2005 ajpsXpost2010 post2005 post2010 post2012 ajpsXpost2012  `time' ///
+	if data_type_2==0 & pp!=1
 	summ top50 if e(sample)==1
 	local depvarmean=r(mean)
 	
