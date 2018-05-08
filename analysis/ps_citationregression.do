@@ -162,20 +162,43 @@ gen ajps_y_avg=avail_j_avg if ajps==1
 label var ajps_y_avg "AJPS"
 gen apsr_y_avg=avail_j_avg if ajps==0
 label var apsr_y_avg "APSR"
-line ajps_y_avg apsr_y_avg year, title("Yearly Average Availability by Journal") ///
+line ajps_y_avg apsr_y_avg year, title("Data & Code Availability by Journal") ///
 	bgcolor(white) graphregion(color(white)) ///
-	ylabel(0 0.2 0.4 0.6 0.8 1)
-graph export ../output/ps_avail_time.eps, replace
-graph export ../output/ps_avail_time.png, replace
+	ylabel(0 0.2 0.4 0.6 0.8 1) xline(2010 2012)
+graph export ../output/ps_avail_time_all.eps, replace
+graph export ../output/ps_avail_time_all.png, replace
+
+*GRAPH AVAIL FOR ONLY DATA-HAVING ARTICLES
+gen avail_yn_dataarticle=avail_yn if data_type!="no_data"
+bysort year ajps: egen avail_j_avg_dataarticle=mean(avail_yn_dataarticle)
+label var avail_j_avg_dataarticle "Availability by Journal and Year, Data Articles Only"
+gen ajps_y_avg_dataarticle=avail_j_avg_dataarticle if ajps==1
+label var ajps_y_avg_dataarticle "AJPS"
+gen apsr_y_avg_dataarticle=avail_j_avg_dataarticle if ajps==0
+label var apsr_y_avg_dataarticle "APSR"
+line ajps_y_avg_dataarticle apsr_y_avg_dataarticle year, title("Data & Code Availability by Journal, Data Articles") ///
+	bgcolor(white) graphregion(color(white)) ///
+	ylabel(0 0.2 0.4 0.6 0.8 1) xline(2010 2012)
+graph export ../output/ps_avail_time_dataarticle.eps, replace
+graph export ../output/ps_avail_time_dataarticle.png, replace
+
+
+
 
 *COULD DO FIGURE WITH ONLY DATA ARTICLES--CLOSE TO 100%?
 *MAKE ONE LINE DASHED FOR B&W READERS?
 ****************************
 *GRAPH CITATIONS
 ****************************
-histogram citation, bgcolor(white) graphregion(color(white)) title("Density of Citations")
+histogram citation, bgcolor(white) graphregion(color(white)) title("Density of Citations, Political Science")
 graph export ../output/ps_cite_histo.eps, replace
 graph export ../output/ps_cite_histo.png, replace
+
+gen citation_year=citation/(print_months_ago/12)
+label var citation_year "Total Citations per Year"
+histogram citation_year, bgcolor(white) graphregion(color(white)) title("Density of Citations per Year, Economics")
+graph export ../output/ps_cite_histo_year.eps, replace
+graph export ../output/ps_cite_histo_year.png, replace
 
 bysort year ajps: egen cite_j_avg=mean(citation)
 label var cite_j_avg "Cites by Journal and Year"
@@ -183,7 +206,7 @@ gen ajps_y_citeavg=cite_j_avg if ajps==1
 label var ajps_y_citeavg "AJPS"
 gen apsr_y_citeavg=cite_j_avg if ajps==0
 label var apsr_y_citeavg "APSR"
-line ajps_y_citeavg apsr_y_citeavg year, title("Yearly Average Citations by Journal") ///
+line ajps_y_citeavg apsr_y_citeavg year, title("Total Citations by Journal") ///
 	bgcolor(white) graphregion(color(white))
 graph export ../output/ps_cite_time.png, replace
 graph export ../output/ps_cite_time.eps, replace
@@ -546,3 +569,7 @@ ivregress 2sls lnciteE ajps post2010 post2012 print_months_ago ///
 	ajpsXpost2012) if data_type!="no_data", first
 */
 	
+exit
+*HEY! Want the latest results copied to the ShareLaTeX folder of the paper? 
+*Run this line!
+! cp -r /Users/garret/Box\ Sync/CEGA-Programs-BITSS/3_Publications_Research/Citations/citations/output /Users/garret/Dropbox/Apps/ShareLaTeX/citations

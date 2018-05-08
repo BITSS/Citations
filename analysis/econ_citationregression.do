@@ -27,6 +27,7 @@ summ citation_count
 
 *DROP NON-ARTICLES
 drop if citation_count == .
+rename citation_count citation
 
 *GENERATE DATES
 /*Is this print or Internet publication date? 
@@ -125,6 +126,13 @@ graph export ../output/econ_avail_time_data_nopp.png, replace
 ****************************
 histogram citation, bgcolor(white) graphregion(color(white)) title("Density of Citations, Economics")
 graph export ../output/econ_cite_histo.eps, replace
+graph export ../output/econ_cite_histo.png, replace
+
+gen citation_year=citation/(print_months_ago/12)
+label var citation_year "Total Citations per Year"
+histogram citation_year, bgcolor(white) graphregion(color(white)) title("Density of Citations per Year, Economics")
+graph export ../output/econ_cite_histo_year.eps, replace
+graph export ../output/econ_cite_histo_year.png, replace
 
 bysort year aer: egen cite_j_avg=mean(citation)
 label var cite_j_avg "Cites by Journal and Year"

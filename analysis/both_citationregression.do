@@ -107,7 +107,8 @@ label var lncitation "Ln(Cites+1)"
 *post2005 post2010 post2012 aerXpost2005 ajpsXpost2010 ajpsXpost2012
 drop post2010 post2012 ajpsXpost2010 ajpsXpost2012 avail_hat data_type_* ///
 	top1 top10 top20 top50 top100 unranked post2010Xdata post2012Xdata ///
-	ajpsXpost2010Xdata ajpsXpost2012Xdata
+	ajpsXpost2010Xdata ajpsXpost2012Xdata ///
+	cite_j_avg ajps_y_citeavg apsr_y_citeavg citation_year
 
 local Mar2005=date("2005-03-01","YMD")
 gen post2005=(date>`Mar2005')
@@ -169,23 +170,100 @@ line aer_y_avg_dataarticle qje_y_avg_dataarticle year, title("Yearly Average Ava
 	bgcolor(white) graphregion(color(white)) ///
 	ylabel(0 0.2 0.4 0.6 0.8 1)
 graph export ../output/both_avail_time_dataarticle.eps, replace
-
+*/
 ****************************
 *GRAPH CITATIONS--COMBINED
 ****************************
 histogram citation, bgcolor(white) graphregion(color(white)) title("Density of Citations")
 graph export ../output/both_cite_histo.eps, replace
+graph export ../output/both_cite_histo.png, replace
 
-bysort year aer: egen cite_j_avg=mean(citation)
+gen citation_year=citation/(print_months_ago/12)
+label var citation_year "Total Citations per Year"
+histogram citation_year, bgcolor(white) graphregion(color(white)) title("Density of Citations per Year")
+graph export ../output/both_cite_histo_year.eps, replace
+graph export ../output/both_cite_histo_year.png, replace
+
+
+*TRICKY TO GET IT TO LOOK NICE OVERLAYED, BUT YOU CAN DO IT.
+twoway (histogram citation if econ, color(red%30)) ///
+       (histogram citation if !econ, color(green%30)), ///
+       legend(order(1 "Economics" 2 "Political Science")) ///
+	   bgcolor(white) graphregion(color(white)) title("Density of Citations")
+graph export ../output/both_cite_histo_combo.eps, replace
+graph export ../output/both_cite_histo_combo.png, replace
+
+*EXPORT SUMM STATS DIRECTLY TO LATEX!
+cap program drop latexnc
+program define latexnc
+*Spot is the string with the name
+local spot1="`1'"
+*Spot2 is the actual value stored in the scalar
+local spot2=`1'
+local latexnc1 "\\newcommand{\\\`spot1'}{`spot2'}"
+! echo `latexnc1' >> `2' 
+end 
+
+*Create empty tex file to store new commands
+cap rm ../output/StataScalarList.tex
+! touch ../output/StataScalarList.tex
+* We want to mention the median in our paper 
+summ citation, detail
+*Need to use full path to tex file because the stata working directory doesn't pass through the shell command 
+scalar mediancitesboth=round(r(p50),1)
+latexnc mediancitesboth "../output/StataScalarList.tex"
+
+summ citation if econ==1, detail
+*Need to use full path to tex file because the stata working directory doesn't pass through the shell command 
+scalar mediancitesecon=round(r(p50),1)
+latexnc mediancitesecon "../output/StataScalarList.tex"
+
+summ citation if econ==0, detail
+*Need to use full path to tex file because the stata working directory doesn't pass through the shell command 
+scalar mediancitesps=round(r(p50),1)
+latexnc mediancitesps "../output/StataScalarList.tex"
+
+*CITATIONS PER YEAR
+summ citation_year, detail
+*Need to use full path to tex file because the stata working directory doesn't pass through the shell command 
+scalar mediancitesyearboth=round(r(p50),1)
+latexnc mediancitesyearboth "../output/StataScalarList.tex"
+
+summ citation_year if econ==1, detail
+*Need to use full path to tex file because the stata working directory doesn't pass through the shell command 
+scalar mediancitesyearecon=round(r(p50),1)
+latexnc mediancitesyearecon "../output/StataScalarList.tex"
+
+summ citation_year if aer==1, detail
+*Need to use full path to tex file because the stata working directory doesn't pass through the shell command 
+scalar mediancitesyearaer=round(r(p50),1)
+latexnc mediancitesyearaer "../output/StataScalarList.tex"
+
+summ citation_year if journal=="qje", detail
+*Need to use full path to tex file because the stata working directory doesn't pass through the shell command 
+scalar mediancitesyearqje=round(r(p50),1)
+latexnc mediancitesyearqje "../output/StataScalarList.tex"
+
+summ citation_year if econ==0, detail
+*Need to use full path to tex file because the stata working directory doesn't pass through the shell command 
+scalar mediancitesyearps=round(r(p50),1)
+latexnc mediancitesyearps "../output/StataScalarList.tex"
+
+
+bysort year journal: egen cite_j_avg=mean(citation)
 label var cite_j_avg "Cites by Journal and Year"
 gen aer_y_citeavg=cite_j_avg if aer==1
 label var aer_y_citeavg "AER"
-gen qje_y_citeavg=cite_j_avg if aer==0
+gen qje_y_citeavg=cite_j_avg if journal=="qje"
 label var qje_y_citeavg "QJE"
-line aer_y_citeavg qje_y_citeavg year, title("Yearly Average Citations by Journal") ///
+gen ajps_y_citeavg=cite_j_avg if ajps==1
+label var ajps_y_citeavg "AJPS"
+gen apsr_y_citeavg=cite_j_avg if journal=="apsr"
+label var apsr_y_citeavg "APSR"
+line aer_y_citeavg qje_y_citeavg ajps_y_citeavg apsr_y_citeavg year, title("Total Citations by Journal") ///
 	bgcolor(white) graphregion(color(white))
 graph export ../output/both_cite_time.eps, replace
-*/
+graph export ../output/both_cite_time.png, replace
 
 *GRAPH DATA TYPE-COMBINED
 replace data_type="" if data_type=="skip"
