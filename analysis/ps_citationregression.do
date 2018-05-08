@@ -155,33 +155,37 @@ label var avail_yn "Data and Code Available"
 ********************************************************
 *GRAPH SHARING OVER TIME
 *******************************************************
+foreach data in yn data /*state_full state_part*/{
+if "`data'"=="yn" local t="Data & Code"
+if "`data'"=="data" local t="Data"
 
-bysort year ajps: egen avail_j_avg=mean(avail_yn)
-label var avail_j_avg "Availability by Journal and Year"
-gen ajps_y_avg=avail_j_avg if ajps==1
-label var ajps_y_avg "AJPS"
-gen apsr_y_avg=avail_j_avg if ajps==0
-label var apsr_y_avg "APSR"
-line ajps_y_avg apsr_y_avg year, title("Data & Code Availability by Journal") ///
+bysort year ajps: egen avail_j_avg`data'=mean(avail_`data')
+label var avail_j_avg`data' "Availability by Journal and Year"
+gen ajps_y_avg`data'=avail_j_avg`data' if ajps==1
+label var ajps_y_avg`data' "AJPS"
+gen apsr_y_avg`data'=avail_j_avg`data' if ajps==0
+label var apsr_y_avg`data' "APSR"
+line ajps_y_avg`data' apsr_y_avg`data' year, title("`t' Availability by Journal") ///
 	bgcolor(white) graphregion(color(white)) ///
 	ylabel(0 0.2 0.4 0.6 0.8 1) xline(2010 2012)
-graph export ../output/ps_avail_time_all.eps, replace
-graph export ../output/ps_avail_time_all.png, replace
+graph export ../output/ps_avail`data'_time_all.eps, replace
+graph export ../output/ps_avail`data'_time_all.png, replace
 
 *GRAPH AVAIL FOR ONLY DATA-HAVING ARTICLES
-gen avail_yn_dataarticle=avail_yn if data_type!="no_data"
-bysort year ajps: egen avail_j_avg_dataarticle=mean(avail_yn_dataarticle)
-label var avail_j_avg_dataarticle "Availability by Journal and Year, Data Articles Only"
-gen ajps_y_avg_dataarticle=avail_j_avg_dataarticle if ajps==1
-label var ajps_y_avg_dataarticle "AJPS"
-gen apsr_y_avg_dataarticle=avail_j_avg_dataarticle if ajps==0
-label var apsr_y_avg_dataarticle "APSR"
-line ajps_y_avg_dataarticle apsr_y_avg_dataarticle year, title("Data & Code Availability by Journal, Data Articles") ///
+gen avail_`data'_dataarticle=avail_`data' if data_type!="no_data"
+bysort year ajps: egen avail_j_avg_dataarticle`data'=mean(avail_`data'_dataarticle)
+label var avail_j_avg_dataarticle`data' "Availability by Journal and Year, Data Articles Only"
+gen ajps_y_avg_dataarticle`data'=avail_j_avg_dataarticle`data' if ajps==1
+label var ajps_y_avg_dataarticle`data' "AJPS"
+gen apsr_y_avg_dataarticle`data'=avail_j_avg_dataarticle`data' if ajps==0
+label var apsr_y_avg_dataarticle`data' "APSR"
+line ajps_y_avg_dataarticle`data' apsr_y_avg_dataarticle`data' year, title("`t' Availability by Journal, Data Articles") ///
 	bgcolor(white) graphregion(color(white)) ///
 	ylabel(0 0.2 0.4 0.6 0.8 1) xline(2010 2012)
-graph export ../output/ps_avail_time_dataarticle.eps, replace
-graph export ../output/ps_avail_time_dataarticle.png, replace
+graph export ../output/ps_avail`data'_time_dataarticle.eps, replace
+graph export ../output/ps_avail`data'_time_dataarticle.png, replace
 
+} // end loop of data and code vs. just data
 
 
 
@@ -196,7 +200,7 @@ graph export ../output/ps_cite_histo.png, replace
 
 gen citation_year=citation/(print_months_ago/12)
 label var citation_year "Total Citations per Year"
-histogram citation_year, bgcolor(white) graphregion(color(white)) title("Density of Citations per Year, Economics")
+histogram citation_year, bgcolor(white) graphregion(color(white)) title("Density of Citations per Year, Political Science")
 graph export ../output/ps_cite_histo_year.eps, replace
 graph export ../output/ps_cite_histo_year.png, replace
 

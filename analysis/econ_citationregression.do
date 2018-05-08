@@ -72,54 +72,58 @@ save ../external_econ/cleaned/mergedforregs.dta, replace
 ********************************************************
 *GRAPH SHARING OVER TIME
 *******************************************************
-
-bysort year aer: egen avail_j_avg=mean(avail_yn)
-label var avail_j_avg "Availability by Journal and Year"
-gen aer_y_avg=avail_j_avg if aer==1
-label var aer_y_avg "AER"
-gen qje_y_avg=avail_j_avg if aer==0
-label var qje_y_avg "QJE"
-line aer_y_avg qje_y_avg year, title("Data & Code Availability by Journal") ///
-	bgcolor(white) graphregion(color(white)) ///
-	ylabel(0 0.2 0.4 0.6 0.8 1) xline(2005)
-graph export ../output/econ_avail_time_all.eps, replace
-graph export ../output/econ_avail_time_all.png, replace
-
-
-*GRAPH AVAIL FOR ONLY DATA-HAVING ARTICLES
-gen avail_yn_dataarticle=avail_yn if data_type!="no_data"
-bysort year aer: egen avail_j_avg_dataarticle=mean(avail_yn_dataarticle)
-label var avail_j_avg_dataarticle "Availability by Journal and Year, Data Articles Only"
-gen aer_y_avg_dataarticle=avail_j_avg_dataarticle if aer==1
-label var aer_y_avg_dataarticle "AER"
-gen qje_y_avg_dataarticle=avail_j_avg_dataarticle if aer==0
-label var qje_y_avg_dataarticle "QJE"
-line aer_y_avg_dataarticle qje_y_avg_dataarticle year, title("Data & Code Availability by Journal, Data Articles") ///
-	bgcolor(white) graphregion(color(white)) ///
-	ylabel(0 0.2 0.4 0.6 0.8 1) xline(2005)
-graph export ../output/econ_avail_time_dataarticle.eps, replace
-graph export ../output/econ_avail_time_dataarticle.png, replace
-
-*GRAPH AVAIL FOR ONLY DATA, NOT P&P ARTICLES
-
 gen pp=1 if journal=="aer" & (publication_date=="2001/05/01"|publication_date=="2001/05/01"| ///
 	publication_date=="2002/05/01"|publication_date=="2003/05/01"|publication_date=="2004/05/01"| ///
 	publication_date=="2005/05/01"|publication_date=="2006/05/01"|publication_date=="2007/05/01"| ///
 	publication_date=="2008/05/01"|publication_date=="2009/05/01")
 replace pp=0 if pp==.
 label var pp "Papers & Proceedings Issue of AER"
-gen avail_yn_data_nopp=avail_yn if data_type!="no_data" & pp!=1
-bysort year aer: egen avail_j_avg_data_nopp=mean(avail_yn_data_nopp)
-label var avail_j_avg_data_nopp "Availability by Journal and Year, Data Articles Only, No P&P"
-gen aer_y_avg_data_nopp=avail_j_avg_data_nopp if aer==1
-label var aer_y_avg_data_nopp "AER"
-gen qje_y_avg_data_nopp=avail_j_avg_data_nopp if aer==0
-label var qje_y_avg_data_nopp "QJE"
-line aer_y_avg_data_nopp qje_y_avg_data_nopp year, title("Data & Code Availability, Regular Articles with Data") ///
+
+foreach data in yn data /*state_full state_part*/{
+if "`data'"=="yn" local t="Data & Code"
+if "`data'"=="data" local t="Data"
+
+bysort year aer: egen avail_j_avg`data'=mean(avail_`data')
+label var avail_j_avg`data' "Availability by Journal and Year"
+gen aer_y_avg`data'=avail_j_avg`data' if aer==1
+label var aer_y_avg`data' "AER"
+gen qje_y_avg`data'=avail_j_avg`data' if aer==0
+label var qje_y_avg`data' "QJE"
+line aer_y_avg`data' qje_y_avg`data' year, title("`t' Availability by Journal") ///
 	bgcolor(white) graphregion(color(white)) ///
 	ylabel(0 0.2 0.4 0.6 0.8 1) xline(2005)
-graph export ../output/econ_avail_time_data_nopp.eps, replace
-graph export ../output/econ_avail_time_data_nopp.png, replace
+graph export ../output/econ_avail`data'_time_all.eps, replace
+graph export ../output/econ_avail`data'_time_all.png, replace
+
+
+*GRAPH AVAIL FOR ONLY DATA-HAVING ARTICLES
+gen avail_`data'_dataarticle=avail_`data' if data_type!="no_data"
+bysort year aer: egen avail_j_avg_dataarticle`data'=mean(avail_`data'_dataarticle)
+label var avail_j_avg_dataarticle`data' "Availability by Journal and Year, Data Articles Only"
+gen aer_y_avg_dataarticle`data'=avail_j_avg_dataarticle`data' if aer==1
+label var aer_y_avg_dataarticle`data' "AER"
+gen qje_y_avg_dataarticle`data'=avail_j_avg_dataarticle`data' if aer==0
+label var qje_y_avg_dataarticle`data' "QJE"
+line aer_y_avg_dataarticle`data' qje_y_avg_dataarticle`data' year, title("`t' Availability by Journal, Data Articles") ///
+	bgcolor(white) graphregion(color(white)) ///
+	ylabel(0 0.2 0.4 0.6 0.8 1) xline(2005)
+graph export ../output/econ_avail`data'_time_dataarticle.eps, replace
+graph export ../output/econ_avail`data'_time_dataarticle.png, replace
+
+*GRAPH AVAIL FOR ONLY DATA, NOT P&P ARTICLES
+gen avail_`data'_data_nopp=avail_`data' if data_type!="no_data" & pp!=1
+bysort year aer: egen avail_j_avg_data_nopp`data'=mean(avail_`data'_data_nopp)
+label var avail_j_avg_data_nopp`data' "Availability by Journal and Year, Data Articles Only, No P&P"
+gen aer_y_avg_data_nopp`data'=avail_j_avg_data_nopp`data' if aer==1
+label var aer_y_avg_data_nopp`data' "AER"
+gen qje_y_avg_data_nopp`data'=avail_j_avg_data_nopp`data' if aer==0
+label var qje_y_avg_data_nopp`data' "QJE"
+line aer_y_avg_data_nopp`data' qje_y_avg_data_nopp`data' year, title("`t' Availability, Regular Articles with Data") ///
+	bgcolor(white) graphregion(color(white)) ///
+	ylabel(0 0.2 0.4 0.6 0.8 1) xline(2005)
+graph export ../output/econ_avail`data'_time_data_nopp.eps, replace
+graph export ../output/econ_avail`data'_time_data_nopp.png, replace
+} //end different types of data availability
 
 ****************************
 *GRAPH CITATIONS
@@ -133,6 +137,8 @@ label var citation_year "Total Citations per Year"
 histogram citation_year, bgcolor(white) graphregion(color(white)) title("Density of Citations per Year, Economics")
 graph export ../output/econ_cite_histo_year.eps, replace
 graph export ../output/econ_cite_histo_year.png, replace
+
+
 
 bysort year aer: egen cite_j_avg=mean(citation)
 label var cite_j_avg "Cites by Journal and Year"
