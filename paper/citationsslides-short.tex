@@ -11,6 +11,7 @@
 
 \usepackage{standalone}
 \usepackage{tikz}
+\usepackage{epstopdf}
 \usepackage[english]{babel}
 % or whatever
 
@@ -27,7 +28,7 @@
 {Data Sharing and Citations}
 
 \subtitle
-{Causal Evidence} % (optional)
+{Causal Evidence from Political Science and Economics} % (optional)
 
 \author[Christensen, Dafoe, Miguel] % (optional, use only with lots of authors)
 {Garret Christensen\inst{1} \and Allan Dafoe\inst{2} \and Edward Miguel\inst{3}}
@@ -48,7 +49,7 @@
 % - Keep it simple, no one is interested in your street address.
 
 \date[Short Occasion] % (optional)
-{November 7, 2017 MSDSE}
+{May 8, 2018 BIDS}
 
 \subject{Talks}
 % This is only inserted into the PDF information catalog. Can be left
@@ -128,7 +129,7 @@
 % - Talk about 30s to 2min per frame. So there should be between about
 %   15 and 30 frames, all told.
 
-\section{Introduction}
+%\section{Introduction}
 
 \begin{frame}{Data Sharing Incentives}{}
   % - A title should summarize the slide in an understandable fashion
@@ -175,7 +176,8 @@
 %     \end{frame}
 %}
 
-\begin{frame}{Existing Evidence}
+\begin{frame}{Evidence}
+Existing Evidence: Associations
 \begin{itemize}
 \item \href{http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0000308}{Piwowar, Day, Fridsma (2007)}: 69\% more citations for cancer microarray clinical trials papers (N=85).
 \item \href{https://peerj.com/articles/175/}{Piwowar, Vision (2013)}: 9\% more citations for gene expression microarray papers with public data (N=10,555).
@@ -187,6 +189,11 @@
 %\item Yes: Strand, Nordkvelle, Gleditsch. 2014. ``Posting Your Data: Will You Remain Famous?''
 %
 %\end{itemize}
+\end{itemize}
+
+Our Research: Causal Inference
+\begin{itemize}
+\item Sharp changes in journal policies as instrumental variables
 \end{itemize}
 \end{frame}
 
@@ -212,15 +219,15 @@
 %     \end{frame}
 %}
 
-\begin{frame}{The Case of Political Science}
-Exploit plausibly exogenous variation in data availability caused by the abrupt change in editorial policy at a top political science journal, \textit{The American Journal of Political Science} (\textit{AJPS}). 
-
-Rick Wilson became the editor on January 1, 2010:
-\begin{quote} ``If a manuscript is accepted for publication it will not be published unless the first footnote explicitly notes where the data used in the study can be obtained for purposes of replication and should note any sources that funded the research.''
-\end{quote}
-
-No policy at \textit{APSR}
-\end{frame}
+%\begin{frame}{The Case of Political Science}
+%Exploit plausibly exogenous variation in data availability caused by the abrupt change in editorial policy at a top political science journal, \textit{The American Journal of Political Science} (\textit{AJPS}). 
+%
+%Rick Wilson became the editor on January 1, 2010:
+%\begin{quote} ``If a manuscript is accepted for publication it will not be published unless the first footnote explicitly notes where the data used in the study can be obtained for purposes of replication and should note any sources that funded the research.''
+%\end{quote}
+%
+%No policy at \textit{APSR}
+%\end{frame}
 
 %\begin{frame}{The Case of Political Science}
 %The first issue Wilson edited was published in October 2010. After discussion with the board members in April of 2012, the policy was expanded to require posting data in the journal's public archive at \href{https://thedata.harvard.edu/dvn/dv/ajps}{Harvard's Dataverse} and Wilson strengthened his enforcement of this policy. This policy was printed in the July 2012 issue, and was enforced thereafter.
@@ -262,29 +269,29 @@ No policy at \textit{APSR}
 %\end{itemize}
 %\end{frame}
 
-\begin{frame}{2SLS in 60 Seconds or Less}
-
-$$Y_i=\alpha + \beta \cdot X_i+u_i$$
-Problem: X of interest is endogenous. (Omitted variable bias--some unobservable is correlated with Y and X of interest.)
-
-\vspace{0.25in}
-Solution: Find an instrument--something that predicts X but doesn't have the endogeneity problem itself. 
-$$corr(Z,u)=0$$
-$$corr(Z,X)\neq 0$$
-
-Biased, but consistent. (Get large N!)
-\end{frame}
-
-{ % all template changes are local to this group.
-    \setbeamertemplate{navigation symbols}{}
-    \begin{frame}[plain]
-        \begin{tikzpicture}[remember picture,overlay]
-            \node[at=(current page.center)] {
-                \includegraphics[width=\paperwidth]{../output/rankXjournalXpost2010.png}
-            };
-        \end{tikzpicture}
-     \end{frame}
-}
+%\begin{frame}{2SLS in 60 Seconds or Less}
+%
+%$$Y_i=\alpha + \beta \cdot X_i+u_i$$
+%Problem: X of interest is endogenous. (Omitted variable bias--some unobservable is correlated with Y and X of interest.)
+%
+%\vspace{0.25in}
+%Solution: Find an instrument--something that predicts X but doesn't have the endogeneity problem itself. 
+%$$corr(Z,u)=0$$
+%$$corr(Z,X)\neq 0$$
+%
+%Biased, but consistent. (Get large N!)
+%\end{frame}
+%
+%{ % all template changes are local to this group.
+%    \setbeamertemplate{navigation symbols}{}
+%    \begin{frame}[plain]
+%        \begin{tikzpicture}[remember picture,overlay]
+%            \node[at=(current page.center)] {
+%                \includegraphics[width=\paperwidth]{../output/rankXjournalXpost2010.png}
+%            };
+%        \end{tikzpicture}
+%     \end{frame}
+%}
 
 %\begin{frame}{2SLS in One Slide}
 %Implementation: 
@@ -353,14 +360,14 @@ Biased, but consistent. (Get large N!)
 %        \end{tikzpicture}
 %     \end{frame}
     
-    \begin{frame}[plain]
-        \begin{tikzpicture}[remember picture,overlay]
-            \node[at=(current page.center)] {
-                \includegraphics[width=\paperwidth]{../output/avail_time.png}
-            };
-        \end{tikzpicture}
-     \end{frame}
-}
+%    \begin{frame}[plain]
+%        \begin{tikzpicture}[remember picture,overlay]
+%            \node[at=(current page.center)] {
+%                \includegraphics[width=\paperwidth]{../output/avail_time.png}
+%            };
+%        \end{tikzpicture}
+%     \end{frame}
+%}
 
 
 %\section{Results}
@@ -411,16 +418,27 @@ Biased, but consistent. (Get large N!)
 %\scalebox{0.68}{\input{../output/ivregLN-simp.tex}}
 %\end{frame}
 
-%{ % all template changes are local to this group.
-%    \setbeamertemplate{navigation symbols}{}
-%    \begin{frame}[plain]
-%        \begin{tikzpicture}[remember picture,overlay]
-%            \node[at=(current page.center)] {
-%                \includegraphics[width=\paperwidth]{../output/topicXjournalXpost2010.png}
-%            };
-%        \end{tikzpicture}
-%     \end{frame}
-%}
+{ % all template changes are local to this group.
+    \setbeamertemplate{navigation symbols}{}
+    \begin{frame}[plain]
+        \begin{tikzpicture}[remember picture,overlay]
+            \node[at=(current page.center)] {
+                \includegraphics[width=\paperwidth]{../output/econ_availyn_time_data_nopp.png}
+            };
+        \end{tikzpicture}
+     \end{frame}
+}
+
+{ % all template changes are local to this group.
+    \setbeamertemplate{navigation symbols}{}
+    \begin{frame}[plain]
+        \begin{tikzpicture}[remember picture,overlay]
+            \node[at=(current page.center)] {
+                \includegraphics[width=\paperwidth]{../output/ps_availyn_time_dataarticle.png}
+            };
+        \end{tikzpicture}
+     \end{frame}
+}
 
 
 %{ % all template changes are local to this group.
@@ -473,21 +491,21 @@ Biased, but consistent. (Get large N!)
 %\scalebox{0.60}{\input{../output/exclusion.tex}}
 %\end{frame}
 
-\section{Conclusion}
+%\section{Conclusion}
 
 \begin{frame}{Preliminary Conclusions}
 
   % Keep the summary *very short*.
   \begin{itemize}
   \item
-    Top political science papers with public data are cited more (11-13 cites, 30-45\%).
+    Top econ \& political science papers with public data \& code are cited more (35-50 cites, 30-45\%).
   \item
     Journal policy does not appear to have changed submissions.
     \begin{itemize}
     \item IV identification strategy OK.
     \end{itemize}
     \item
-    Underpowered for question of causality, so we're adding econ and other disciplines.  
+    Tentative: IV estimates, which can reduce attenuation bias, even larger.
   \end{itemize}
 \end{frame}
 
