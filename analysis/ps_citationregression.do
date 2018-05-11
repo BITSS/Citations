@@ -194,29 +194,8 @@ graph export ../output/ps_avail`data'_time_dataarticle.png, replace
 ****************************
 *GRAPH CITATIONS
 ****************************
-histogram citation, bgcolor(white) graphregion(color(white)) title("Density of Citations, Political Science")
-graph export ../output/ps_cite_histo.eps, replace
-graph export ../output/ps_cite_histo.png, replace
-
-gen citation_year=citation/(print_months_ago/12)
-label var citation_year "Total Citations per Year"
-histogram citation_year, bgcolor(white) graphregion(color(white)) title("Density of Citations per Year, Political Science")
-graph export ../output/ps_cite_histo_year.eps, replace
-graph export ../output/ps_cite_histo_year.png, replace
-
-bysort year ajps: egen cite_j_avg=mean(citation)
-label var cite_j_avg "Cites by Journal and Year"
-gen ajps_y_citeavg=cite_j_avg if ajps==1
-label var ajps_y_citeavg "AJPS"
-gen apsr_y_citeavg=cite_j_avg if ajps==0
-label var apsr_y_citeavg "APSR"
-line ajps_y_citeavg apsr_y_citeavg year, title("Total Citations by Journal") ///
-	bgcolor(white) graphregion(color(white))
-graph export ../output/ps_cite_time.png, replace
-graph export ../output/ps_cite_time.eps, replace
+*FIRST, BRING IN MU YANG'S ELSEVIER API DATA
 save ../external/temp.dta, replace
-
-*TRY MU YANG'S ELSEVIER API DATA
 import delimited using ../external/ajps_citations_scopus.csv, delimiter(",") clear
 save ../external/ajps_citations_scopus.dta, replace
 import delimited using ../external/apsr_citations_scopus.csv, delimiter(",") clear
@@ -251,6 +230,30 @@ graph export ../output/ps_citationcomparison.png, replace
 *CHANGE SCRAPE DATE TO MU YANG'S ACTUAL DATE: 11/21/17
 rename Scopus citation
 
+histogram citation if citation<500, bgcolor(white) graphregion(color(white)) title("Density of Citations, Political Science")
+graph export ../output/ps_cite_histo.eps, replace
+graph export ../output/ps_cite_histo.png, replace
+graph save ../output/ps_cite_histo.gph, replace
+
+gen citation_year=citation/(print_months_ago/12)
+label var citation_year "Total Citations per Year"
+histogram citation_year if citation<500, bgcolor(white) graphregion(color(white)) title("Density of Citations per Year, Political Science")
+graph export ../output/ps_cite_histo_year.eps, replace
+graph export ../output/ps_cite_histo_year.png, replace
+graph save ../output/ps_cite_histo_year.gph, replace
+
+bysort year ajps: egen cite_j_avg=mean(citation)
+label var cite_j_avg "Cites by Journal and Year"
+gen ajps_y_citeavg=cite_j_avg if ajps==1
+label var ajps_y_citeavg "AJPS"
+gen apsr_y_citeavg=cite_j_avg if ajps==0
+label var apsr_y_citeavg "APSR"
+line ajps_y_citeavg apsr_y_citeavg year, title("Total Citations by Journal") ///
+	bgcolor(white) graphregion(color(white))
+graph export ../output/ps_cite_time.png, replace
+graph export ../output/ps_cite_time.eps, replace
+
+
 *********************************************************
 *GRAPH TOPIC AND TYPE
 *****************************************************
@@ -282,6 +285,7 @@ graph export ../output/ps_topicXjournalXpost`X'.eps, replace
 graph export ../output/ps_topicXjournalXpost`X'.png, replace
 }
 *AGAIN, DO THESE FOR ONLY DATA ARTICLES
+*May 2018? What did I mean here? Why would I want to do this?
 
 replace data_type="" if data_type=="skip"
 tab data_type, generate(data_type_)
