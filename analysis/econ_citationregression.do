@@ -143,16 +143,17 @@ graph export ../output/econ_avail`data'_time_data_nopp.png, replace
 ****************************
 *GRAPH CITATIONS
 ****************************
-histogram citation, bgcolor(white) graphregion(color(white)) title("Density of Citations, Economics")
+histogram citation if citation<500, bgcolor(white) graphregion(color(white)) title("Density of Citations, Economics")
 graph export ../output/econ_cite_histo.eps, replace
 graph export ../output/econ_cite_histo.png, replace
+graph save ../output/econ_cite_histo.gph, replace
 
 gen citation_year=citation/(print_months_ago/12)
 label var citation_year "Total Citations per Year"
-histogram citation_year, bgcolor(white) graphregion(color(white)) title("Density of Citations per Year, Economics")
+histogram citation_year if citation<500, bgcolor(white) graphregion(color(white)) title("Density of Citations per Year, Economics")
 graph export ../output/econ_cite_histo_year.eps, replace
 graph export ../output/econ_cite_histo_year.png, replace
-
+graph save ../output/econ_cite_histo_year.gph, replace
 
 
 bysort year aer: egen cite_j_avg=mean(citation)
@@ -170,9 +171,13 @@ graph export ../output/econ_cite_time.eps, replace
 *****************************************************
 replace topic="" if topic=="skip"
 gen topic_1=(topic=="Microeconomics")
+label var topic_1 "Microeconomics"
 gen topic_2=(topic=="Macroeconomics and Monetary Economics")
+label var topic_2 "Macro \& Monetary"
 gen topic_3=(topic=="Labor and Demographic Economics")
+label var topic_3 "Labor"
 gen topic_4=(topic=="Health, Education, and Welfare")
+label var topic_4 "Health \& Ed"
 gen topic_5=(topic=="International Economics")
 gen topic_6=(topic=="Financial Economics")
 gen topic_7=(topic_1==0&topic_2==0&topic_3==0&topic_4==0&topic_5==0&topic_6==0)
