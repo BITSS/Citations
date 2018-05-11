@@ -145,6 +145,19 @@ twoway (histogram citation if econ, color(red%30)) ///
 graph export ../output/both_cite_histo_combo.eps, replace
 graph export ../output/both_cite_histo_combo.png, replace
 
+
+*COMBINE THE DISCIPLINES ON THE SAME SCALE
+graph combine ../output/econ_cite_histo.gph ../output/ps_cite_histo.gph, ///
+	xcommon saving(../output/temp_histo.gph, replace)
+graph combine ../output/econ_cite_histo_year.gph ../output/ps_cite_histo_year.gph, ///
+	xcommon saving(../output/temp_histo_year.gph, replace)
+
+graph combine ../output/temp_histo.gph ../output/temp_histo_year.gph, col(1) 
+graph export ../output/both_histo_combined.eps, replace
+graph export ../output/both_histo_combined.png, replace
+
+
+
 *EXPORT SUMM STATS DIRECTLY TO LATEX!
 cap program drop latexnc
 program define latexnc
@@ -715,12 +728,12 @@ regress data_type_1  post2005 aer ajps apsr aerXpost2005 ajpsXpost2010 post2010 
 	
 	if "`t'"=="months" {
 	outreg2 using ../output/both_exclusion_`data'_`t'.tex, dec(2) tex label replace  ///
-		nocons addstat(Mean Dep. Var., `depvarmean') addtext(Months since Publication, Cubic, Sample, Data-Only) ///
+		nocons addstat(Mean Dep. Var., `depvarmean') addtext(Months since Publication, Cubic, Sample, Data-NoPP) ///
 		keep(aerXpost2005 ajpsXpost2010 ajpsXpost2012) /*drop(`time')*/
 	}
 	if "`t'"=="FE" {
 	outreg2 using ../output/both_exclusion_`data'_`t'.tex, dec(2) tex label replace  ///
-		nocons addstat(Mean Dep. Var., `depvarmean') addtext(Year-Discipline FE, Yes, Sample, Data-Only) ///
+		nocons addstat(Mean Dep. Var., `depvarmean') addtext(Year-Discipline FE, Yes, Sample, Data-NoPP) ///
 		keep(aerXpost2005 ajpsXpost2010 ajpsXpost2012) /*drop(`time')*/
 	}
 	
@@ -731,12 +744,12 @@ regress data_type_3  post2005 aer ajps apsr aerXpost2005 ajpsXpost2010 post2010 
 	
 	if "`t'"=="months" {
 	outreg2 using ../output/both_exclusion_`data'_`t'.tex, dec(2) tex label append  ///
-		nocons addstat(Mean Dep. Var., `depvarmean') addtext(Months since Publication, Cubic, Sample, Data-Only) ///
+		nocons addstat(Mean Dep. Var., `depvarmean') addtext(Months since Publication, Cubic, Sample, Data-NoPP) ///
 		keep(aerXpost2005 ajpsXpost2010 ajpsXpost2012) /*drop(`time')*/
 	}
 	if "`t'"=="FE" {
 	outreg2 using ../output/both_exclusion_`data'_`t'.tex, dec(2) tex label append  ///
-		nocons addstat(Mean Dep. Var., `depvarmean') addtext(Year-Discipline FE, Yes, Sample, Data-Only) ///
+		nocons addstat(Mean Dep. Var., `depvarmean') addtext(Year-Discipline FE, Yes, Sample, Data-NoPP) ///
 		keep(aerXpost2005 ajpsXpost2010 ajpsXpost2012) /*drop(`time')*/
 	}
 	
@@ -747,12 +760,12 @@ regress top1  post2005 aer ajps apsr aerXpost2005 ajpsXpost2010 post2010 ajpsXpo
 	
 	if "`t'"=="months" {
 	outreg2 using ../output/both_exclusion_`data'_`t'.tex, dec(2) tex label append  ///
-	nocons addstat(Mean Dep. Var., `depvarmean') addtext(Months since Publication, Cubic, Sample, Data-Only) ///
+	nocons addstat(Mean Dep. Var., `depvarmean') addtext(Months since Publication, Cubic, Sample, Data-NoPP) ///
 		keep(aerXpost2005 ajpsXpost2010 ajpsXpost2012) /*drop(`time')*/
 	}
 	if "`t'"=="FE" {
 	outreg2 using ../output/both_exclusion_`data'_`t'.tex, dec(2) tex label append  ///
-		nocons addstat(Mean Dep. Var., `depvarmean') addtext(Year-Discipline FE, Yes, Sample, Data-Only) ///
+		nocons addstat(Mean Dep. Var., `depvarmean') addtext(Year-Discipline FE, Yes, Sample, Data-NoPP) ///
 		keep(aerXpost2005 ajpsXpost2010 ajpsXpost2012) /*drop(`time')*/
 	}
 	
@@ -763,12 +776,12 @@ regress top10  post2005 aer ajps apsr aerXpost2005 ajpsXpost2010 post2010 ajpsXp
 	
 	if "`t'"=="months" {
 	outreg2 using ../output/both_exclusion_`data'_`t'.tex, dec(2) tex label append  ///
-	nocons addstat(Mean Dep. Var., `depvarmean') addtext(Months since Publication, Cubic, Sample, Data-Only) ///
+	nocons addstat(Mean Dep. Var., `depvarmean') addtext(Months since Publication, Cubic, Sample, Data-NoPP) ///
 		keep(aerXpost2005 ajpsXpost2010 ajpsXpost2012) /*drop(`time')*/
 	}
 	if "`t'"=="FE" {
 	outreg2 using ../output/both_exclusion_`data'_`t'.tex, dec(2) tex label append  ///
-		nocons addstat(Mean Dep. Var., `depvarmean') addtext(Year-Discipline FE, Yes, Sample, Data-Only) ///
+		nocons addstat(Mean Dep. Var., `depvarmean') addtext(Year-Discipline FE, Yes, Sample, Data-NoPP) ///
 		keep(aerXpost2005 ajpsXpost2010 ajpsXpost2012) /*drop(`time')*/
 	}
 	
@@ -779,12 +792,12 @@ regress top20  post2005 aer ajps apsr aerXpost2005 ajpsXpost2010 post2010 ajpsXp
 	
 	if "`t'"=="months" {
 	outreg2 using ../output/both_exclusion_`data'_`t'.tex, dec(2) tex label append  ///
-		nocons addstat(Mean Dep. Var., `depvarmean') addtext(Months since Publication, Cubic, Sample, Data-Only) ///
+		nocons addstat(Mean Dep. Var., `depvarmean') addtext(Months since Publication, Cubic, Sample, Data-NoPP) ///
 		keep(aerXpost2005 ajpsXpost2010 ajpsXpost2012) /*drop(`time')*/
 	}
 	if "`t'"=="FE" {
 	outreg2 using ../output/both_exclusion_`data'_`t'.tex, dec(2) tex label append ///
-		nocons addstat(Mean Dep. Var., `depvarmean') addtext(Year-Discipline FE, Yes, Sample, Data-Only) ///
+		nocons addstat(Mean Dep. Var., `depvarmean') addtext(Year-Discipline FE, Yes, Sample, Data-NoPP) ///
 		keep(aerXpost2005 ajpsXpost2010 ajpsXpost2012) /*drop(`time')*/
 	}
 	
@@ -795,12 +808,12 @@ regress top50 aer ajps apsr aerXpost2005 ajpsXpost2010 post2005 post2010 post201
 	
 	if "`t'"=="months" {
 	outreg2 using ../output/both_exclusion_`data'_`t'.tex, dec(2) tex label append  ///
-		nocons addstat(Mean Dep. Var., `depvarmean') addtext(Months since Publication, Cubic, Sample, Data-Only) ///
+		nocons addstat(Mean Dep. Var., `depvarmean') addtext(Months since Publication, Cubic, Sample, Data-NoPP) ///
 		keep(aerXpost2005 ajpsXpost2010 ajpsXpost2012) /*drop(`time')*/
 	}
 	if "`t'"=="FE" {
 	outreg2 using ../output/both_exclusion_`data'_`t'.tex, dec(2) tex label append  ///
-		nocons addstat(Mean Dep. Var., `depvarmean') addtext(Year-Discipline FE, Yes, Sample, Data-Only) ///
+		nocons addstat(Mean Dep. Var., `depvarmean') addtext(Year-Discipline FE, Yes, Sample, Data-NoPP) ///
 		keep(aerXpost2005 ajpsXpost2010 ajpsXpost2012) /*drop(`time')*/
 	}
 	
