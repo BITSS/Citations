@@ -171,7 +171,7 @@ graph export ../output/econ_cite_time.eps, replace
 *****************************************************
 replace topic="" if topic=="skip"
 gen topic_1=(topic=="Microeconomics")
-label var topic_1 "Microeconomics"
+label var topic_1 "Micro"
 gen topic_2=(topic=="Macroeconomics and Monetary Economics")
 label var topic_2 "Macro \& Monetary"
 gen topic_3=(topic=="Labor and Demographic Economics")
@@ -179,8 +179,11 @@ label var topic_3 "Labor"
 gen topic_4=(topic=="Health, Education, and Welfare")
 label var topic_4 "Health \& Ed"
 gen topic_5=(topic=="International Economics")
+label var topic_5 "International"
 gen topic_6=(topic=="Financial Economics")
+label var topic_6 "Finance"
 gen topic_7=(topic_1==0&topic_2==0&topic_3==0&topic_4==0&topic_5==0&topic_6==0)
+label var topic_7 "Other"
 
 label define journal 0 "QJE" 1 "AER"
 label values aer journal
@@ -258,9 +261,11 @@ replace top100=0 if top1==1|top10==1|top20==1|top50==1|(top_rank>100 & top_rank<
 gen unranked=.
 replace unranked=1 if top_rank==.a
 replace unranked=0 if top_rank<.
+label var top1 "Top 1"
 label var top10 "Top 10"
 label var top20 "Top 20"
-
+label var top50 "Top 50"
+label var top100 "Top 100"
 
 foreach X in 2005{
 graph bar top1 top10 top20 top50 top100 unranked, stack over(post`X') over(aer)  legend(lab(1 "Top 1*") ///
@@ -423,38 +428,119 @@ regress citation avail_hat aer post2005 ///
 *TEST THE CHANGE IN TOPIC/TYPE/RANK USING THE MAIN SPECIFICATION
 *********************************************************
 regress topic_1 aerXpost2005 aer post2005  print_months_ago ///
-	print_months_ago_sq print_months_ago_cu if data_type_2==0
-outreg2 using ../output/econ_exclusion.tex, dec(3) tex label replace  ///
+	print_months_ago_sq print_months_ago_cu if data_type_2==0 & pp!=1
+summ topic_1 if e(sample)==1
+local depvarmean=r(mean)
+outreg2 using ../output/econ_exclusion_topic.tex, dec(3) tex label replace  ///
 	nocons addtext(Sample, Data-Only) keep(aerXpost2005) ///
-	/*drop(print_months_ago_cu print_months_ago_sq)*/ ///
-	title("Exclusion Restriction")
+	nonotes title("Exclusion Restriction: Economics Topics") ///
+	addstat(Mean Dep. Var., `depvarmean')
+
+regress topic_2 aerXpost2005 aer post2005  print_months_ago ///
+	print_months_ago_sq print_months_ago_cu if data_type_2==0 & pp!=1
+summ topic_2 if e(sample)==1
+local depvarmean=r(mean)
+outreg2 using ../output/econ_exclusion_topic.tex, dec(3) tex label append  ///
+	nocons addtext(Sample, Data-Only) keep(aerXpost2005) nonotes ///
+	addstat(Mean Dep. Var., `depvarmean')
 	
 regress topic_3 aerXpost2005 aer post2005  print_months_ago ///
-	print_months_ago_sq print_months_ago_cu if data_type_2==0
-	outreg2 using ../output/econ_exclusion.tex, dec(3) tex label append  ///
-	nocons addtext(Sample, Data-Only) keep(aerXpost2005) /*drop(print_months_ago_cu print_months_ago_sq)*/
+	print_months_ago_sq print_months_ago_cu if data_type_2==0 & pp!=1
+summ topic_3 if e(sample)==1
+local depvarmean=r(mean)
+outreg2 using ../output/econ_exclusion_topic.tex, dec(3) tex label append  ///
+	nocons addtext(Sample, Data-Only) keep(aerXpost2005) nonotes ///
+	addstat(Mean Dep. Var., `depvarmean')
 	
+regress topic_4 aerXpost2005 aer post2005  print_months_ago ///
+	print_months_ago_sq print_months_ago_cu if data_type_2==0 & pp!=1
+summ topic_4 if e(sample)==1
+local depvarmean=r(mean)
+outreg2 using ../output/econ_exclusion_topic.tex, dec(3) tex label append  ///
+	nocons addtext(Sample, Data-Only) keep(aerXpost2005) nonotes ///
+	addstat(Mean Dep. Var., `depvarmean')
+	
+regress topic_5 aerXpost2005 aer post2005  print_months_ago ///
+	print_months_ago_sq print_months_ago_cu if data_type_2==0 & pp!=1
+summ topic_5 if e(sample)==1
+local depvarmean=r(mean)
+outreg2 using ../output/econ_exclusion_topic.tex, dec(3) tex label append  ///
+	nocons addtext(Sample, Data-Only) keep(aerXpost2005) nonotes ///
+	addstat(Mean Dep. Var., `depvarmean')
+	
+regress topic_6 aerXpost2005 aer post2005  print_months_ago ///
+	print_months_ago_sq print_months_ago_cu if data_type_2==0 & pp!=1
+summ topic_6 if e(sample)==1
+local depvarmean=r(mean)
+outreg2 using ../output/econ_exclusion_topic.tex, dec(3) tex label append  ///
+	nocons addtext(Sample, Data-Only) keep(aerXpost2005) nonotes ///
+	addstat(Mean Dep. Var., `depvarmean')
+	
+regress topic_7 aerXpost2005 aer post2005  print_months_ago ///
+	print_months_ago_sq print_months_ago_cu if data_type_2==0 & pp!=1
+		
+*****************************************************************************
 regress data_type_1 aerXpost2005 aer post2005  print_months_ago ///
-	print_months_ago_sq print_months_ago_cu if data_type_2==0
-	outreg2 using ../output/econ_exclusion.tex, dec(3) tex label append  ///
-	nocons addtext(Sample, Data-Only) keep(aerXpost2005) /*drop(print_months_ago_cu print_months_ago_sq)*/
+	print_months_ago_sq print_months_ago_cu if data_type_2==0 & pp!=1
+summ data_type_1 if e(sample)==1
+local depvarmean=r(mean)
+	outreg2 using ../output/econ_exclusion.tex, dec(3) tex label replace  ///
+	nocons addtext(Sample, Data-Only) keep(aerXpost2005) nonotes ///
+	title("Exclusion Restriction: Economics Data Type \& Institution Ranking") ///
+	addstat(Mean Dep. Var., `depvarmean')
 	
 regress data_type_3 aerXpost2005 aer post2005  print_months_ago ///
-	print_months_ago_sq print_months_ago_cu if data_type_2==0
+	print_months_ago_sq print_months_ago_cu if data_type_2==0 & pp!=1
+summ data_type_3 if e(sample)==1
+local depvarmean=r(mean)
 	outreg2 using ../output/econ_exclusion.tex, dec(3) tex label append  ///
-	nocons addtext(Sample, Data-Only) keep(aerXpost2005) /*drop(print_months_ago_cu print_months_ago_sq)*/
+	nocons addtext(Sample, Data-Only) keep(aerXpost2005) nonotes ///
+	addstat(Mean Dep. Var., `depvarmean')
+
+regress data_type_4 aerXpost2005 aer post2005  print_months_ago ///
+	print_months_ago_sq print_months_ago_cu if data_type_2==0 & pp!=1
+summ data_type_4 if e(sample)==1
+local depvarmean=r(mean)
+	outreg2 using ../output/econ_exclusion.tex, dec(3) tex label append  ///
+	nocons addtext(Sample, Data-Only) keep(aerXpost2005) nonotes ///
+	addstat(Mean Dep. Var., `depvarmean')
 
 regress top1 aerXpost2005 aer post2005  print_months_ago ///
-	print_months_ago_sq print_months_ago_cu if data_type_2==0
+	print_months_ago_sq print_months_ago_cu if data_type_2==0 & pp!=1
+summ top1 if e(sample)==1
+local depvarmean=r(mean)
 	outreg2 using ../output/econ_exclusion.tex, dec(3) tex label append  ///
-	nocons addtext(Sample, Data-Only) keep(aerXpost2005) /*drop(print_months_ago_cu print_months_ago_sq)*/
+	nocons addtext(Sample, Data-Only) keep(aerXpost2005) nonotes ///
+	addstat(Mean Dep. Var., `depvarmean')
+
+regress top10 aerXpost2005 aer post2005  print_months_ago ///
+	print_months_ago_sq print_months_ago_cu if data_type_2==0 & pp!=1
+summ top10 if e(sample)==1
+local depvarmean=r(mean)
+	outreg2 using ../output/econ_exclusion.tex, dec(3) tex label append  ///
+	nocons addtext(Sample, Data-Only) keep(aerXpost2005) nonotes ///
+	addstat(Mean Dep. Var., `depvarmean')
 	
 regress top20 aerXpost2005 aer post2005  print_months_ago ///
-	print_months_ago_sq print_months_ago_cu if data_type_2==0
+	print_months_ago_sq print_months_ago_cu if data_type_2==0 & pp!=1
+summ top20 if e(sample)==1
+local depvarmean=r(mean)
 	outreg2 using ../output/econ_exclusion.tex, dec(3) tex label append  ///
-	nocons addtext(Sample, Data-Only) keep(aerXpost2005) /*drop(print_months_ago_cu print_months_ago_sq)*/
+	nocons addtext(Sample, Data-Only) keep(aerXpost2005) nonotes ///
+	addstat(Mean Dep. Var., `depvarmean')
 
+regress top50 aerXpost2005 aer post2005  print_months_ago ///
+	print_months_ago_sq print_months_ago_cu if data_type_2==0 & pp!=1
+	
+regress top100 aerXpost2005 aer post2005  print_months_ago ///
+	print_months_ago_sq print_months_ago_cu if data_type_2==0 & pp!=1
+	
+regress unranked aerXpost2005 aer post2005  print_months_ago ///
+	print_months_ago_sq print_months_ago_cu if data_type_2==0 & pp!=1
 
+regress top_rank aerXpost2005 aer post2005  print_months_ago ///
+	print_months_ago_sq print_months_ago_cu if data_type_2==0 & pp!=1
+	
 exit
 *HEY! Want the latest results copied to the ShareLaTeX folder of the paper? 
 *Run this line!

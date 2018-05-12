@@ -343,8 +343,10 @@ replace top100=0 if top1==1|top10==1|top20==1|top50==1|(top_rank>100 & top_rank<
 gen unranked=.
 replace unranked=1 if top_rank==.a
 replace unranked=0 if top_rank<.
+label var top1 "Top 1"
 label var top10 "Top 10"
 label var top20 "Top 20"
+label var top50 "Top 50"
 
 foreach X in 2010 2012{
 graph bar top1 top10 top20 top50 top100 unranked, stack over(post`X') over(ajps)  legend(lab(1 "Top 1*") ///
@@ -524,35 +526,86 @@ regress citation avail_hat ajps post2010 post2012 ///
 *********************************************************
 regress topic_1 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
 	print_months_ago_sq print_months_ago_cu if data_type_2==0
-outreg2 using ../output/exclusion.tex, dec(3) tex label replace  ///
+summ topic_1 if e(sample)==1
+local depvarmean=r(mean)
+outreg2 using ../output/exclusion_topic.tex, dec(3) tex label replace  ///
 	nocons addtext(Sample, Data-Only) keep(ajpsXpost2010 ajpsXpost2012) ///
 	/*drop(print_months_ago_cu print_months_ago_sq)*/ ///
-	title("Exclusion Restriction")
+	title("Exclusion Restriction: Political Science Topics") ///
+	addstat(Mean Dep. Var., `depvarmean')
+
+regress topic_2 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
+	print_months_ago_sq print_months_ago_cu if data_type_2==0
+summ topic_2 if e(sample)==1
+local depvarmean=r(mean)
+	outreg2 using ../output/exclusion_topice.tex, dec(3) tex label append  ///
+	nocons addtext(Sample, Data-Only) keep(ajpsXpost2010 ajpsXpost2012) ///
+	addstat(Mean Dep. Var., `depvarmean')
+
+regress topic_3 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
+	print_months_ago_sq print_months_ago_cu if data_type_2==0
+summ topic_3 if e(sample)==1
+local depvarmean=r(mean)
+	outreg2 using ../output/exclusion_topic.tex, dec(3) tex label append  ///
+	nocons addtext(Sample, Data-Only) keep(ajpsXpost2010 ajpsXpost2012) ///
+	addstat(Mean Dep. Var., `depvarmean')
 	
 regress topic_4 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
 	print_months_ago_sq print_months_ago_cu if data_type_2==0
-	outreg2 using ../output/exclusion.tex, dec(3) tex label append  ///
-	nocons addtext(Sample, Data-Only) keep(ajpsXpost2010 ajpsXpost2012) /*drop(print_months_ago_cu print_months_ago_sq)*/
-	
+summ topic_4 if e(sample)==1
+local depvarmean=r(mean)
+	outreg2 using ../output/exclusion_topic.tex, dec(3) tex label append  ///
+	nocons addtext(Sample, Data-Only) keep(ajpsXpost2010 ajpsXpost2012) ///
+	addstat(Mean Dep. Var., `depvarmean')
+
+********************************************************************
 regress data_type_1 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
 	print_months_ago_sq print_months_ago_cu if data_type_2==0
-	outreg2 using ../output/exclusion.tex, dec(3) tex label append  ///
-	nocons addtext(Sample, Data-Only) keep(ajpsXpost2010 ajpsXpost2012) /*drop(print_months_ago_cu print_months_ago_sq)*/
+summ data_type_1 if e(sample)==1
+local depvarmean=r(mean)
+	outreg2 using ../output/exclusion.tex, dec(3) tex label replace  ///
+	nocons addtext(Sample, Data-Only) keep(ajpsXpost2010 ajpsXpost2012) ///
+	title("Exclusion Restriction: Political Science Data Type \& Institution Ranking") ///
+	addstat(Mean Dep. Var., `depvarmean')
 	
 regress data_type_3 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
 	print_months_ago_sq print_months_ago_cu if data_type_2==0
+summ data_type_3 if e(sample)==1
+local depvarmean=r(mean)
 	outreg2 using ../output/exclusion.tex, dec(3) tex label append  ///
-	nocons addtext(Sample, Data-Only) keep(ajpsXpost2010 ajpsXpost2012) /*drop(print_months_ago_cu print_months_ago_sq)*/
-
+	nocons addtext(Sample, Data-Only) keep(ajpsXpost2010 ajpsXpost2012) ///
+	addstat(Mean Dep. Var., `depvarmean')
+regress data_type_4 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
+	print_months_ago_sq print_months_ago_cu if data_type_2==0
+summ data_type_4 if e(sample)==1
+local depvarmean=r(mean)
+	outreg2 using ../output/exclusion.tex, dec(3) tex label append  ///
+	nocons addtext(Sample, Data-Only) keep(ajpsXpost2010 ajpsXpost2012) ///
+	addstat(Mean Dep. Var., `depvarmean')
+	
+regress top1 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
+	print_months_ago_sq print_months_ago_cu if data_type_2==0
+summ top1 if e(sample)==1
+local depvarmean=r(mean)
+	outreg2 using ../output/exclusion.tex, dec(3) tex label append  ///
+	nocons addtext(Sample, Data-Only) keep(ajpsXpost2010 ajpsXpost2012) ///
+	addstat(Mean Dep. Var., `depvarmean')
+	
 regress top10 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
 	print_months_ago_sq print_months_ago_cu if data_type_2==0
+summ top10 if e(sample)==1
+local depvarmean=r(mean)
 	outreg2 using ../output/exclusion.tex, dec(3) tex label append  ///
-	nocons addtext(Sample, Data-Only) keep(ajpsXpost2010 ajpsXpost2012) /*drop(print_months_ago_cu print_months_ago_sq)*/
+	nocons addtext(Sample, Data-Only) keep(ajpsXpost2010 ajpsXpost2012) ///
+	addstat(Mean Dep. Var., `depvarmean')
 	
 regress top20 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
 	print_months_ago_sq print_months_ago_cu if data_type_2==0
+summ top20 if e(sample)==1
+local depvarmean=r(mean)
 	outreg2 using ../output/exclusion.tex, dec(3) tex label append  ///
-	nocons addtext(Sample, Data-Only) keep(ajpsXpost2010 ajpsXpost2012) /*drop(print_months_ago_cu print_months_ago_sq)*/
+	nocons addtext(Sample, Data-Only) keep(ajpsXpost2010 ajpsXpost2012) ///
+	addstat(Mean Dep. Var., `depvarmean')
 
 *SAVE DATA AFTER ALL MERGES/NEW VARS
 save ../external/cleaned/ps_mergedforregs.dta, replace
