@@ -1,6 +1,8 @@
 set more off
 clear all
 cd "/Users/garret/Box Sync/CEGA-Programs-BITSS/3_Publications_Research/Citations/citations/analysis"
+cap log close
+log using ../logs/ps_citationregression.log, replace
 
 *The R script somehow loses many citations
 *all with a foreign character in title
@@ -538,7 +540,7 @@ regress topic_2 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_
 	print_months_ago_sq print_months_ago_cu if data_type_2==0
 summ topic_2 if e(sample)==1
 local depvarmean=r(mean)
-	outreg2 using ../output/exclusion_topice.tex, dec(3) tex label append  ///
+	outreg2 using ../output/exclusion_topic.tex, dec(3) tex label append  ///
 	nocons addtext(Sample, Data-Only) keep(ajpsXpost2010 ajpsXpost2012) ///
 	addstat(Mean Dep. Var., `depvarmean')
 
@@ -553,6 +555,14 @@ local depvarmean=r(mean)
 regress topic_4 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
 	print_months_ago_sq print_months_ago_cu if data_type_2==0
 summ topic_4 if e(sample)==1
+local depvarmean=r(mean)
+	outreg2 using ../output/exclusion_topic.tex, dec(3) tex label append  ///
+	nocons addtext(Sample, Data-Only) keep(ajpsXpost2010 ajpsXpost2012) ///
+	addstat(Mean Dep. Var., `depvarmean')
+
+regress topic_5 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
+	print_months_ago_sq print_months_ago_cu if data_type_2==0
+summ topic_5 if e(sample)==1
 local depvarmean=r(mean)
 	outreg2 using ../output/exclusion_topic.tex, dec(3) tex label append  ///
 	nocons addtext(Sample, Data-Only) keep(ajpsXpost2010 ajpsXpost2012) ///

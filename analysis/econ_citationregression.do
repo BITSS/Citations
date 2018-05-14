@@ -1,7 +1,8 @@
 set more off
 clear all
 cd "/Users/garret/Box Sync/CEGA-Programs-BITSS/3_Publications_Research/Citations/citations/analysis"
-
+cap log close
+log using ../logs/econ_citationregression.log, replace
 ***************************************************
 *LOAD DATA
 ***************************************************
