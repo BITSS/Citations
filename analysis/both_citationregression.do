@@ -6,6 +6,8 @@ cap log close
 log using ../logs/both_citationregression.log, replace
 /*TO DO: apply spotcheck to econ and polsci separate regs
 apply PP-IV to econ, check that PS is right
+Make summary stats table
+Figure the XX stats in intro: data vs. data & code sharing
 */
 
 
@@ -42,6 +44,42 @@ gen avail_state_full=(reference_data_full_strict==1| reference_data_full_easy==1
 gen avail_state_part=(avail_state_full==1)|(reference_code_partial_strict==1| reference_code_partial_easy==1| reference_data_partial_strict==1| reference_data_partial_easy==1| reference_files_partial_strict==1| reference_files_partial_easy==1)
 label var avail_state_full "Stated Availability" 
 label var avail_state_part "Stated Availability:Part"
+
+*EXPORT SUMM STATS DIRECTLY TO LATEX!
+cap program drop latexnc
+program define latexnc
+*Spot is the string with the name
+local spot1="`1'"
+*Spot2 is the actual value stored in the scalar
+local spot2=`1'
+local latexnc1 "\\newcommand{\\\`spot1'}{`spot2'}"
+! echo `latexnc1' >> `2' 
+end 
+
+*Create empty tex file to store new commands
+cap rm ../output/StataScalarList.tex
+! touch ../output/StataScalarList.tex
+
+*TOTAL STATED AVAIL
+count if avail_state_full==1
+scalar Navailstatefull=r(N)
+local Navailstatefull=r(N)
+latexnc Navailstatefull "../output/StataScalarList.tex"
+
+*TOTAL AVAIL
+count if avail_yn==1
+scalar Navailyn=r(N)
+latexnc Navailyn "../output/StataScalarList.tex"
+
+*TOTAL STATED AND AVAIL
+count if avail_yn==1 & avail_state_full==1
+scalar Navailstateandfound=r(N)
+local Navailstateandfound=r(N)
+latexnc Navailstateandfound "../output/StataScalarList.tex"
+
+*FRACTION
+scalar percentstatefound=round(`Navailstateandfound'/`Navailstatefull'*100,1)
+latexnc percentstatefound "../output/StataScalarList.tex"
 
 
 gen discipline="econ" if journal=="aer"|journal=="qje"
@@ -158,61 +196,38 @@ graph combine ../output/temp_histo.gph ../output/temp_histo_year.gph, col(1)
 graph export ../output/both_histo_combined.eps, replace
 graph export ../output/both_histo_combined.png, replace
 
-
-
-*EXPORT SUMM STATS DIRECTLY TO LATEX!
-cap program drop latexnc
-program define latexnc
-*Spot is the string with the name
-local spot1="`1'"
-*Spot2 is the actual value stored in the scalar
-local spot2=`1'
-local latexnc1 "\\newcommand{\\\`spot1'}{`spot2'}"
-! echo `latexnc1' >> `2' 
-end 
-
-*Create empty tex file to store new commands
-cap rm ../output/StataScalarList.tex
-! touch ../output/StataScalarList.tex
+*SEND STATISTICS DIRECTLY TO THE PAPER!
 * We want to mention the median in our paper 
 summ citation, detail
-*Need to use full path to tex file because the stata working directory doesn't pass through the shell command 
 scalar mediancitesboth=round(r(p50),1)
 latexnc mediancitesboth "../output/StataScalarList.tex"
 
 summ citation if econ==1, detail
-*Need to use full path to tex file because the stata working directory doesn't pass through the shell command 
 scalar mediancitesecon=round(r(p50),1)
 latexnc mediancitesecon "../output/StataScalarList.tex"
 
 summ citation if econ==0, detail
-*Need to use full path to tex file because the stata working directory doesn't pass through the shell command 
 scalar mediancitesps=round(r(p50),1)
 latexnc mediancitesps "../output/StataScalarList.tex"
 
 *CITATIONS PER YEAR
 summ citation_year, detail
-*Need to use full path to tex file because the stata working directory doesn't pass through the shell command 
 scalar mediancitesyearboth=round(r(p50),1)
 latexnc mediancitesyearboth "../output/StataScalarList.tex"
 
 summ citation_year if econ==1, detail
-*Need to use full path to tex file because the stata working directory doesn't pass through the shell command 
 scalar mediancitesyearecon=round(r(p50),1)
 latexnc mediancitesyearecon "../output/StataScalarList.tex"
 
 summ citation_year if aer==1, detail
-*Need to use full path to tex file because the stata working directory doesn't pass through the shell command 
 scalar mediancitesyearaer=round(r(p50),1)
 latexnc mediancitesyearaer "../output/StataScalarList.tex"
 
 summ citation_year if journal=="qje", detail
-*Need to use full path to tex file because the stata working directory doesn't pass through the shell command 
 scalar mediancitesyearqje=round(r(p50),1)
 latexnc mediancitesyearqje "../output/StataScalarList.tex"
 
 summ citation_year if econ==0, detail
-*Need to use full path to tex file because the stata working directory doesn't pass through the shell command 
 scalar mediancitesyearps=round(r(p50),1)
 latexnc mediancitesyearps "../output/StataScalarList.tex"
 
