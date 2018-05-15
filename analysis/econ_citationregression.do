@@ -89,6 +89,12 @@ label var post2005Xdata "Post-2005 with Data"
 gen lncitation=ln(citation+1)
 label var lncitation "Ln(Cites+1)"
 
+*CORRECTIONS FROM THE RANDOM SPOTCHECK
+* found data and codes from AER extension
+replace availability = "files" if title == "A Model of Housing in the Presence of Adjustment Costs: A Structural Interpretation of Habit Persistence" & doi == "10.1257/aer.98.1.474"
+replace availability_fileext = "files" if title == "A Model of Housing in the Presence of Adjustment Costs: A Structural Interpretation of Habit Persistence" & doi == "10.1257/aer.98.1.474"
+
+
 *****************************************************
 save ../external_econ/cleaned/econ_mergedforregs.dta, replace
 

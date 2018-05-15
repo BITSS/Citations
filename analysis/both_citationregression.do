@@ -4,7 +4,7 @@ label drop _all
 cd "/Users/garret/Box Sync/CEGA-Programs-BITSS/3_Publications_Research/Citations/citations/analysis"
 cap log close
 log using ../logs/both_citationregression.log, replace
-/*TO DO: apply spotcheck to econ and polsci separate regs
+/*TO DO:
 apply PP-IV to econ, check that PS is right
 Make summary stats table
 Figure the XX stats in intro: data vs. data & code sharing
@@ -20,11 +20,6 @@ tab journal
 count
 append using ../external/cleaned/ps_mergedforregs.dta
 count
-save ../external/cleaned/combined_spotcheck.dta, replace 
-
-*SHIT! Need to do this before the econ or ps analysis!
-*Run the file of spotcheck cleans
-do ../analysis/spotcheck.do
 
 *institution (name) only exists for Econ--PS only brought in rank
 *date vars
