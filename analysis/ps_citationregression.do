@@ -266,6 +266,30 @@ graph export ../output/ps_citationcomparison.png, replace
 *CHANGE SCRAPE DATE TO MU YANG'S ACTUAL DATE: 11/21/17
 rename Scopus citation
 
+*BRING IN THIRD CITATION MEASURE--PRANAY. PRANAY did WoK API, better than Evey's code. Mu Yang did Elsevier Scopus API.
+*PRANAY ALSO HAS THE YEAR BY YEAR CITATION NUMBERS
+*TRY PRANAY'S DATA
+save ../external/temp.dta, replace
+import delimited using ../external/citation_counts.csv, delimiter(",") clear
+keep if journalname=="American Journal of Political Science"|journalname=="American Political Science Review"
+drop if doi=="No DOI"
+merge 1:1 doi using ../external/temp.dta
+keep if _merge!=1
+rename _merge merge_WoK_Pranay
+rename totalcitations wokcitation
+label var wokcitation "Citations Web of Knowledge"
+gen lnwokcitation=ln(wokcitation+1)
+label var lnwokcitation "Log Citations Web of Knowledge"
+rename citations _2001citation
+label var _2001citation "2001 WoK Citations"
+forvalues X=10/26 {
+ local Y=`X'+1992
+ rename v`X' _`Y'citation
+ label var _`Y'citation "`Y' WoK Citations"
+}
+
+
+
 histogram citation if citation<500, bgcolor(white) graphregion(color(white)) title("Density of Citations, Political Science")
 graph export ../output/ps_cite_histo.eps, replace
 graph export ../output/ps_cite_histo.png, replace
@@ -655,24 +679,7 @@ local depvarmean=r(mean)
 save ../external/cleaned/ps_mergedforregs.dta, replace
 
 	
-*TRY PRANAY'S DATA
-*WAIT. IS IT WEB OF KNOWLEDGE? I THOUGHT IT WAS ELSEVEIR BUT CORRELATION IS 0.996!
-save ../external/temp.dta, replace
-/*
-import delimited using ../external/citation_counts.csv, delimiter(",") clear
-keep if journalname=="American Journal of Political Science"|journalname=="American Political Science Review"
-drop if doi=="No DOI"
-merge 1:1 doi using ../external/temp.dta
-keep if _merge==3
-gen lncitationE=ln(totalcitations)
 
-ivregress 2sls lncitation ajps post2010 post2012 print_months_ago ///
-	print_months_ago_sq print_months_ago_cu (avail_yn = ajpsXpost2010 ///
-	ajpsXpost2012) if data_type!="no_data", first
-ivregress 2sls lncitationE ajps post2010 post2012 print_months_ago ///
-	print_months_ago_sq print_months_ago_cu (avail_yn = ajpsXpost2010 ///
-	ajpsXpost2012) if data_type!="no_data", first
-*/
 	
 exit
 *HEY! Want the latest results copied to the ShareLaTeX folder of the paper? 

@@ -30,11 +30,32 @@ summ citation_count
 drop if citation_count == .
 rename citation_count citation
 
+*BRING IN THIRD CITATION MEASURE--PRANAY. PRANAY did WoK API, better than Evey's code. Mu Yang did Elsevier Scopus API.
+*PRANAY ALSO HAS THE YEAR BY YEAR CITATION NUMBERS
+*TRY PRANAY'S DATA
+*WAIT. IS IT WEB OF KNOWLEDGE? I THOUGHT IT WAS ELSEVEIR BUT CORRELATION IS 0.996!
+save ../external/temp.dta, replace
+import delimited using ../external/citation_counts.csv, delimiter(",") clear
+keep if journalname=="American Economic Review"|journalname=="Quarterly Journal of Economics"
+drop if doi=="No DOI"
+merge 1:1 doi using ../external/temp.dta
+keep if _merge!=1
+rename totalcitations wokcitation
+label var wokcitation "Citations Web of Knowledge"
+gen lnwokcitation=ln(wokcitation+1)
+label var lnwokcitation "Log Citations Web of Knowledge"
+rename citations _2001citation
+label var _2001citation "2001 WoK Citations"
+forvalues X=10/26 {
+ local Y=`X'+1992
+ rename v`X' _`Y'citation
+ label var _`Y'citation "`Y' WoK Citations"
+}
+
 *GENERATE DATES
 /*Is this print or Internet publication date? 
 SEEMS LIKE PRINT DATE--ALL FIRST OF MONTH*/
 gen date=date(publication_date,"YMD")
-*UPDATE THIS?
 local scrapedate=date("2017-11-21","YMD")
 gen print_months_ago=(`scrapedate'-date)/30.42
 gen print_months_ago_sq=print_months_ago*print_months_ago

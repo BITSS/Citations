@@ -5,6 +5,7 @@ cd "/Users/garret/Box Sync/CEGA-Programs-BITSS/3_Publications_Research/Citations
 cap log close
 log using ../logs/both_citationregression.log, replace
 /*TO DO:
+Insert table of WoK citation results in appendix, figure of relationship between two citation measures.
 apply PP-IV to econ, check that PS is right
 Make summary stats table
 Figure the XX stats in intro: data vs. data & code sharing
@@ -364,7 +365,7 @@ if "`time'"=="print_months_ago print_months_ago_sq print_months_ago_cu" local t=
 if "`time'"=="i.year#econ" local t="FE"
 
 *NAIVE (LOOP OVER LEVEL AND LOGS}
-foreach ln in "" ln{
+foreach ln in "" ln wok lnwok {
 regress `ln'citation avail_`data'
 	summ `ln'citation if e(sample)==1
 	local depvarmean=r(mean)
