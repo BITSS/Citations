@@ -119,8 +119,6 @@ gen online_months_ago_sq=online_months_ago*online_months_ago
 gen print_months_ago_cu=print_months_ago_sq*print_months_ago
 gen online_months_ago_cu=online_months_ago_sq*online_months_ago
 
-gen avail_yn=(availability=="files")
-gen avail_data=(availability=="files"|availability=="data")
 gen ajps=(journal=="ajps")
 
 local Oct2010=date("2010-10-01","YMD")
@@ -170,7 +168,8 @@ replace availability="data" if title=="Mapping the Ideological Marketplace" &  d
 replace availability = "files" if title == "Electoral Institutions and the Politics of Coalitions: Why Some Democracies Redistribute More Than Others" & doi == "10.1017/S0003055406062083"
 replace availability_website = "files" if title == "Electoral Institutions and the Politics of Coalitions: Why Some Democracies Redistribute More Than Others" & doi == "10.1017/S0003055406062083"
 ***********************
-
+gen avail_yn=(availability=="files")
+gen avail_data=(availability=="files"|availability=="data")
 
 
 *LABEL DATA

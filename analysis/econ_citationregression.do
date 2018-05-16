@@ -61,9 +61,7 @@ gen print_months_ago=(`scrapedate'-date)/30.42
 gen print_months_ago_sq=print_months_ago*print_months_ago
 gen print_months_ago_cu=print_months_ago_sq*print_months_ago
 
-gen avail_yn=(availability=="files")
-gen avail_data=(availability=="files"|availability=="data")
-*Should be OK, no missing values.
+
 gen aer=(journal=="aer")
 
 local Mar2005=date("2005-03-01","YMD")
@@ -86,7 +84,7 @@ label var aer "AER"
 label var post2005 "Post-Mar 2005"
 label define beforeafter 0 "Before" 1 "After"
 label values post2005 beforeafter
-label var avail_yn "Data and Code Available" 
+
 
 gen pp=1 if journal=="aer" & (publication_date=="2001/05/01"|publication_date=="2001/05/01"| ///
 	publication_date=="2002/05/01"|publication_date=="2003/05/01"|publication_date=="2004/05/01"| ///
@@ -115,7 +113,9 @@ label var lncitation "Ln(Cites+1)"
 replace availability = "files" if title == "A Model of Housing in the Presence of Adjustment Costs: A Structural Interpretation of Habit Persistence" & doi == "10.1257/aer.98.1.474"
 replace availability_fileext = "files" if title == "A Model of Housing in the Presence of Adjustment Costs: A Structural Interpretation of Habit Persistence" & doi == "10.1257/aer.98.1.474"
 
-
+gen avail_yn=(availability=="files")
+gen avail_data=(availability=="files"|availability=="data")
+label var avail_yn "Data and Code Available" 
 *****************************************************
 save ../external_econ/cleaned/econ_mergedforregs.dta, replace
 
