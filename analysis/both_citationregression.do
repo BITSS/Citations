@@ -31,6 +31,9 @@ count
 *PS data comes with avail_yn, but create _data for both disc after append
 replace avail_data=(availability=="files"|availability=="data")
 label var avail_data "Data Available"
+gen avail_code=(availability=="files"|availability=="code")
+label var avail_code "Code Available"
+
 *CREATE STATED/PARTIAL AVAILABILITY
 foreach var in reference_code_partial_strict reference_code_partial_easy reference_data_partial_strict reference_data_partial_easy reference_files_partial_strict reference_files_partial_easy reference_code_full_strict reference_code_full_easy reference_data_full_strict reference_data_full_easy reference_files_full_strict reference_files_full_easy{
 	replace `var'="." if `var'=="NA"
@@ -243,6 +246,12 @@ line aer_y_citeavg qje_y_citeavg ajps_y_citeavg apsr_y_citeavg year, title("Tota
 graph export ../output/both_cite_time.eps, replace
 graph export ../output/both_cite_time.png, replace
 
+
+aaplot citation wokcitation, aformat(%3.2f) bformat(%3.2f) bgcolor(white) graphregion(color(white))
+graph export ../output/both_citationcomparison.eps, replace
+graph export ../output/both_citationcomparison.png, replace
+
+stop
 *GRAPH DATA TYPE-COMBINED
 replace data_type="" if data_type=="skip"
 tab data_type, generate(data_type_)
