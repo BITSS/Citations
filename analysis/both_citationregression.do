@@ -246,12 +246,16 @@ line aer_y_citeavg qje_y_citeavg ajps_y_citeavg apsr_y_citeavg year, title("Tota
 graph export ../output/both_cite_time.eps, replace
 graph export ../output/both_cite_time.png, replace
 
-
-aaplot citation wokcitation, aformat(%3.2f) bformat(%3.2f) bgcolor(white) graphregion(color(white))
+rename wokcitation citesWoK
+rename citation citesE
+label var citesE "Citations Elsevier"
+aaplot citesE citesWoK, aformat(%3.2f) bformat(%3.2f) bgcolor(white) graphregion(color(white))
 graph export ../output/both_citationcomparison.eps, replace
 graph export ../output/both_citationcomparison.png, replace
+label var citesE "Citations"
+rename citesWoK wokcitation 
+rename citesE citation 
 
-stop
 *GRAPH DATA TYPE-COMBINED
 replace data_type="" if data_type=="skip"
 tab data_type, generate(data_type_)
