@@ -248,12 +248,6 @@ drop if _merge==1
 rename _merge merge_Scopus
 
 gen lncitationE=ln(citationE)
-ivregress 2sls lncitation ajps post2010 post2012 print_months_ago ///
-	print_months_ago_sq print_months_ago_cu (avail_yn = ajpsXpost2010 ///
-	ajpsXpost2012) if data_type!="no_data", first
-ivregress 2sls lncitationE ajps post2010 post2012 print_months_ago ///
-	print_months_ago_sq print_months_ago_cu (avail_yn = ajpsXpost2010 ///
-	ajpsXpost2012) if data_type!="no_data", first
 	
 label var citationE "Scopus Citations"
 label var citation "Web of Knowledge Citations"
@@ -292,6 +286,19 @@ forvalues X=10/26 {
  label var _`Y'citation "`Y' WoK Citations"
 }
 
+*GENERATE CITATION FLOW VARIABLES
+
+forvalues Y=0/5 {
+	gen year`Y'citation=.
+	label var year`Y'citation "Citations `Y' years after publication"
+	forvalues X=2006/`=2017-`Y'' {
+		replace year`Y'citation=_`=`X'+`Y''citation if year==`X'
+	}
+}
+gen cum3citation=year0citation+year1citation+year2citation+year3citation
+label var cum3citation "Cumulative Citations after 3 years"
+gen cum5citation=year0citation+year1citation+year2citation+year3citation+year4citation+year5citation
+label var cum5citation "Cumulative Citations after 5 years"
 
 
 histogram citation if citation<500, bgcolor(white) graphregion(color(white)) title("Density of Citations, Political Science")
