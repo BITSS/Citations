@@ -61,6 +61,7 @@ replace citation_count="." if citation_count=="NA"
 destring citation_count, replace
 summ citation_count
 
+
 *MERGE IN THE FULL CITATIONS DATA
 *START WITH APSR
 *MERGE, AND CHANGE NAME SO AJPS MERGE DOESN'T OVERWRITE 
@@ -240,6 +241,10 @@ append using ../external/ajps_citations_scopus.dta
 keep doi citation
 rename citation citationE
 merge 1:1 doi using ../external/temp
+*Elsevier Scraping has cites for articles we don't have. 126 of them. Drop those.
+count if _merge==1
+if r(N)!=126 flip the heck out!
+drop if _merge==1 
 rename _merge merge_Scopus
 
 gen lncitationE=ln(citationE)
