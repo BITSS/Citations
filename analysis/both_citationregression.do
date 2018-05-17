@@ -5,10 +5,12 @@ cd "/Users/garret/Box Sync/CEGA-Programs-BITSS/3_Publications_Research/Citations
 cap log close
 log using ../logs/both_citationregression.log, replace
 /*TO DO:
-Insert table of WoK citation results in appendix, figure of relationship between two citation measures.
 apply PP-IV to econ, check that PS is right
 Make summary stats table
-Figure the XX stats in intro: data vs. data & code sharing
+Cite Miguel 2014
+run with just theory articles as controls
+run with poisson
+5-year citations, not total
 */
 
 
@@ -83,13 +85,17 @@ latexnc percentstatefound "../output/StataScalarList.tex"
 
 gen discipline="econ" if journal=="aer"|journal=="qje"
 replace discipline="ps" if journal=="apsr"|journal=="ajps"
+label var discipline "Discipline"
 replace aer=(journal=="aer")
+gen qje=(journal=="qje")
 replace ajps=(journal=="ajps")
 gen apsr=(journal=="apsr")
 gen econ=(discipline=="econ")
+label var econ "Economics"
 label var aer "AER"
 label var ajps "AJPS"
 label var apsr "APSR"
+label var qje "QJE"
 replace pp=0 if discipline=="ps"
 
 
@@ -368,6 +374,20 @@ graph export ../output/both_rankXjournalXpost`X'.eps, replace
 
 *SAVE FINAL DATA
 save ../external_econ/cleaned/both_cleaned_mergedforregs.dta, replace
+
+
+
+*********************************************************
+*SUMM STAT TABLE
+*********************************************************
+eststo summstat_both: estpost summ aer pp qje ajps apsr econ year data_type_* top1 top10 top20 top50 avail_yn avail_data citation wokcitation
+eststo summstat_econ: estpost summ aer pp qje ajps apsr econ year data_type_* top1 top10 top20 top50 avail_yn avail_data citation wokcitation if econ==1
+eststo summstat_ps: estpost summ aer pp qje ajps apsr econ year data_type_* top1 top10 top20 top50 avail_yn avail_data citation wokcitation if econ==0
+
+esttab summstat_both summstat_econ summstat_ps using ../output/both_summstat.tex, ///
+	main(mean) aux(sd) style(tex) replace label mtitles("All" "Economics" "Political Science")
+stop
+
 
 ***********************************************************
 *REGRESSIONS
