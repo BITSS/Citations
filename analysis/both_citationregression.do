@@ -6,7 +6,6 @@ cap log close
 log using ../logs/both_citationregression.log, replace
 /*TO DO:
 apply PP-IV to econ, check that PS is right
-Make summary stats table
 Cite Miguel 2014
 run with just theory articles as controls
 run with poisson
@@ -386,8 +385,6 @@ eststo summstat_ps: estpost summ aer pp qje ajps apsr econ year data_type_* top1
 
 esttab summstat_both summstat_econ summstat_ps using ../output/both_summstat.tex, ///
 	main(mean) aux(sd) style(tex) replace label mtitles("All" "Economics" "Political Science")
-stop
-
 
 ***********************************************************
 *REGRESSIONS
@@ -465,6 +462,7 @@ regress `ln'citation avail_`data' aer ajps apsr `time' if data_type!="no_data" &
 	}	
 *********************************
 *INSTRUMENTAL VARIABLE REGRESSION
+*USE IVREG2 SO WE CAN STORE THE FIRST STAGE. IVREGRESS2 DOESN'T WORK--TOO CoLin
 *LEVEL
 ivreg2 `ln'citation aer ajps apsr post2005 post2010 post2012  `time' ///
 	(avail_`data' = aerXpost2005 ajpsXpost2010 ajpsXpost2012), first savefirst robust
