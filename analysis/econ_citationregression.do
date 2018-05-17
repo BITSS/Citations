@@ -61,7 +61,6 @@ gen print_months_ago=(`scrapedate'-date)/30.42
 gen print_months_ago_sq=print_months_ago*print_months_ago
 gen print_months_ago_cu=print_months_ago_sq*print_months_ago
 
-
 gen aer=(journal=="aer")
 
 local Mar2005=date("2005-03-01","YMD")
@@ -73,6 +72,19 @@ label var aerXpost2005 "AER post-2005 Policy"
 gen year=substr(publication_date, 1, 4)
 destring year, replace
 drop if year>2009 //2001-2009 is what we said we'd cover
+
+*GENERATE CITATION FLOW VARIABLES
+forvalues Y=0/5 {
+	gen year`Y'citation=.
+	label var year`Y'citation "Citations `Y' years after publication"
+	forvalues X=2006/`=2017-`Y'' {
+		replace year`Y'citation=_`=`X'+`Y''citation if year==`X'
+	}
+}
+gen cum3citation=year0citation+year1citation+year2citation+year3citation
+label var cum3citation "Cumulative Citations after 3 years"
+gen cum5citation=year0citation+year1citation+year2citation+year3citation+year4citation+year5citation
+label var cum5citation "Cumulative Citations after 5 years"
 
 *LABEL DATA
 label var year "Year"
