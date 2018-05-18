@@ -287,7 +287,6 @@ forvalues X=10/26 {
 }
 
 *GENERATE CITATION FLOW VARIABLES
-
 forvalues Y=0/5 {
 	gen year`Y'citation=.
 	label var year`Y'citation "Citations `Y' years after publication"
