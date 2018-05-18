@@ -374,8 +374,6 @@ graph export ../output/both_rankXjournalXpost`X'.eps, replace
 *SAVE FINAL DATA
 save ../external_econ/cleaned/both_cleaned_mergedforregs.dta, replace
 
-
-
 *********************************************************
 *SUMM STAT TABLE
 *********************************************************
@@ -640,9 +638,190 @@ ivreg2 `ln'citation aer ajps apsr post2005 post2010 post2012  `time' ///
 
 	}
 } //end ln-normal citations
+}
+}
 ***********************************************************************
-*MANUALLY DO THE IV
-*FIRST STAGE
+*ALTERNATE: CUMULATIVE FLOW OF CITATIONS: 3 YEAR, 5 YEAR
+***********************************************************************
+*IF INSTEAD OF TOTAL CITATIONS, YOU DO CITES-IN-X-YEARS, DO YOU THEN NEED TO CONTROL FOR TIME?
+*THERE MIGHT BE A SECULAR TREND IN CITATIONS (WE CITE MORE, THERE ARE MORE JOURNALS) SO NO CONTROLS MIGHT MISS THAT
+*EXCEPT CONTROL JOURNALS SHOULD TAKE CARE OF THAT.
+*IF! YOU STILL NEED TO CONTROL FOR YEAR, THEN THERE IS NO NEED FOR THIS SEPARATE LOOP--JUST ADD cum3 AND cum5 TO
+*THE LN LOOP ABOVE. THIS SEPARATE BIT IS FOR THE ASSUMPTION THAT YOU NO LONGER NEED TO CONTROL FOR AGE
+
+foreach data in yn data state_full state_part{
+foreach time in "" {
+if "`time'"=="" local t="NoT"
+
+*NAIVE (LOOP OVER LEVEL AND LOGS}
+foreach ln in cum3 cum5 {
+regress `ln'citation avail_`data'
+	summ `ln'citation if e(sample)==1
+	local depvarmean=r(mean)
+	
+	outreg2 using ../output/both_naive`ln'_`data'_`t'.tex, dec(2) tex label replace ///
+		addstat(Mean Dep. Var., `depvarmean') addtext(Time Controls, No, Sample, All) keep(avail_`data') 
+	outreg2 using ../output/both_naive`ln'-simp_`data'_`t'.tex, dec(2) tex label replace ///
+		addstat(Mean Dep. Var., `depvarmean') addtext(Time Controls, No, Sample, All) keep(avail_`data') nocons
+
+
+regress `ln'citation avail_`data' aer ajps apsr `time'
+	summ `ln'citation if e(sample)==1
+	local depvarmean=r(mean)
+	outreg2 using ../output/both_naive`ln'_`data'_`t'.tex, dec(2) tex label append title("Naive OLS Regression") ///
+		addstat(Mean Dep. Var., `depvarmean') addtext(Time Controls, No, Sample, All)
+	outreg2 using ../output/both_naive`ln'-simp_`data'_`t'.tex, dec(2) tex label append title("Naive OLS Regression") ///
+		addstat(Mean Dep. Var., `depvarmean') addtext(Time Controls, No, Sample, All) nocons keep(avail_`data' aer ajps apsr) 	
+	
+regress `ln'citation avail_`data' aer ajps apsr data_type_2 pp `time'	
+	summ `ln'citation if e(sample)==1
+	local depvarmean=r(mean)
+	
+	outreg2 using ../output/both_naive`ln'_`data'_`t'.tex, dec(2) tex label append ///
+	addstat(Mean Dep. Var., `depvarmean') addtext(Time Controls, No, Sample, All)
+	outreg2 using ../output/both_naive`ln'-simp_`data'_`t'.tex, dec(2) tex label append ///
+	addstat(Mean Dep. Var., `depvarmean') addtext(Time Controls, No, Sample, All) nocons ///
+	keep(avail_`data' aer ajps apsr data_type_2 pp)
+
+regress `ln'citation avail_`data' aer ajps apsr `time' if data_type!="no_data" & pp!=1
+	summ `ln'citation if e(sample)==1
+	local depvarmean=r(mean)
+
+	outreg2 using ../output/both_naive`ln'_`data'_`t'.tex, dec(2) tex label append addstat(Mean Dep. Var., `depvarmean')  ///
+		addtext(Time Controls, No,Sample, Data-NoPP)
+	outreg2 using ../output/both_naive`ln'-simp_`data'_`t'.tex, dec(2) tex label append addstat(Mean Dep. Var., `depvarmean') ///
+		addtext(Time Controls, No,Sample, Data-NoPP) nocons keep(avail_`data' aer ajps apsr)
+	
+*********************************
+*INSTRUMENTAL VARIABLE REGRESSION
+*USE IVREG2 SO WE CAN STORE THE FIRST STAGE. IVREGRESS2 DOESN'T WORK--TOO CoLin
+*LEVEL
+ivreg2 `ln'citation aer ajps apsr post2005 post2010 post2012  `time' ///
+	(avail_`data' = aerXpost2005 ajpsXpost2010 ajpsXpost2012), first savefirst robust
+	summ `ln'citation if e(sample)==1
+	local depvarmean=r(mean)
+	
+	local F=e(widstat)
+	
+	outreg2 using ../output/both_ivreg`ln'_`data'_`t'.tex, dec(2) tex label replace title("2SLS Regression") ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') addtext(Time Controls, No, Sample, All)
+	outreg2 using ../output/both_ivreg`ln'-simp_`data'_`t'.tex, dec(2) tex label replace title("2SLS Regression") ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') addtext(Time Controls, No, Sample, All) nocons keep(avail_`data' aer ajps apsr post2005 post2010 post2012) 	
+	est restore _ivreg2_avail_`data'
+	outreg2 using ../output/both_first2`ln'-simp_`data'_`t'.tex, dec(2) tex label replace title("2SLS Regression") ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') addtext(Time Controls, No, Sample, All) nocons keep(avail_`data' aerXpost2005 ajpsXpost2010 ajpsXpost2012) 	
+		
+*INCLUDE INTERACTIONS
+*INCLUDE ALL DOUBLES FOR TRIPLE
+
+ivreg2 `ln'citation aer ajps apsr post2005 post2005Xdata ///
+	post2010 post2010Xdata post2012 post2012Xdata aerXdata ajpsXdata ///
+	`time' data_type_2 (avail_`data' = aerXpost2005 ajpsXpost2010 ajpsXpost2012 ///
+	aerXpost2005Xdata ajpsXpost2010Xdata ajpsXpost2012Xdata), ///
+	first savefirst robust
+	summ `ln'citation if e(sample)==1
+	local depvarmean=r(mean)
+	
+	local F=e(widstat)
+	
+	outreg2 using ../output/both_ivreg`ln'_`data'_`t'.tex, dec(2) tex label append  ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') addtext(Time Controls, No, Sample, IV=Data-Only)
+	outreg2 using ../output/both_ivreg`ln'-simp_`data'_`t'.tex, dec(2) tex label append  ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') addtext(Time Controls, No, Sample, IV=Data-Only) nocons keep(avail_`data' aer ajps apsr post2005 post2010 post2012) 	
+	est restore _ivreg2_avail_`data'
+	outreg2 using ../output/both_first2`ln'-simp_`data'_`t'.tex, dec(2) tex label append  ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') addtext(Time Controls, No, Sample, IV=Data-Only) nocons keep(avail_`data' aerXpost2005 ajpsXpost2010 ajpsXpost2012 aerXpost2005Xdata ajpsXpost2010Xdata ajpsXpost2012Xdata) 	
+	
+*COMPLICATED INTERACTION WITH PP
+*BECAUSE P&P IS ONLY ECONOMICS, IF YOU INCLUDE THE 4-WAY INTERACTION (aerXpost2005XdataXnotpp)
+*SOME OF THE TRIPLE/DOUBLE INTERACTIONS BECOME COLINEAR
+*THIS IS WHY I DROP TO OF THE AER DOUBLE INTERACTIONS
+ivreg2 `ln'citation aer ajps apsr post2005 post2005Xdata   ///
+	post2010 post2010Xdata post2012 post2012Xdata /*aerXdata*/ ajpsXdata ///
+	pp /*aerXnotpp*/ post2005Xnotpp dataXnotpp aerXdataXnotpp post2005XdataXnotpp /// 
+	`time' data_type_2 (avail_`data' = aerXpost2005 ajpsXpost2010 ajpsXpost2012 ///
+	aerXpost2005Xdata ajpsXpost2010Xdata ajpsXpost2012Xdata ///
+	aerXpost2005Xnotpp aerXpost2005XdataXnotpp ), ///
+	first savefirst robust
+
+	*FULL SET OF 4 INTERACTIONS
+	
+	*aer
+	*post2005
+	*data
+	*notpp
+	
+	*aerXpost2005
+	*aerXdata
+	*aerXnotpp
+	
+	*post2005Xdata
+	*post2005Xnotpp
+	*dataXnotpp
+	
+	*aerXdataXnotpp
+	*aerXpost2005Xnotpp
+	*aerXpost2005Xdata
+	*post2005XdataXnotpp
+	
+	summ `ln'citation if e(sample)==1
+	local depvarmean=r(mean)
+	
+	local F=e(widstat)
+	
+	outreg2 using ../output/both_ivreg`ln'_`data'_`t'.tex, dec(2) tex label append  ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') addtext(Time Controls, No, Sample, IV=Data-NoPP)
+	outreg2 using ../output/both_ivreg`ln'-simp_`data'_`t'.tex, dec(2) tex label append  ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') addtext(Time Controls, No, Sample, IV=Data-NoPP) nocons keep(avail_`data' aer ajps apsr post2005 post2010 post2012) 	
+	est restore _ivreg2_avail_`data'
+	outreg2 using ../output/both_first2`ln'-simp_`data'_`t'.tex, dec(2) tex label append  ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') addtext(Time Controls, No, Sample, IV=Data-NoPP) nocons keep(avail_`data' aerXpost2005 ajpsXpost2010 ajpsXpost2012 aerXpost2005Xdata ajpsXpost2010Xdata ajpsXpost2012Xdata) 	
+	
+ivreg2 `ln'citation aer ajps apsr post2005 post2010 post2012  `time' (avail_`data' = aerXpost2005 ajpsXpost2010 ajpsXpost2012) ///
+    if data_type!="no_data", first savefirst robust
+	summ `ln'citation if e(sample)==1
+	local depvarmean=r(mean)	
+	
+	local F=e(widstat)
+
+	outreg2 using ../output/both_ivreg`ln'_`data'_`t'.tex, dec(2) tex label append  ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') addtext(Time Controls, No, Sample, Data-Only)
+	outreg2 using ../output/both_ivreg`ln'-simp_`data'_`t'.tex, dec(2) tex label append  ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') addtext(Time Controls, No, Sample, Data-Only) nocons ///
+		keep(avail_`data' aer ajps apsr post2005 post2010 post2012) 	
+	est restore _ivreg2_avail_`data'
+	outreg2 using ../output/both_first2`ln'-simp_`data'_`t'.tex, dec(2) tex label append  ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') addtext(Time Controls, No, Sample, Data-Only) nocons ///
+		keep(avail_`data' aerXpost2005 ajpsXpost2010 ajpsXpost2012) 	
+
+	
+ivreg2 `ln'citation aer ajps apsr post2005 post2010 post2012  `time' ///
+	(avail_`data' = aerXpost2005 ajpsXpost2010 ajpsXpost2012) ///
+    if data_type!="no_data" & pp!=1, first savefirst robust
+	summ `ln'citation if e(sample)==1
+	local depvarmean=r(mean)
+	
+	local F=e(widstat)
+	
+	outreg2 using ../output/both_ivreg`ln'_`data'_`t'.tex, dec(2) tex label append  ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') addtext(Time Controls, No, Sample, Data-NoPP)
+	outreg2 using ../output/both_ivreg`ln'-simp_`data'_`t'.tex, dec(2) tex label append  ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') addtext(Time Controls, No, Sample, Data-NoPP) nocons ///
+		keep(avail_`data' aer ajps apsr post2005 post2010 post2012) 
+	est restore _ivreg2_avail_`data'
+	outreg2 using ../output/both_first2`ln'-simp_`data'_`t'.tex, dec(2) tex label append  ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') addtext(Time Controls, No, Sample, Data-NoPP) nocons ///
+		keep(avail_`data' aerXpost2005 ajpsXpost2010 ajpsXpost2012) 	
+
+
+} //end ln-normal citations
+} //data 
+} //time
+
+
+***********************************************************************
+/*MANUALLY DO THE IV
+*FIRST STAGE --MAY 2018--NOT NECESSARY--JUST USE IVREG2 IF YOU WANT THE FIRST STAGE PRINTED
 regress avail_`data'  aer  ajps apsr aerXpost2005 ajpsXpost2010 ajpsXpost2012 post2005 post2010 post2012 `time'
 	summ `ln'citation if e(sample)==1
 	local depvarmean=r(mean)
@@ -754,6 +933,8 @@ predict avail_hat
 *SECOND STAGE--DON'T TRUST THE STANDARD ERRORS!
 regress citation avail_hat aer ajps apsr post2005 post2010 post2012 ///
 	`time' year
+*/	
+	
 **********************************************************
 *TEST THE CHANGE IN TOPIC/TYPE/RANK USING THE MAIN SPECIFICATION
 *********************************************************
@@ -768,6 +949,11 @@ regress topic_4 aerXpost2005 aer post2005 ajps apsr ajpsXpost2010 post2010 ajpsX
 	outreg2 using ../output/both_exclusion_`data'_`t'.tex, dec(2) tex label append  ///
 	nocons addtext(Sample, Data-Only) keep(aerXpost2005) /*drop(`time')*/
 IF YOU FIX THIS FIX APPEND REPLACE*/
+foreach data in yn data state_full state_part{
+foreach time in "print_months_ago print_months_ago_sq print_months_ago_cu" "i.year#econ" {
+if "`time'"=="print_months_ago print_months_ago_sq print_months_ago_cu" local t="months"
+if "`time'"=="i.year#econ" local t="FE"
+
 regress data_type_1  post2005 aer ajps apsr aerXpost2005 ajpsXpost2010 post2010 ajpsXpost2012 post2012 `time' ///
 	if data_type_2==0 & pp!=1
 	summ data_type_1 if e(sample)==1
