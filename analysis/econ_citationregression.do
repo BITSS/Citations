@@ -112,10 +112,27 @@ label var data_type_2 "No Data in Article"
 label var data_type_3 "Observational"
 label var data_type_4 "Simulations"
 
+*GENERATE INTERACTIONS
+gen aerXdata=aer*(data_type_2==0)
+label var aerXdata "AER data articles"
 gen aerXpost2005Xdata=aerXpost2005*(data_type_2==0)
-label var aerXpost2005Xdata "AER Post-2005 with Data"				
+label var aerXpost2005Xdata "AER Post-2005 with Data"
 gen post2005Xdata=post2005*(data_type_2==0)
 label var post2005Xdata "Post-2005 with Data"
+gen post2005Xnotpp=post2005*(pp!=1)
+label var post2005Xnotpp "Post-2005 not P\&P"
+gen dataXnotpp=(data_type_2==0)*(pp!=1)
+label var dataXnotpp "Non P\&P data article"
+gen post2005XdataXnotpp=post2005Xdata*(pp!=1)
+label var post2005XdataXnotpp "Data non-PP article post-2005"
+gen aerXpost2005XdataXnotpp=aerXpost2005Xdata*(pp!=1)
+label var aerXpost2005XdataXnotpp "AER Data non-PP article post-2005"
+gen aerXpost2005Xnotpp=aerXpost2005*(pp!=1)
+label var aerXpost2005Xnotpp "AER After 2005 Not P\&P"
+gen aerXdataXnotpp=aerXdata*(pp!=1)
+label var aerXdataXnotpp "AER data article not P\&P"
+gen aerXnotpp=aer*(pp!=1)
+label var aerXnotpp "AER non P\&P article"
 
 gen lncitation=ln(citation+1)
 label var lncitation "Ln(Cites+1)"
@@ -128,6 +145,17 @@ replace availability_fileext = "files" if title == "A Model of Housing in the Pr
 gen avail_yn=(availability=="files")
 gen avail_data=(availability=="files"|availability=="data")
 label var avail_yn "Data and Code Available" 
+
+*CREATE STATED/PARTIAL AVAILABILITY
+foreach var in reference_code_partial_strict reference_code_partial_easy reference_data_partial_strict reference_data_partial_easy reference_files_partial_strict reference_files_partial_easy reference_code_full_strict reference_code_full_easy reference_data_full_strict reference_data_full_easy reference_files_full_strict reference_files_full_easy{
+	replace `var'="." if `var'=="NA"
+	destring `var', replace
+}
+gen avail_state_full=(reference_data_full_strict==1| reference_data_full_easy==1| reference_files_full_strict==1| reference_files_full_easy==1)
+gen avail_state_part=(avail_state_full==1)|(reference_code_partial_strict==1| reference_code_partial_easy==1| reference_data_partial_strict==1| reference_data_partial_easy==1| reference_files_partial_strict==1| reference_files_partial_easy==1)
+label var avail_state_full "Stated Availability" 
+label var avail_state_part "Stated Availability:Part"
+
 *****************************************************
 save ../external_econ/cleaned/econ_mergedforregs.dta, replace
 
@@ -322,114 +350,174 @@ graph export ../output/econ_rankXjournalXpost`X'.eps, replace
 ***********************************************************
 *REGRESSIONS
 ***********************************************************
+foreach data in yn data state_full state_part{
+foreach time in "print_months_ago print_months_ago_sq print_months_ago_cu" "i.year" {
+if "`time'"=="print_months_ago print_months_ago_sq print_months_ago_cu" local t="months"
+if "`time'"=="i.year#econ" local t="FE"
 
 *NAIVE
-regress citation avail_yn
-	outreg2 using ../output/econ_naive.tex, dec(3) tex label replace addtext(Sample, All)
-	outreg2 using ../output/econ_naive-simp.tex, dec(3) tex label replace addtext(Sample, All) ///
-	nocons drop(print_months_ago_cu print_months_ago_sq) addnote("Regressions include constant, squared and cubed months since publication.")
+foreach ln in "" ln wok lnwok {
+regress `ln'citation avail_`data'
+	summ `ln'citation if e(sample)==1
+	local depvarmean=r(mean)
+	if "`t'"=="months" {
+	outreg2 using ../output/econ_naive`ln'_`data'_`t'.tex, dec(3) tex label replace addtext(Months since Publication, None, Sample, All) addstat(Mean Dep. Var., `depvarmean')
+	outreg2 using ../output/econ_naive`ln'-simp_`data'_`t'.tex, dec(3) tex label replace addtext(Months since Publication, None, Sample, All) addstat(Mean Dep. Var., `depvarmean') ///
+	nocons drop(print_months_ago_cu print_months_ago_sq) addnote("Regressions include constant, squared and cubed months since publication.") 
+	}
+	if "`t'"=="FE" {
+	outreg2 using ../output/econ_naive`ln'_`data'_`t'.tex, dec(3) tex label replace addtext(Year-Discipline FE, No, Sample, All) addstat(Mean Dep. Var., `depvarmean')
+	outreg2 using ../output/econ_naive`ln'-simp_`data'_`t'.tex, dec(3) tex label replace addtext(Year-Discipline FE, No, Sample, All) addstat(Mean Dep. Var., `depvarmean') ///
+	nocons addnote("Regressions include constant, squared and cubed months since publication.")
+	}
 *regress citation avail_yn aer 
 *	outreg2 using ../output/econ_naive.tex, tex label append
-regress citation avail_yn aer print_months_ago	print_months_ago_sq print_months_ago_cu
-	outreg2 using ../output/econ_naive.tex, dec(3) tex label append title("Naive OLS Regression") ///
-	addtext(Sample, All)
-	outreg2 using ../output/econ_naive-simp.tex, dec(3) tex label append title("Naive OLS Regression") ///
-	addtext(Sample, All) nocons drop(print_months_ago_cu print_months_ago_sq)
-regress citation avail_yn aer print_months_ago	print_months_ago_sq print_months_ago_cu ///
-	data_type_2
-	outreg2 using ../output/econ_naive.tex, dec(3) tex label append title("Naive OLS Regression") ///
-	addtext(Sample, All)
-	outreg2 using ../output/econ_naive-simp.tex, dec(3) tex label append title("Naive OLS Regression") ///
-	addtext(Sample, All) nocons drop(print_months_ago_cu print_months_ago_sq)
-regress citation avail_yn aer print_months_ago	print_months_ago_sq print_months_ago_cu ///
-	if data_type!="no_data"
-	outreg2 using ../output/econ_naive.tex, dec(3) tex label append addtext(Sample, Data-Only)
-	outreg2 using ../output/econ_naive-simp.tex, dec(3) tex label append addtext(Sample, Data-Only) ///
-	nocons drop(print_months_ago_cu print_months_ago_sq)
-
-*NAIVE-LN
-
-regress lncitation avail_yn
-	outreg2 using ../output/econ_naiveLN.tex, dec(3) tex label replace addtext(Sample, All)
-	outreg2 using ../output/econ_naiveLN-simp.tex, dec(3) tex label replace addtext(Sample, All) ///
-	nocons drop(print_months_ago_cu print_months_ago_sq)
-*regress lncitation avail_yn aer 
-*	outreg2 using ../output/econ_naiveLN.tex, tex label append
-regress lncitation avail_yn aer print_months_ago	print_months_ago_sq print_months_ago_cu
-	outreg2 using ../output/econ_naiveLN.tex, dec(3) tex label append title("Naive Log OLS Regression") ///
-		addtext(Sample, All)
-		outreg2 using ../output/econ_naiveLN-simp.tex, dec(3) tex label append title("Naive OLS Regression") ///
-	addtext(Sample, All) nocons drop(print_months_ago_cu print_months_ago_sq)
-regress lncitation avail_yn aer print_months_ago	print_months_ago_sq print_months_ago_cu ///
-	data_type_2
-	outreg2 using ../output/econ_naiveLN.tex, dec(3) tex label append title("Naive Log OLS Regression") ///
-		addtext(Sample, All)
-	outreg2 using ../output/econ_naiveLN-simp.tex, dec(3) tex label append title("Naive OLS Regression") ///
-	addtext(Sample, All) nocons drop(print_months_ago_cu print_months_ago_sq)
-regress lncitation avail_yn aer print_months_ago	print_months_ago_sq print_months_ago_cu ///
-	if data_type!="no_data"
-	outreg2 using ../output/econ_naiveLN.tex, dec(3) tex label append addtext(Sample, Data-Only)
-	outreg2 using ../output/econ_naiveLN-simp.tex, dec(3) tex label append addtext(Sample, Data-Only) ///
-	nocons drop(print_months_ago_cu print_months_ago_sq)
-
+regress `ln'citation avail_`data' aer `time'
+	summ `ln'citation if e(sample)==1
+	local depvarmean=r(mean)
+	if "`t'"=="months" {
+	outreg2 using ../output/econ_naive`ln'_`data'_`t'.tex, dec(3) tex label append title("Naive OLS Regression") ///
+	addstat(Mean Dep. Var., `depvarmean') addtext(Months since Publication, Cubic, Sample, All)
+	outreg2 using ../output/econ_naive`ln'-simp_`data'_`t'.tex, dec(3) tex label append title("Naive OLS Regression") ///
+	addstat(Mean Dep. Var., `depvarmean') addtext(Months since Publication, Cubic, Sample, All) nocons drop(print_months_ago_cu print_months_ago_sq)
+	}
+	if "`t'"=="FE" {
+	outreg2 using ../output/econ_naive`ln'_`data'_`t'.tex, dec(3) tex label append title("Naive OLS Regression") ///
+	addstat(Mean Dep. Var., `depvarmean') addtext(Year-Discipline FE, Yes, Sample, All)
+	outreg2 using ../output/econ_naive`ln'-simp_`data'_`t'.tex, dec(3) tex label append title("Naive OLS Regression") ///
+	addstat(Mean Dep. Var., `depvarmean') addtext(Year-Discipline FE, Yes, Sample, All) nocons
+	}
+regress `ln'citation avail_`data' aer `time' data_type_2 pp
+	summ `ln'citation if e(sample)==1
+	local depvarmean=r(mean)
+	if "`t'"=="months" {
+	outreg2 using ../output/econ_naive`ln'_`data'_`t'.tex, dec(3) tex label append title("Naive OLS Regression") ///
+	addstat(Mean Dep. Var., `depvarmean') addtext(Months since Publication, Cubic, Sample, All)
+	outreg2 using ../output/econ_naive`ln'-simp_`data'_`t'.tex, dec(3) tex label append title("Naive OLS Regression") ///
+	addstat(Mean Dep. Var., `depvarmean') addtext(Months since Publication, Cubic, Sample, All) nocons keep(avail_`data' aer data_type_2 pp)
+	}
+	if "`t'"=="FE" {
+	outreg2 using ../output/econ_naive`ln'_`data'_`t'.tex, dec(3) tex label append title("Naive OLS Regression") ///
+	addstat(Mean Dep. Var., `depvarmean') addtext(Year-Discipline FE, Yes, Sample, All)
+	outreg2 using ../output/econ_naive`ln'-simp_`data'_`t'.tex, dec(3) tex label append title("Naive OLS Regression") ///
+	addstat(Mean Dep. Var., `depvarmean') addtext(Year-Discipline FE, Yes, Sample, All) nocons keep(avail_`data' aer data_type_2 pp)
+	}
+regress `ln'citation avail_`data' aer `time' if data_type!="no_data" & pp!=1
+	summ `ln'citation avail_`data'
+	local depvarmean=r(mean)
+	if "`t'"=="months" {
+	outreg2 using ../output/econ_naive`ln'_`data'_`t'.tex, dec(3) tex label append addtext(Months since Publication, Cubic, Sample, Data-NoPP) addstat(Mean Dep. Var., `depvarmean')
+	outreg2 using ../output/econ_naive`ln'-simp_`data'_`t'.tex, dec(3) tex label append addtext(Months since Publication, Cubic, Sample, Data-NoPP) addstat(Mean Dep. Var., `depvarmean') ///
+	nocons keep(avail_`data' aer data_type_2)
+	}
+	if "`t'"=="FE" {
+	outreg2 using ../output/econ_naive`ln'_`data'_`t'.tex, dec(3) tex label append addtext(Year-Discipline FE, Yes, Sample, Data-NoPP) addstat(Mean Dep. Var., `depvarmean')
+	outreg2 using ../output/econ_naive`ln'-simp_`data'_`t'.tex, dec(3) tex label append addtext(Year-Discipline FE, Yes, Sample, Data-NoPP) addstat(Mean Dep. Var., `depvarmean') ///
+	nocons keep(avail_`data' aer data_type_2)
+	}
 	
 *********************************
 *INSTRUMENTAL VARIABLE REGRESSION
 *LEVEL
-ivregress 2sls citation aer post2005  print_months_ago ///
-	print_months_ago_sq print_months_ago_cu (avail_yn = aerXpost2005), first
-
-	outreg2 using ../output/econ_ivreg.tex, dec(3) tex label replace ctitle("2SLS") title("2SLS Regression") ///
-		nocons addtext(Sample, All)
-	outreg2 using ../output/econ_ivreg-simp.tex, dec(3) tex label replace ctitle("2SLS") title("2SLS Regression") ///
-		nocons addtext(Sample, All) drop(print_months_ago_cu print_months_ago_sq)
-
+ivreg2 `ln'citation aer post2005  `time' (avail_`data' = aerXpost2005), first savefirst robust
+	summ `ln'citation if e(sample)==1
+	local depvarmean=r(mean)
+	local F=e(widstat)
+	if "`t'"=="months" {
+	outreg2 using ../output/econ_ivreg`ln'_`data'.tex, dec(3) tex label replace ctitle("2SLS `ln'") title("2SLS Regression") ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') nocons addtext(Months since Publication, Cubic, Sample, All)
+	outreg2 using ../output/econ_ivreg`ln'-simp_`data'.tex, dec(3) tex label replace ctitle("2SLS `ln'") title("2SLS Regression") ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') nocons addtext(Months since Publication, Cubic, Sample, All) drop(print_months_ago_cu print_months_ago_sq)
+	est restore _ivreg2_avail_`data'
+	outreg2 using ../output/econ_first2`ln'-simp_`data'_`t'.tex, dec(2) tex label replace title("2SLS Regression") ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') addtext(Months since Publication, Cubic, Sample, All) nocons keep(avail_`data' aerXpost2005)	
+	}
+	if "`t'"=="FE" {
+	outreg2 using ../output/econ_ivreg`ln'_`data'.tex, dec(3) tex label replace ctitle("2SLS") title("2SLS Regression") ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') nocons addtext(Year-Discipline FE, Yes, Sample, All)
+	outreg2 using ../output/econ_ivreg`ln'-simp_`data'.tex, dec(3) tex label replace ctitle("2SLS") title("2SLS Regression") ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') nocons addtext(Year-Discipline FE, Yes, Sample, All)
+	est restore _ivreg2_avail_`data'
+	outreg2 using ../output/econ_first2`ln'-simp_`data'_`t'.tex, dec(2) tex label replace title("2SLS Regression") ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') addtext(Year-Discipline FE, Yes, Sample, All) nocons keep(avail_`data' aerXpost2005) 	
+	}
 *INCLUDE INTERACTIONS
+ivreg2 `ln'citation aer post2005 aerXdata post2005Xdata `time' data_type_2 (avail_`data' = aerXpost2005 aerXpost2005Xdata), ///
+	first savefirst robust
+	summ `ln'citation if e(sample)==1
+	local depvarmean=r(mean)
+	local F=e(widstat)
+	if "`t'"=="months" {
+	outreg2 using ../output/econ_ivreg`ln'_`data'.tex, dec(3) tex label append ctitle("2SLS `ln'") ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') nocons addtext(Months since Publication, Cubic, Sample, IV=Data-Only)
+	outreg2 using ../output/econ_ivreg`ln'-simp_`data'.tex, dec(3) tex label append ctitle("2SLS `ln'") ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') nocons addtext(Months since Publication, Cubic, Sample, IV=Data-Only) drop(print_months_ago_cu print_months_ago_sq)
+	est restore _ivreg2_avail_`data'
+	outreg2 using ../output/econ_first2`ln'-simp_`data'_`t'.tex, dec(2) tex label append  ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') addtext(Months since Publication, Cubic, Sample, IV=Data-Only) nocons keep(avail_`data' aerXpost2005 aerXpost2005Xdata)	
+	}
+	if "`t'"=="FE" {
+	outreg2 using ../output/econ_ivreg`ln'_`data'.tex, dec(3) tex label append ctitle("2SLS `ln'") ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') nocons addtext(Year-Discipline FE, Yes, Sample, IV=Data-Only)
+	outreg2 using ../output/econ_ivreg`ln'-simp_`data'.tex, dec(3) tex label append ctitle("2SLS `ln'") ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') nocons addtext(Year-Discipline FE, Yes, Sample, IV=Data-Only)
+	est restore _ivreg2_avail_`data'
+	outreg2 using ../output/econ_first2`ln'-simp_`data'_`t'.tex, dec(2) tex label append  ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') addtext(Year-Discipline FE, Yes, Sample, IV=Data-Only) nocons keep(avail_`data' aerXpost2005 aerXpost2005Xdata) 	
+	}
+ivreg2 `ln'citation aer post2005 `time' (avail_`data' = aerXpost2005) ///
+    if data_type!="no_data", first savefirst robust
+	summ `ln'citation if e(sample)==1
+	local depvarmean=r(mean)
+	local F=e(widstat)
+	if "`t'"=="months" {
+	outreg2 using ../output/econ_ivreg`ln'_`data'.tex, dec(3) tex label append ctitle("2SLS `ln'") ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') addtext(Months since Publication, Cubic, Sample, Data-NoPP) nocons
+	outreg2 using ../output/econ_ivreg`ln'-simp_`data'.tex, dec(3) tex label append ctitle("2SLS `ln'") ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') addtext(Months since Publication, Cubic, Sample, Data-NoPP) nocons drop(print_months_ago_cu print_months_ago_sq)
+	est restore _ivreg2_avail_`data'
+	outreg2 using ../output/econ_first2`ln'-simp_`data'_`t'.tex, dec(2) tex label append  ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') addtext(Months since Publication, Cubic, Sample, IV=Data-NoPP) nocons keep(avail_`data' aerXpost2005 aerXpost2005Xdata)	
+	}
+	if "`t'"=="FE" {
+	outreg2 using ../output/econ_ivreg`ln'_`data'.tex, dec(3) tex label append ctitle("2SLS `ln'") ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') addtext(Year-Discipline FE, Yes, Sample, Data-NoPP) nocons
+	outreg2 using ../output/econ_ivreg`ln'-simp_`data'.tex, dec(3) tex label append ctitle("2SLS `ln'") ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') addtext(Year-Discipline FE, Yes, Sample, Data-NoPP) nocons
+	est restore _ivreg2_avail_`data'
+	outreg2 using ../output/econ_first2`ln'-simp_`data'_`t'.tex, dec(2) tex label append  ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') addtext(Year-Discipline FE, Yes, Sample, IV=Data-NoPP) nocons keep(avail_`data' aerXpost2005 aerXpost2005Xdata) 	
+	}
 
+*INTERACTION WITH PP
+ivreg2 `ln'citation aer post2005 pp aerXdata post2005Xdata dataXnotpp aerXnotpp post2005Xnotpp aerXdataXnotpp post2005XdataXnotpp `time' data_type_2 (avail_`data' = aerXpost2005 aerXpost2005Xdata aerXpost2005Xnotpp aerXpost2005XdataXnotpp), ///
+	first savefirst robust
+	summ `ln'citation if e(sample)==1
+	local depvarmean=r(mean)
+	local F=e(widstat)
+	if "`t'"=="months" {
+	outreg2 using ../output/econ_ivreg`ln'_`data'.tex, dec(3) tex label append ctitle("2SLS `ln'") ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') nocons addtext(Months since Publication, Cubic, Sample, IV=Data-Only)
+	outreg2 using ../output/econ_ivreg`ln'-simp_`data'.tex, dec(3) tex label append ctitle("2SLS `ln'") ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') nocons addtext(Months since Publication, Cubic, Sample, IV=Data-Only) drop(print_months_ago_cu print_months_ago_sq)
+	est restore _ivreg2_avail_`data'
+	outreg2 using ../output/econ_first2`ln'-simp_`data'_`t'.tex, dec(2) tex label append  ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') addtext(Months since Publication, Cubic, Sample, IV=Data-Only) nocons keep(avail_`data' aerXpost2005 aerXpost2005Xdata aerXpost2005Xnotpp aerXpost2005XdataXnotpp)	
+	}
+	if "`t'"=="FE" {
+	outreg2 using ../output/econ_ivreg`ln'_`data'.tex, dec(3) tex label append ctitle("2SLS `ln'") ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') nocons addtext(Year-Discipline FE, Yes, Sample, IV=Data-Only)
+	outreg2 using ../output/econ_ivreg`ln'-simp_`data'.tex, dec(3) tex label append ctitle("2SLS `ln'") ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') nocons addtext(Year-Discipline FE, Yes, Sample, IV=Data-Only)
+	est restore _ivreg2_avail_`data'
+	outreg2 using ../output/econ_first2`ln'-simp_`data'_`t'.tex, dec(2) tex label append  ///
+		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') addtext(Year-Discipline FE, Yes, Sample, IV=Data-Only) nocons keep(avail_`data' aerXpost2005 aerXpost2005Xdata aerXpost2005Xnotpp aerXpost2005XdataXnotpp) 	
+	}
 	
-ivregress 2sls citation aer post2005 post2005Xdata ///
-	print_months_ago print_months_ago_sq print_months_ago_cu data_type_2 (avail_yn = aerXpost2005Xdata), ///
-	first
+} // end level log loop
+} // end time loop
+} // end data loop
 
-	outreg2 using ../output/econ_ivreg.tex, dec(3) tex label append ctitle("2SLS") ///
-		nocons addtext(Sample, IV=Data-Only)
-	outreg2 using ../output/econ_ivreg-simp.tex, dec(3) tex label append ctitle("2SLS") ///
-		nocons addtext(Sample, IV=Data-Only) drop(print_months_ago_cu print_months_ago_sq)
-
-ivregress 2sls citation aer post2005  print_months_ago ///
-	print_months_ago_sq print_months_ago_cu (avail_yn = aerXpost2005) ///
-    if data_type!="no_data", first
-
-	outreg2 using ../output/econ_ivreg.tex, dec(3) tex label append ctitle("2SLS") ///
-		addtext(Sample, Data-Only) nocons
-	outreg2 using ../output/econ_ivreg-simp.tex, dec(3) tex label append ctitle("2SLS") ///
-		addtext(Sample, Data-Only) nocons drop(print_months_ago_cu print_months_ago_sq)
-		
-		
-*LOG		
-ivregress 2sls lncitation aer post2005  print_months_ago ///
-	print_months_ago_sq print_months_ago_cu (avail_yn = aerXpost2005), first
-	outreg2 using ../output/econ_ivregLN.tex, dec(3) tex label replace ctitle("2SLS-Log") ///
-		nocons addtext(Sample, All) title("2SLS Regression of ln(citations+1)")
-	outreg2 using ../output/econ_ivregLN-simp.tex, dec(3) tex label replace ctitle("2SLS-Log") ///
-		nocons addtext(Sample, All) title("2SLS Regression of ln(citations+1)") ///
-		drop(print_months_ago_cu print_months_ago_sq)
-		
-		
-ivregress 2sls lncitation aer post2005  post2005Xdata print_months_ago ///
-	print_months_ago_sq print_months_ago_cu data_type_2 (avail_yn = aerXpost2005Xdata), first
-	outreg2 using ../output/econ_ivregLN.tex, dec(3) tex label append ctitle("2SLS-Log") ///
-		nocons addtext(Sample, IV=Data-Only)
-	outreg2 using ../output/econ_ivregLN-simp.tex, dec(3) tex label append ctitle("2SLS-Log") ///
-		nocons addtext(Sample, IV=Data-Only) drop(print_months_ago_cu print_months_ago_sq)
-		
-ivregress 2sls lncitation aer post2005  print_months_ago ///
-	print_months_ago_sq print_months_ago_cu (avail_yn = aerXpost2005) if data_type!="no_data", first
-	outreg2 using ../output/econ_ivregLN.tex, dec(3) tex label append ctitle("2SLS-Log") ///
-		nocons addtext(Sample, Data-Only)		
-	outreg2 using ../output/econ_ivregLN-simp.tex, dec(3) tex label append ctitle("2SLS-Log") ///
-		nocons addtext(Sample, Data-Only) drop(print_months_ago_cu print_months_ago_sq)
-		
 *MANUALLY DO THE IV
 *FIRST STAGE
 regress avail_yn aerXpost2005 aer post2005  print_months_ago ///
