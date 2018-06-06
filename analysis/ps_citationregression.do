@@ -31,6 +31,13 @@ insheet using ../external/citations_clean_data.csv, clear names
 count
 rename abstractx abstract
 
+***************************************************************
+*CREATE MAIN SAMPLE VARIABLE BEFORE ANY ANALYSIS.
+*USE THIS AS AN IF BEFORE nearly ALL analysis!
+gen mainsample=1 if data_type!="no_data" & apsr_centennial_issue!="TRUE"
+label var mainsample "Regular Data Articles"
+***************************************************************
+
 *****************************************************
 *DROP NON-REAL ARTICLES
 ******************************************************
@@ -327,18 +334,34 @@ label var cum3citation "Cumulative Citations after 3 years"
 gen cum5citation=year0citation+year1citation+year2citation+year3citation+year4citation+year5citation
 label var cum5citation "Cumulative Citations after 5 years"
 
+*CITATION HISTOGRAMS
+*ALL
+histogram citation if citation<500, bgcolor(white) graphregion(color(white)) title("Density of Citations, Political Science") ///
+	subtitle("All Articles")
+graph export ../output/ps_cite_histo_all.eps, replace
+graph export ../output/ps_cite_histo_all.png, replace
+graph save ../output/ps_cite_histo_all.gph, replace
 
-histogram citation if citation<500, bgcolor(white) graphregion(color(white)) title("Density of Citations, Political Science")
+gen citation_year=citation/(print_months_ago/12)
+label var citation_year "Total Citations per Year"
+histogram citation_year if citation<500, bgcolor(white) graphregion(color(white)) title("Density of Citations per Year, Political Science") ///
+		subtitle("All Articles")
+graph export ../output/ps_cite_histo_year_all.eps, replace
+graph export ../output/ps_cite_histo_year_all.png, replace
+graph save ../output/ps_cite_histo_year_all.gph, replace
+
+*MAINSAMPLE
+histogram citation if citation<500 &mainsample==1, bgcolor(white) graphregion(color(white)) title("Density of Citations, Political Science")
 graph export ../output/ps_cite_histo.eps, replace
 graph export ../output/ps_cite_histo.png, replace
 graph save ../output/ps_cite_histo.gph, replace
 
-gen citation_year=citation/(print_months_ago/12)
 label var citation_year "Total Citations per Year"
-histogram citation_year if citation<500, bgcolor(white) graphregion(color(white)) title("Density of Citations per Year, Political Science")
+histogram citation_year if citation<500 & mainsample==1, bgcolor(white) graphregion(color(white)) title("Density of Citations per Year, Political Science")
 graph export ../output/ps_cite_histo_year.eps, replace
 graph export ../output/ps_cite_histo_year.png, replace
 graph save ../output/ps_cite_histo_year.gph, replace
+
 
 bysort year ajps: egen cite_j_avg=mean(citation)
 label var cite_j_avg "Cites by Journal and Year"

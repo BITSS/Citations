@@ -9,6 +9,21 @@ log using ../logs/econ_citationregression.log, replace
 *LOAD MAIN MERGED DATA
 insheet using ../external_econ/citations_clean_data.csv, clear names
 
+
+
+***************************************************************
+*CREATE MAIN SAMPLE VARIABLE BEFORE ANY ANALYSIS.
+*USE THIS AS AN IF BEFORE nearly ALL analysis!
+gen pp=1 if journal=="aer" & (publication_date=="2001/05/01"|publication_date=="2001/05/01"| ///
+	publication_date=="2002/05/01"|publication_date=="2003/05/01"|publication_date=="2004/05/01"| ///
+	publication_date=="2005/05/01"|publication_date=="2006/05/01"|publication_date=="2007/05/01"| ///
+	publication_date=="2008/05/01"|publication_date=="2009/05/01")
+replace pp=0 if pp==.
+label var pp "P\&P Issue of AER"
+
+gen mainsample=1 if data_type!="no_data" & pp!=1
+label var mainsample "Regular Data Articles"
+***************************************************************
 *****************************************************
 *DROP NON-REAL ARTICLES
 ******************************************************
@@ -97,13 +112,6 @@ label var post2005 "Post-Mar 2005"
 label define beforeafter 0 "Before" 1 "After"
 label values post2005 beforeafter
 
-
-gen pp=1 if journal=="aer" & (publication_date=="2001/05/01"|publication_date=="2001/05/01"| ///
-	publication_date=="2002/05/01"|publication_date=="2003/05/01"|publication_date=="2004/05/01"| ///
-	publication_date=="2005/05/01"|publication_date=="2006/05/01"|publication_date=="2007/05/01"| ///
-	publication_date=="2008/05/01"|publication_date=="2009/05/01")
-replace pp=0 if pp==.
-label var pp "P\&P Issue of AER"
 
 replace data_type="" if data_type=="skip"
 tab data_type, generate(data_type_)
@@ -211,18 +219,32 @@ graph export ../output/econ_avail`data'_time_data_nopp.png, replace
 ****************************
 *GRAPH CITATIONS
 ****************************
+*ALL ARTICLES
+histogram citation if citation<500, bgcolor(white) graphregion(color(white)) title("Density of Citations, Economics") ///
+	subtitle("All Articles")
+graph export ../output/econ_cite_histo_all.eps, replace
+graph export ../output/econ_cite_histo_all.png, replace
+graph save ../output/econ_cite_histo_all.gph, replace
+
+gen citation_year=citation/(print_months_ago/12)
+label var citation_year "Total Citations per Year"
+histogram citation_year if citation<500, bgcolor(white) graphregion(color(white)) title("Density of Citations per Year, Economics") ///
+	subtitle("All Articles")
+graph export ../output/econ_cite_histo_year_all.eps, replace
+graph export ../output/econ_cite_histo_year_all.png, replace
+graph save ../output/econ_cite_histo_year_all.gph, replace
+
+*MAIN SAMPLE
 histogram citation if citation<500, bgcolor(white) graphregion(color(white)) title("Density of Citations, Economics")
 graph export ../output/econ_cite_histo.eps, replace
 graph export ../output/econ_cite_histo.png, replace
 graph save ../output/econ_cite_histo.gph, replace
 
-gen citation_year=citation/(print_months_ago/12)
 label var citation_year "Total Citations per Year"
 histogram citation_year if citation<500, bgcolor(white) graphregion(color(white)) title("Density of Citations per Year, Economics")
 graph export ../output/econ_cite_histo_year.eps, replace
 graph export ../output/econ_cite_histo_year.png, replace
 graph save ../output/econ_cite_histo_year.gph, replace
-
 
 bysort year aer: egen cite_j_avg=mean(citation)
 label var cite_j_avg "Cites by Journal and Year"
