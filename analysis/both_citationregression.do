@@ -333,10 +333,11 @@ replace top_rank=.a if top_rank==125 //.a is NOT RANKED
 
 
 gen top1=.
-replace top1=1 if top_rank==1
-replace top1=0 if top_rank>1 & top_rank<.b
+replace top1=1 if top_rank<=6
+replace top1=0 if top_rank>6 & top_rank<.b
+*top1 is actually top6 because Econ has 6 #1s, PS has 2 #1s, 3, 3 #4s (so they both have 6 in top 6)
 gen top10=.
-replace top10=1 if (top_rank>1 & top_rank<=10)
+replace top10=1 if (top_rank>6 & top_rank<=10)
 replace top10=0 if top1==1|(top_rank>10 & top_rank<.b)
 gen top20=.
 replace top20=1 if (top_rank>10 & top_rank<=20)
@@ -351,12 +352,11 @@ gen unranked=.
 replace unranked=1 if top_rank==.a
 replace unranked=0 if top_rank<.
 label var top1 "Top 1"
-label var top5 "Top 5"
 label var top10 "Top 10"
 label var top20 "Top 20"
 label var top50 "Top 50"
 label var top100 "Top 100"
-
+stop
 /*
 foreach X in 2005{
 graph bar top1 top10 top20 top50 top100 unranked, stack over(post`X') over(aer)  legend(lab(1 "Top 1*") ///

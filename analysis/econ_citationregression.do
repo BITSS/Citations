@@ -312,8 +312,8 @@ graph export ../output/histo_authrank.eps, replace
 replace top_rank=.a if top_rank==125 //.a is NOT RANKED
 
 gen top1=.
-replace top1=1 if top_rank==1
-replace top1=0 if top_rank>1 & top_rank<.b
+replace top1=1 if top_rank<=6
+replace top1=0 if top_rank>6 & top_rank<.b
 gen top10=.
 replace top10=1 if (top_rank>1 & top_rank<=10)
 replace top10=0 if top1==1 |(top_rank>10 & top_rank<.b)
