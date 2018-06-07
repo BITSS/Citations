@@ -238,7 +238,7 @@ gen apsr_y_avg`data'=avail_j_avg`data' if ajps==0
 label var apsr_y_avg`data' "APSR"
 line ajps_y_avg`data' apsr_y_avg`data' year, title("`t' Availability by Journal") ///
 	bgcolor(white) graphregion(color(white)) ///
-	ylabel(0 0.2 0.4 0.6 0.8 1) xline(2010 2012)
+	ylabel(0 0.2 0.4 0.6 0.8 1) xline(2010 2012) lpattern(solid dash)
 graph export ../output/ps_avail`data'_time_all.eps, replace
 graph export ../output/ps_avail`data'_time_all.png, replace
 
@@ -252,7 +252,7 @@ gen apsr_y_avg_dataarticle`data'=avail_j_avg_dataarticle`data' if ajps==0
 label var apsr_y_avg_dataarticle`data' "APSR"
 line ajps_y_avg_dataarticle`data' apsr_y_avg_dataarticle`data' year, title("`t' Availability by Journal, Data Articles") ///
 	bgcolor(white) graphregion(color(white)) ///
-	ylabel(0 0.2 0.4 0.6 0.8 1) xline(2010 2012)
+	ylabel(0 0.2 0.4 0.6 0.8 1) xline(2010 2012) lpattern(solid dash)
 graph export ../output/ps_avail`data'_time_dataarticle.eps, replace
 graph export ../output/ps_avail`data'_time_dataarticle.png, replace
 
@@ -370,7 +370,7 @@ label var ajps_y_citeavg "AJPS"
 gen apsr_y_citeavg=cite_j_avg if ajps==0
 label var apsr_y_citeavg "APSR"
 line ajps_y_citeavg apsr_y_citeavg year, title("Total Citations by Journal") ///
-	bgcolor(white) graphregion(color(white))
+	bgcolor(white) graphregion(color(white)) lpattern(solid dash)
 graph export ../output/ps_cite_time.png, replace
 graph export ../output/ps_cite_time.eps, replace
 

@@ -182,7 +182,7 @@ gen qje_y_avg`data'=avail_j_avg`data' if aer==0
 label var qje_y_avg`data' "QJE"
 line aer_y_avg`data' qje_y_avg`data' year, title("`t' Availability by Journal") ///
 	bgcolor(white) graphregion(color(white)) ///
-	ylabel(0 0.2 0.4 0.6 0.8 1) xline(2005)
+	ylabel(0 0.2 0.4 0.6 0.8 1) xline(2005) lpattern(solid dash)
 graph export ../output/econ_avail`data'_time_all.eps, replace
 graph export ../output/econ_avail`data'_time_all.png, replace
 
@@ -197,7 +197,7 @@ gen qje_y_avg_dataarticle`data'=avail_j_avg_dataarticle`data' if aer==0
 label var qje_y_avg_dataarticle`data' "QJE"
 line aer_y_avg_dataarticle`data' qje_y_avg_dataarticle`data' year, title("`t' Availability by Journal, Data Articles") ///
 	bgcolor(white) graphregion(color(white)) ///
-	ylabel(0 0.2 0.4 0.6 0.8 1) xline(2005)
+	ylabel(0 0.2 0.4 0.6 0.8 1) xline(2005) lpattern(solid dash)
 graph export ../output/econ_avail`data'_time_dataarticle.eps, replace
 graph export ../output/econ_avail`data'_time_dataarticle.png, replace
 
@@ -211,7 +211,7 @@ gen qje_y_avg_data_nopp`data'=avail_j_avg_data_nopp`data' if aer==0
 label var qje_y_avg_data_nopp`data' "QJE"
 line aer_y_avg_data_nopp`data' qje_y_avg_data_nopp`data' year, title("`t' Availability, Regular Articles with Data") ///
 	bgcolor(white) graphregion(color(white)) ///
-	ylabel(0 0.2 0.4 0.6 0.8 1) xline(2005)
+	ylabel(0 0.2 0.4 0.6 0.8 1) xline(2005) lpattern(solid dash)
 graph export ../output/econ_avail`data'_time_data_nopp.eps, replace
 graph export ../output/econ_avail`data'_time_data_nopp.png, replace
 } //end different types of data availability
@@ -253,7 +253,7 @@ label var aer_y_citeavg "AER"
 gen qje_y_citeavg=cite_j_avg if aer==0
 label var qje_y_citeavg "QJE"
 line aer_y_citeavg qje_y_citeavg year, title("Total Citations by Journal") ///
-	bgcolor(white) graphregion(color(white))
+	bgcolor(white) graphregion(color(white)) lpattern(solid dash)
 graph export ../output/econ_cite_time.eps, replace
 
 *********************************************************
