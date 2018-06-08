@@ -444,7 +444,8 @@ eststo summstat_econ_all: estpost summ aer pp qje ajps apsr econ year data_type_
 eststo summstat_ps_all: estpost summ aer pp qje ajps apsr econ year data_type_* top1 top10 top20 top50 avail_yn avail_data citation wokcitation if econ==0
 
 esttab summstat_both_all summstat_econ_all summstat_ps_all using ../output/both_summstat_all.tex, ///
-	main(mean) aux(sd) style(tex) replace label mtitles("All" "Economics" "Political Science")
+	main(mean) aux(sd) style(tex) replace label mtitles("All" "Economics" "Political Science") ///
+	addnote("Table summarizes all articles, including Papers \& Proceedings, Centennial, and articles that do not use data.")
 
 *MAINSAMPLE
 eststo summstat_both: estpost summ aer /*pp*/ qje ajps apsr econ year data_type_1 data_type_3 data_type_4 top1 top10 top20 top50 avail_yn avail_data citation wokcitation if mainsample==1
@@ -452,7 +453,8 @@ eststo summstat_econ: estpost summ aer /*pp*/ qje ajps apsr econ year data_type_
 eststo summstat_ps: estpost summ aer /*pp*/ qje ajps apsr econ year data_type_1 data_type_3 data_type_4 top1 top10 top20 top50 avail_yn avail_data citation wokcitation if econ==0 & mainsample==1
 
 esttab summstat_both summstat_econ summstat_ps using ../output/both_summstat.tex, ///
-	main(mean) aux(sd) style(tex) replace label mtitles("All" "Economics" "Political Science")	
+	main(mean) aux(sd) style(tex) replace label mtitles("All" "Economics" "Political Science") ///
+	addnote("Table summarizes regular peer-reviewed articles with data.")
 	
 	
 ***********************************************************
@@ -517,7 +519,7 @@ regress `ln'citation avail_`data' aer ajps apsr data_type_2 pp `time'
 	keep(avail_`data' aer ajps apsr data_type_2 pp)
 	}
 *MAIN SAMPLE ONLY
-regress `ln'citation avail_`data' if mainsample==1
+regress `ln'citation avail_`data' `time' if mainsample==1
 	summ `ln'citation if e(sample)==1
 	local depvarmean=r(mean)
 	if "`t'"=="months" {
@@ -528,12 +530,12 @@ regress `ln'citation avail_`data' if mainsample==1
 	}
 	if "`t'"=="FE" {
 	outreg2 using ../output/both_naive`ln'_`data'_`t'.tex, dec(2) tex label replace addstat(Mean Dep. Var., `depvarmean')  ///
-		addtext(Year-Discipline FE, Yes,Sample, Data-NoPP) title("Naive OLS Regression")
+		addtext(Year-Discipline FE, Yes, Sample, Data-NoPP) title("Naive OLS Regression")
 	outreg2 using ../output/both_naive`ln'-simp_`data'_`t'.tex, dec(2) tex label replace addstat(Mean Dep. Var., `depvarmean') ///
-		addtext(Year-Discipline FE, Yes,Sample, Data-NoPP) nocons keep(avail_`data' aer ajps apsr) title("Naive OLS Regression")
+		addtext(Year-Discipline FE, Yes, Sample, Data-NoPP) nocons keep(avail_`data' aer ajps apsr) title("Naive OLS Regression")
 	}
 	
-regress `ln'citation avail_`data' aer ajps apsr `time' if mainsample==1
+regress `ln'citation avail_`data' `time' aer ajps apsr if mainsample==1
 	summ `ln'citation if e(sample)==1
 	local depvarmean=r(mean)
 	if "`t'"=="months" {
@@ -547,6 +549,39 @@ regress `ln'citation avail_`data' aer ajps apsr `time' if mainsample==1
 		addtext(Year-Discipline FE, Yes,Sample, Data-NoPP)
 	outreg2 using ../output/both_naive`ln'-simp_`data'_`t'.tex, dec(2) tex label append addstat(Mean Dep. Var., `depvarmean') ///
 		addtext(Year-Discipline FE, Yes,Sample, Data-NoPP) nocons keep(avail_`data' aer ajps apsr)
+	}	
+
+*MAIN SAMPLE ONLY-ECON
+regress `ln'citation avail_`data' `time' if mainsample==1 & econ==1
+	summ `ln'citation if e(sample)==1
+	local depvarmean=r(mean)
+	if "`t'"=="months" {
+	outreg2 using ../output/both_naive`ln'_`data'_`t'.tex, dec(2) tex label append addstat(Mean Dep. Var., `depvarmean') ///
+		addtext(Months since Publication, Cubic, Sample, Data-NoPP-Econ) 
+	outreg2 using ../output/both_naive`ln'-simp_`data'_`t'.tex, dec(2) tex label replace addstat(Mean Dep. Var., `depvarmean') ///
+		addtext(Months since Publication, Cubic, Sample, Data-NoPP) nocons keep(avail_`data' aer ajps apsr) 
+	}
+	if "`t'"=="FE" {
+	outreg2 using ../output/both_naive`ln'_`data'_`t'.tex, dec(2) tex label append addstat(Mean Dep. Var., `depvarmean')  ///
+		addtext(Year-Discipline FE, Yes,Sample, Data-NoPP-Econ) 
+	outreg2 using ../output/both_naive`ln'-simp_`data'_`t'.tex, dec(2) tex label append addstat(Mean Dep. Var., `depvarmean') ///
+		addtext(Year-Discipline FE, Yes,Sample, Data-NoPP-Econ) nocons keep(avail_`data' aer ajps apsr) 
+	}
+	
+regress `ln'citation avail_`data' `time' aer ajps apsr if mainsample==1 & econ==1
+	summ `ln'citation if e(sample)==1
+	local depvarmean=r(mean)
+	if "`t'"=="months" {
+	outreg2 using ../output/both_naive`ln'_`data'_`t'.tex, dec(2) tex label append addstat(Mean Dep. Var., `depvarmean') ///
+		addtext(Months since Publication, Cubic, Sample, Data-NoPP-Econ) 
+	outreg2 using ../output/both_naive`ln'-simp_`data'_`t'.tex, dec(2) tex label append addstat(Mean Dep. Var., `depvarmean') ///
+		addtext(Months since Publication, Cubic, Sample, Data-NoPP-Econ) nocons keep(avail_`data' aer ajps apsr) 
+	}
+	if "`t'"=="FE" {
+	outreg2 using ../output/both_naive`ln'_`data'_`t'.tex, dec(2) tex label append addstat(Mean Dep. Var., `depvarmean')  ///
+		addtext(Year-Discipline FE, Yes,Sample, Data-NoPP-Econ)
+	outreg2 using ../output/both_naive`ln'-simp_`data'_`t'.tex, dec(2) tex label append addstat(Mean Dep. Var., `depvarmean') ///
+		addtext(Year-Discipline FE, Yes,Sample, Data-NoPP-Econ) nocons keep(avail_`data' aer ajps apsr)
 	}	
 *********************************
 *INSTRUMENTAL VARIABLE REGRESSION
