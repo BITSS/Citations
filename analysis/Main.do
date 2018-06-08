@@ -12,6 +12,7 @@ do both_citationregression.do //combines data set, figures with both, but also r
 *Then, because ShareLaTeX Dropbox Sync SUCKS!, manually upload all of the files 
 *to ShareLaTeX via their web interface. There are too many in the main ./output folder
 *to keep track of.
+*You can only upload 40 at a time!
 *BE SURE TO ADD ANY OUTPUT USED IN THE PAPER TO THIS LIST!
 cd ../output
 #delimit;
@@ -54,7 +55,13 @@ both_first2-simp_yn_FE.tex
 both_first2-simp_data_FE.tex
 both_exclusion_data_FE.tex
 both_ivregwok-simp_data_FE.tex
+both_summstat_all.tex
+both_histo_combined_all.eps
+both_cite_time_all.eps
+both_naive-simp_yn_FE_all.tex
+both_ivreg-simp_yn_FE_all.tex
 {;
 #delimit cr
 ! cp `file' ../outputforsharelatex/`file'
 }
+
