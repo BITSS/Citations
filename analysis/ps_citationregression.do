@@ -282,7 +282,7 @@ if r(N)!=126 flip the heck out!
 drop if _merge==1 
 rename _merge merge_Scopus
 
-gen lncitationE=ln(citationE)
+
 	
 label var citationE "Scopus Citations"
 label var citation "Web of Knowledge Citations"
@@ -299,6 +299,7 @@ rename citationE Scopus
 *CHANGE SCRAPE DATE TO MU YANG'S ACTUAL DATE: 11/21/17
 rename Scopus citation
 label var citation "Citations"
+gen lncitation=ln(citation+1)
 
 *BRING IN THIRD CITATION MEASURE--PRANAY. PRANAY did WoK API, better than Evey's code. Mu Yang did Elsevier Scopus API.
 *PRANAY ALSO HAS THE YEAR BY YEAR CITATION NUMBERS
