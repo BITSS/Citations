@@ -582,7 +582,7 @@ regress topic_1 aerXpost2005 aer post2005  print_months_ago ///
 summ topic_1 if e(sample)==1
 local depvarmean=r(mean)
 outreg2 using ../output/econ_exclusion_topic.tex, dec(3) tex label replace  ///
-	nocons addtext(Sample, Data-Only) keep(aerXpost2005) ///
+	nocons addtext(Sample, Data-NoPP) keep(aerXpost2005) ///
 	nonotes title("Exclusion Restriction: Economics Topics") ///
 	addstat(Mean Dep. Var., `depvarmean')
 
@@ -591,7 +591,7 @@ regress topic_2 aerXpost2005 aer post2005  print_months_ago ///
 summ topic_2 if e(sample)==1
 local depvarmean=r(mean)
 outreg2 using ../output/econ_exclusion_topic.tex, dec(3) tex label append  ///
-	nocons addtext(Sample, Data-Only) keep(aerXpost2005) nonotes ///
+	nocons addtext(Sample, Data-NoPP) keep(aerXpost2005) nonotes ///
 	addstat(Mean Dep. Var., `depvarmean')
 	
 regress topic_3 aerXpost2005 aer post2005  print_months_ago ///
@@ -599,7 +599,7 @@ regress topic_3 aerXpost2005 aer post2005  print_months_ago ///
 summ topic_3 if e(sample)==1
 local depvarmean=r(mean)
 outreg2 using ../output/econ_exclusion_topic.tex, dec(3) tex label append  ///
-	nocons addtext(Sample, Data-Only) keep(aerXpost2005) nonotes ///
+	nocons addtext(Sample, Data-NoPP) keep(aerXpost2005) nonotes ///
 	addstat(Mean Dep. Var., `depvarmean')
 	
 regress topic_4 aerXpost2005 aer post2005  print_months_ago ///
@@ -607,7 +607,7 @@ regress topic_4 aerXpost2005 aer post2005  print_months_ago ///
 summ topic_4 if e(sample)==1
 local depvarmean=r(mean)
 outreg2 using ../output/econ_exclusion_topic.tex, dec(3) tex label append  ///
-	nocons addtext(Sample, Data-Only) keep(aerXpost2005) nonotes ///
+	nocons addtext(Sample, Data-NoPP) keep(aerXpost2005) nonotes ///
 	addstat(Mean Dep. Var., `depvarmean')
 	
 regress topic_5 aerXpost2005 aer post2005  print_months_ago ///
@@ -615,7 +615,7 @@ regress topic_5 aerXpost2005 aer post2005  print_months_ago ///
 summ topic_5 if e(sample)==1
 local depvarmean=r(mean)
 outreg2 using ../output/econ_exclusion_topic.tex, dec(3) tex label append  ///
-	nocons addtext(Sample, Data-Only) keep(aerXpost2005) nonotes ///
+	nocons addtext(Sample, Data-NoPP) keep(aerXpost2005) nonotes ///
 	addstat(Mean Dep. Var., `depvarmean')
 	
 regress topic_6 aerXpost2005 aer post2005  print_months_ago ///
@@ -623,7 +623,7 @@ regress topic_6 aerXpost2005 aer post2005  print_months_ago ///
 summ topic_6 if e(sample)==1
 local depvarmean=r(mean)
 outreg2 using ../output/econ_exclusion_topic.tex, dec(3) tex label append  ///
-	nocons addtext(Sample, Data-Only) keep(aerXpost2005) nonotes ///
+	nocons addtext(Sample, Data-NoPP) keep(aerXpost2005) nonotes ///
 	addstat(Mean Dep. Var., `depvarmean')
 	
 regress topic_7 aerXpost2005 aer post2005  print_months_ago ///
@@ -635,7 +635,7 @@ regress data_type_1 aerXpost2005 aer post2005  print_months_ago ///
 summ data_type_1 if e(sample)==1
 local depvarmean=r(mean)
 	outreg2 using ../output/econ_exclusion.tex, dec(3) tex label replace  ///
-	nocons addtext(Sample, Data-Only) keep(aerXpost2005) nonotes ///
+	nocons addtext(Sample, Data-NoPP) keep(aerXpost2005) nonotes ///
 	title("Exclusion Restriction: Economics Data Type \& Institution Ranking") ///
 	addstat(Mean Dep. Var., `depvarmean')
 	
@@ -644,7 +644,7 @@ regress data_type_3 aerXpost2005 aer post2005  print_months_ago ///
 summ data_type_3 if e(sample)==1
 local depvarmean=r(mean)
 	outreg2 using ../output/econ_exclusion.tex, dec(3) tex label append  ///
-	nocons addtext(Sample, Data-Only) keep(aerXpost2005) nonotes ///
+	nocons addtext(Sample, Data-NoPP) keep(aerXpost2005) nonotes ///
 	addstat(Mean Dep. Var., `depvarmean')
 
 regress data_type_4 aerXpost2005 aer post2005  print_months_ago ///
@@ -652,7 +652,7 @@ regress data_type_4 aerXpost2005 aer post2005  print_months_ago ///
 summ data_type_4 if e(sample)==1
 local depvarmean=r(mean)
 	outreg2 using ../output/econ_exclusion.tex, dec(3) tex label append  ///
-	nocons addtext(Sample, Data-Only) keep(aerXpost2005) nonotes ///
+	nocons addtext(Sample, Data-NoPP) keep(aerXpost2005) nonotes ///
 	addstat(Mean Dep. Var., `depvarmean')
 
 regress top1 aerXpost2005 aer post2005  print_months_ago ///
@@ -660,7 +660,7 @@ regress top1 aerXpost2005 aer post2005  print_months_ago ///
 summ top1 if e(sample)==1
 local depvarmean=r(mean)
 	outreg2 using ../output/econ_exclusion.tex, dec(3) tex label append  ///
-	nocons addtext(Sample, Data-Only) keep(aerXpost2005) nonotes ///
+	nocons addtext(Sample, Data-NoPP) keep(aerXpost2005) nonotes ///
 	addstat(Mean Dep. Var., `depvarmean')
 
 regress top10 aerXpost2005 aer post2005  print_months_ago ///
@@ -668,7 +668,7 @@ regress top10 aerXpost2005 aer post2005  print_months_ago ///
 summ top10 if e(sample)==1
 local depvarmean=r(mean)
 	outreg2 using ../output/econ_exclusion.tex, dec(3) tex label append  ///
-	nocons addtext(Sample, Data-Only) keep(aerXpost2005) nonotes ///
+	nocons addtext(Sample, Data-NoPP) keep(aerXpost2005) nonotes ///
 	addstat(Mean Dep. Var., `depvarmean')
 	
 regress top20 aerXpost2005 aer post2005  print_months_ago ///
@@ -676,7 +676,7 @@ regress top20 aerXpost2005 aer post2005  print_months_ago ///
 summ top20 if e(sample)==1
 local depvarmean=r(mean)
 	outreg2 using ../output/econ_exclusion.tex, dec(3) tex label append  ///
-	nocons addtext(Sample, Data-Only) keep(aerXpost2005) nonotes ///
+	nocons addtext(Sample, Data-NoPP) keep(aerXpost2005) nonotes ///
 	addstat(Mean Dep. Var., `depvarmean')
 
 regress top50 aerXpost2005 aer post2005  print_months_ago ///
