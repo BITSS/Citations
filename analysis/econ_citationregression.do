@@ -227,7 +227,7 @@ graph export ../output/econ_cite_histo_all.png, replace
 graph save ../output/econ_cite_histo_all.gph, replace
 
 gen citation_year=citation/(print_months_ago/12)
-label var citation_year "Total Citations per Year"
+label var citation_year "Citations per Year"
 histogram citation_year if citation<500, bgcolor(white) graphregion(color(white)) title("Density of Citations per Year, Economics") ///
 	subtitle("All Articles")
 graph export ../output/econ_cite_histo_year_all.eps, replace
@@ -240,7 +240,7 @@ graph export ../output/econ_cite_histo.eps, replace
 graph export ../output/econ_cite_histo.png, replace
 graph save ../output/econ_cite_histo.gph, replace
 
-label var citation_year "Total Citations per Year"
+label var citation_year "Citations per Year"
 histogram citation_year if citation<500, bgcolor(white) graphregion(color(white)) title("Density of Citations per Year, Economics")
 graph export ../output/econ_cite_histo_year.eps, replace
 graph export ../output/econ_cite_histo_year.png, replace
@@ -351,7 +351,7 @@ replace top100=0 if top1==1|top10==1|top20==1|top50==1|(top_rank>100 & top_rank<
 gen unranked=.
 replace unranked=1 if top_rank==.a
 replace unranked=0 if top_rank<.
-label var top1 "Top 1"
+label var top1 "Top 6"
 label var top10 "Top 10"
 label var top20 "Top 20"
 label var top50 "Top 50"
@@ -694,5 +694,5 @@ regress top_rank aerXpost2005 aer post2005  print_months_ago ///
 exit
 *HEY! Want the latest results copied to the ShareLaTeX folder of the paper? 
 *Run this line!
-! cp -r /Users/garret/Box\ Sync/CEGA-Programs-BITSS/3_Publications_Research/Citations/citations/output /Users/garret/Dropbox/Apps/ShareLaTeX/citations
+! cp -r /Users/garret/Box\ Sync/CEGA-Programs-BITSS/3_Publications_Research/Citations/citations/output /Users/garret/Dropbox/Apps/ShareLaTeX/data_sharing_and_citations
 	

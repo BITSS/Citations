@@ -298,6 +298,7 @@ rename citationE Scopus
 *CHANGE MAIN CITATION VARIABLE TO SCOPUS
 *CHANGE SCRAPE DATE TO MU YANG'S ACTUAL DATE: 11/21/17
 rename Scopus citation
+label var citation "Citations"
 
 *BRING IN THIRD CITATION MEASURE--PRANAY. PRANAY did WoK API, better than Evey's code. Mu Yang did Elsevier Scopus API.
 *PRANAY ALSO HAS THE YEAR BY YEAR CITATION NUMBERS
@@ -343,7 +344,7 @@ graph export ../output/ps_cite_histo_all.png, replace
 graph save ../output/ps_cite_histo_all.gph, replace
 
 gen citation_year=citation/(print_months_ago/12)
-label var citation_year "Total Citations per Year"
+label var citation_year "Citations per Year"
 histogram citation_year if citation<500, bgcolor(white) graphregion(color(white)) title("Density of Citations per Year, Political Science") ///
 		subtitle("All Articles")
 graph export ../output/ps_cite_histo_year_all.eps, replace
@@ -356,7 +357,7 @@ graph export ../output/ps_cite_histo.eps, replace
 graph export ../output/ps_cite_histo.png, replace
 graph save ../output/ps_cite_histo.gph, replace
 
-label var citation_year "Total Citations per Year"
+label var citation_year "Citations per Year"
 histogram citation_year if citation<500 & mainsample==1, bgcolor(white) graphregion(color(white)) title("Density of Citations per Year, Political Science")
 graph export ../output/ps_cite_histo_year.eps, replace
 graph export ../output/ps_cite_histo_year.png, replace
@@ -458,7 +459,7 @@ replace top100=0 if top1==1|top10==1|top20==1|top50==1|(top_rank>100 & top_rank<
 gen unranked=.
 replace unranked=1 if top_rank==.a
 replace unranked=0 if top_rank<.
-label var top1 "Top 1"
+label var top1 "Top 6"
 label var top10 "Top 10"
 label var top20 "Top 20"
 label var top50 "Top 50"
@@ -664,7 +665,7 @@ regress citation avail_hat ajps post2010 post2012 ///
 *TEST THE CHANGE IN TOPIC/TYPE/RANK USING THE MAIN SPECIFICATION
 *********************************************************
 regress topic_1 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
-	print_months_ago_sq print_months_ago_cu if data_type_2==0
+	print_months_ago_sq print_months_ago_cu if mainsample==1
 summ topic_1 if e(sample)==1
 local depvarmean=r(mean)
 outreg2 using ../output/exclusion_topic.tex, dec(3) tex label replace  ///
@@ -674,7 +675,7 @@ outreg2 using ../output/exclusion_topic.tex, dec(3) tex label replace  ///
 	addstat(Mean Dep. Var., `depvarmean')
 
 regress topic_2 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
-	print_months_ago_sq print_months_ago_cu if data_type_2==0
+	print_months_ago_sq print_months_ago_cu if mainsample==1
 summ topic_2 if e(sample)==1
 local depvarmean=r(mean)
 	outreg2 using ../output/exclusion_topic.tex, dec(3) tex label append  ///
@@ -682,7 +683,7 @@ local depvarmean=r(mean)
 	addstat(Mean Dep. Var., `depvarmean')
 
 regress topic_3 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
-	print_months_ago_sq print_months_ago_cu if data_type_2==0
+	print_months_ago_sq print_months_ago_cu if mainsample==1
 summ topic_3 if e(sample)==1
 local depvarmean=r(mean)
 	outreg2 using ../output/exclusion_topic.tex, dec(3) tex label append  ///
@@ -690,7 +691,7 @@ local depvarmean=r(mean)
 	addstat(Mean Dep. Var., `depvarmean')
 	
 regress topic_4 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
-	print_months_ago_sq print_months_ago_cu if data_type_2==0
+	print_months_ago_sq print_months_ago_cu if mainsample==1
 summ topic_4 if e(sample)==1
 local depvarmean=r(mean)
 	outreg2 using ../output/exclusion_topic.tex, dec(3) tex label append  ///
@@ -698,7 +699,7 @@ local depvarmean=r(mean)
 	addstat(Mean Dep. Var., `depvarmean')
 
 regress topic_5 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
-	print_months_ago_sq print_months_ago_cu if data_type_2==0
+	print_months_ago_sq print_months_ago_cu if mainsample==1
 summ topic_5 if e(sample)==1
 local depvarmean=r(mean)
 	outreg2 using ../output/exclusion_topic.tex, dec(3) tex label append  ///
@@ -707,7 +708,7 @@ local depvarmean=r(mean)
 
 ********************************************************************
 regress data_type_1 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
-	print_months_ago_sq print_months_ago_cu if data_type_2==0
+	print_months_ago_sq print_months_ago_cu if mainsample==1
 summ data_type_1 if e(sample)==1
 local depvarmean=r(mean)
 	outreg2 using ../output/exclusion.tex, dec(3) tex label replace  ///
@@ -716,14 +717,14 @@ local depvarmean=r(mean)
 	addstat(Mean Dep. Var., `depvarmean')
 	
 regress data_type_3 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
-	print_months_ago_sq print_months_ago_cu if data_type_2==0
+	print_months_ago_sq print_months_ago_cu if mainsample==1
 summ data_type_3 if e(sample)==1
 local depvarmean=r(mean)
 	outreg2 using ../output/exclusion.tex, dec(3) tex label append  ///
 	nocons addtext(Sample, Data-Only) keep(ajpsXpost2010 ajpsXpost2012) ///
 	addstat(Mean Dep. Var., `depvarmean')
 regress data_type_4 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
-	print_months_ago_sq print_months_ago_cu if data_type_2==0
+	print_months_ago_sq print_months_ago_cu if mainsample==1
 summ data_type_4 if e(sample)==1
 local depvarmean=r(mean)
 	outreg2 using ../output/exclusion.tex, dec(3) tex label append  ///
@@ -731,7 +732,7 @@ local depvarmean=r(mean)
 	addstat(Mean Dep. Var., `depvarmean')
 	
 regress top1 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
-	print_months_ago_sq print_months_ago_cu if data_type_2==0
+	print_months_ago_sq print_months_ago_cu if mainsample==1
 summ top1 if e(sample)==1
 local depvarmean=r(mean)
 	outreg2 using ../output/exclusion.tex, dec(3) tex label append  ///
@@ -739,7 +740,7 @@ local depvarmean=r(mean)
 	addstat(Mean Dep. Var., `depvarmean')
 	
 regress top10 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
-	print_months_ago_sq print_months_ago_cu if data_type_2==0
+	print_months_ago_sq print_months_ago_cu if mainsample==1
 summ top10 if e(sample)==1
 local depvarmean=r(mean)
 	outreg2 using ../output/exclusion.tex, dec(3) tex label append  ///
@@ -747,7 +748,7 @@ local depvarmean=r(mean)
 	addstat(Mean Dep. Var., `depvarmean')
 	
 regress top20 ajpsXpost2010 ajpsXpost2012 ajps post2010 post2012 print_months_ago ///
-	print_months_ago_sq print_months_ago_cu if data_type_2==0
+	print_months_ago_sq print_months_ago_cu if mainsample==1
 summ top20 if e(sample)==1
 local depvarmean=r(mean)
 	outreg2 using ../output/exclusion.tex, dec(3) tex label append  ///
@@ -763,4 +764,4 @@ save ../external/cleaned/ps_mergedforregs.dta, replace
 exit
 *HEY! Want the latest results copied to the ShareLaTeX folder of the paper? 
 *Run this line!
-! cp -r /Users/garret/Box\ Sync/CEGA-Programs-BITSS/3_Publications_Research/Citations/citations/output /Users/garret/Dropbox/Apps/ShareLaTeX/citations
+! cp -r /Users/garret/Box\ Sync/CEGA-Programs-BITSS/3_Publications_Research/Citations/citations/output /Users/garret/Box\ Sync/CEGA-Programs-BITSS/3_Publications_Research/Citations/paper_backup/data_sharing_and_citations/
