@@ -54,6 +54,7 @@ both_ivregln-simp_data_FE.tex
 both_first2-simp_yn_FE.tex
 both_first2-simp_data_FE.tex
 both_exclusion_data_FE.tex
+both_ivregwok-simp_yn_FE.tex
 both_ivregwok-simp_data_FE.tex
 both_summstat_all.tex
 both_histo_combined_all.eps
