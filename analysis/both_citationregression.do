@@ -1,7 +1,7 @@
 set more off
 clear all
 label drop _all
-cd "/Users/garret/Box Sync/CEGA-Programs-BITSS/3_Publications_Research/Citations/citations/analysis"
+cd "C:/Users/garret/Box Sync/CEGA-Programs-BITSS/3_Publications_Research/Citations/citations/analysis"
 cap log close
 log using ../logs/both_citationregression.log, replace
 /*TO DO:
@@ -519,20 +519,20 @@ regress `ln'citation avail_`data' aer ajps apsr data_type_2 pp `time'
 	keep(avail_`data' aer ajps apsr data_type_2 pp)
 	}
 *MAIN SAMPLE ONLY
-regress `ln'citation avail_`data' `time' if mainsample==1
+regress `ln'citation avail_`data' `time' aer ajps apsr if data_type_2!=1
 	summ `ln'citation if e(sample)==1
 	local depvarmean=r(mean)
 	if "`t'"=="months" {
 	outreg2 using ../output/both_naive`ln'_`data'_`t'.tex, dec(2) tex label replace addstat(Mean Dep. Var., `depvarmean') ///
-		addtext(Months since Publication, Cubic, Sample, Data-NoPP) title("Naive OLS Regression")
+		addtext(Months since Publication, Cubic, Sample, Data-Only) title("Naive OLS Regression")
 	outreg2 using ../output/both_naive`ln'-simp_`data'_`t'.tex, dec(2) tex label replace addstat(Mean Dep. Var., `depvarmean') ///
-		addtext(Months since Publication, Cubic, Sample, Data-NoPP) nocons keep(avail_`data' aer ajps apsr) title("Naive OLS Regression")
+		addtext(Months since Publication, Cubic, Sample, Data-Only) nocons keep(avail_`data' aer ajps apsr) title("Naive OLS Regression")
 	}
 	if "`t'"=="FE" {
 	outreg2 using ../output/both_naive`ln'_`data'_`t'.tex, dec(2) tex label replace addstat(Mean Dep. Var., `depvarmean')  ///
-		addtext(Year-Discipline FE, Yes, Sample, Data-NoPP) title("Naive OLS Regression")
+		addtext(Year-Discipline FE, Yes, Sample, Data-Only) title("Naive OLS Regression")
 	outreg2 using ../output/both_naive`ln'-simp_`data'_`t'.tex, dec(2) tex label replace addstat(Mean Dep. Var., `depvarmean') ///
-		addtext(Year-Discipline FE, Yes, Sample, Data-NoPP) nocons keep(avail_`data' aer ajps apsr) title("Naive OLS Regression")
+		addtext(Year-Discipline FE, Yes, Sample, Data-Only) nocons keep(avail_`data' aer ajps apsr) title("Naive OLS Regression")
 	}
 	
 regress `ln'citation avail_`data' `time' aer ajps apsr if mainsample==1
@@ -552,23 +552,23 @@ regress `ln'citation avail_`data' `time' aer ajps apsr if mainsample==1
 	}	
 
 *MAIN SAMPLE ONLY-ECON
-regress `ln'citation avail_`data' `time' if mainsample==1 & econ==1
+regress `ln'citation avail_`data' `time' aer if data_type_2!=1 & econ==1
 	summ `ln'citation if e(sample)==1
 	local depvarmean=r(mean)
 	if "`t'"=="months" {
 	outreg2 using ../output/both_naive`ln'_`data'_`t'.tex, dec(2) tex label append addstat(Mean Dep. Var., `depvarmean') ///
-		addtext(Months since Publication, Cubic, Sample, Data-NoPP-Econ) 
+		addtext(Months since Publication, Cubic, Sample, Data-Econ) 
 	outreg2 using ../output/both_naive`ln'-simp_`data'_`t'.tex, dec(2) tex label replace addstat(Mean Dep. Var., `depvarmean') ///
-		addtext(Months since Publication, Cubic, Sample, Data-NoPP) nocons keep(avail_`data' aer ajps apsr) 
+		addtext(Months since Publication, Cubic, Sample, Data-Econ) nocons keep(avail_`data' aer ajps apsr) 
 	}
 	if "`t'"=="FE" {
 	outreg2 using ../output/both_naive`ln'_`data'_`t'.tex, dec(2) tex label append addstat(Mean Dep. Var., `depvarmean')  ///
-		addtext(Year-Discipline FE, Yes,Sample, Data-NoPP-Econ) 
+		addtext(Year-Discipline FE, Yes,Sample, Data-Econ) 
 	outreg2 using ../output/both_naive`ln'-simp_`data'_`t'.tex, dec(2) tex label append addstat(Mean Dep. Var., `depvarmean') ///
-		addtext(Year-Discipline FE, Yes,Sample, Data-NoPP-Econ) nocons keep(avail_`data' aer ajps apsr) 
+		addtext(Year-Discipline FE, Yes,Sample, Data-Econ) nocons keep(avail_`data' aer ajps apsr) 
 	}
 	
-regress `ln'citation avail_`data' `time' aer ajps apsr if mainsample==1 & econ==1
+regress `ln'citation avail_`data' `time' aer if mainsample==1 & econ==1
 	summ `ln'citation if e(sample)==1
 	local depvarmean=r(mean)
 	if "`t'"=="months" {
