@@ -60,6 +60,7 @@ both_histo_combined_all.eps
 both_cite_time_all.eps
 both_naive-simp_yn_FE_all.tex
 both_ivreg-simp_yn_FE_all.tex
+both_ivreg-simp_state_full_FE_all.tex
 {;
 #delimit cr
  cp `file' ../outputforsharelatex/`file', replace
