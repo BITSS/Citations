@@ -62,6 +62,7 @@ both_naive-simp_yn_FE_all.tex
 both_ivreg-simp_yn_FE_all.tex
 {;
 #delimit cr
-! cp `file' ../outputforsharelatex/`file'
+ cp `file' ../outputforsharelatex/`file', replace
 }
 
+//Windows comps require slightly different syntax here--use Stata syntax to overwrite
