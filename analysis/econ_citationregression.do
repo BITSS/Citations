@@ -164,6 +164,11 @@ gen avail_state_part=(avail_state_full==1)|(reference_code_partial_strict==1| re
 label var avail_state_full "Stated Availability" 
 label var avail_state_part "Stated Availability:Part"
 
+*Special var for Labor, since it appears to change
+gen laborecon=(topic=="Labor and Demographic Economics")
+label var laborecon "Labor Economics"
+
+
 *****************************************************
 save ../external_econ/cleaned/econ_mergedforregs.dta, replace
 
