@@ -7,42 +7,6 @@ To update the research log, click [here](https://docs.google.com/a/berkeley.edu/
 
 Draft of the entire data collection process is [here](https://docs.google.com/document/d/1zPoa1W5Ysd-5aFIp1Qz_j2zJKnSaVzC072d625MkjFc/edit?usp=sharing).
 
-# Project Status
-## Data Collection
-
-| |AJPS|APSR|QJE|AER|
-|---|:---:|:---:|---|---|
-|Scraping|Done|Done|In Progress|Not started|
-|References|Done|Done|Not started|Not started|
-|Links|Done|Done| NS | NS|
-|Author websites|Done|Done|NS|NS|
-|Article types|Done |Done|NS|NS|
-|Dataverse|Done|Done|NS|NS|
-|Citations|In progress-Evey|Next up-Evey|NS|NS|
-
-## Other Tasks
-+ Define final file format for collected data
-+ Polish code
-  + Refactor functions
-  + Improve documentation
-+ Update pre-analysis plan
-
-## Draft Schedule:
-Feb 10-16: Article topic & type, finish up and resolve differences
-
-Feb 17-23: T&R: APSR Link coding only 13 links
-Dataverse: AJPS (118), APSR (26-more resolution differences
-
-Feb 24: 
-Meet with Ted
-T&R-plan how to combine datasets
-E&B-code to scrape citations
-
-April 21: Meet with Ted
-Evey--complete citations
-Baiyue--gather QJE text
-T&R--merge author websites, links, dataverse, references later
-
 # Folder Structure
 The folder structure of this repository grew organically over the development of the project. There is also a Box folder `URAPshared` that contains several files not contained in this repository. The purpose of the Box folder is to manage the raw data from scraping and data entry. In the following, if a folder `x` is contained in the Box folder, then it will be denoted as `URAPshared/x`.
 
@@ -64,7 +28,7 @@ We collected article information from the page of each journal issue's table, an
 The collection with Octoparse has a few issues.
 
 For AJPS, there are two issues. First, memory issues required us to split the data collection into several year ranges. Second, the output files sometimes contain multiple rows for the same article, breaking the csv format. The script `data_preparation/combine_octoparse_outputs.py` fixes these issues by combining the files `ajps_article_content_2003_2007.csv`, `ajps_article_content_2008_2012.csv` and `ajps_article_content_2013_2016.csv` into `bld/ajps_articles_2003_2016.csv`. Analogously, `data_preparation/create_article_info_from_issue_toc.py` cleans `ajps_issue_toc.csv` into `bld/ajps_article_info_from_issue_toc.csv`.
- 
+
  APSR had a centennial edition which we missed in the first run of data collection (we believe due to a different page layout), and hence collected separately later on. The corresponding file is `apsr_article_content_centennial.csv`. The script `data_preparation/clean_apsr_octoparse_output.py` cleans  `apsr_issue_toc.csv`, `apsr_article_content_2006_2014.csv` and `apsr_article_content_centennial.csv` and writes them into `bld/apsr_article_info_from_issue_toc.csv`, `bld/apsr_article_content_2006_2014.csv` and `bld/apsr_centennial_article_content.csv`.
 
 ## Data Entry
@@ -104,3 +68,94 @@ The `data_preparation` folder contains a few more files:
 + `select_relevant_years.py`: Restrict selection of AJPS articles to articles published in years 2006 to 2014. This was necessary because we collected a wider range of articles with Octoparse.
 + `update_template_rk.py`: This is a script to import old data in response to a very specific change in the template structure.
 + `tools.py`: A collection of helper functions used across multiple scripts.
+
+
+## CONTENTS:
+
+./analysis
+./citation_scraping
+./data_cleaning
+./data_collection_econ
+./data_entry
+./data_preparation
+./external
+./external_econ
+./jel_scraping
+./logs
+./octoparse
+./output
+./outputforsharelatex
+./paper
+
+---------------------------------------
+./analysis
+
+Analysis code for the paper!
+
+---------------------------------------
+./citation_scraping
+
+Scraping code for citations data. We don't use the Selenium-collected data anymore, because the API data is better.
+
+-------------------------------------------
+./data_cleaning
+
+Intermediate R and .do files to go from raw data to analysis data. David Birke wrote the code for Poli Sci, Simon Zhu and Neil Tagare built off that for Econ.
+
+-------------------------------------------------
+./data_collection_econ
+
+Baiyue's scripts to scrape AER and QJE to get the text of the articles.
+
+----------------------------------------------------
+./data_entry
+
+Protocols for the RAs to do the manual classification parts of the project.
+
+------------------------------------------
+./data_preparation
+
+David Birke's scripts to manage all the raw data and the manual input by the RAs.
+
+-------------------------------------------------
+./external
+
+A copy of all the files from Box that you need to run the code (Poli Sci)
+
+------------------------------------------
+./external_econ
+
+A copy of all the files from Box that you need to run the code (Econ). Not put into the repo, because Git doesn't store data super well.
+
+-----------------------------------------------
+./jel_scraping
+
+Scripts to get JEL codes from the ProQuest version of EconLit database.
+
+---------------------------------------------------
+./logs
+
+Logs from the Stata analysis files in ./Analysis
+
+--------------------------------------------------------
+./octoparse
+
+Octoparse.com files for getting text of poli sci articles.
+
+----------------------------------------------------
+
+./output
+
+Every output file produced by the Stata code in ./analysis
+
+-------------------------------------------------------
+./outputforsharelatex
+
+A subset of the Stata code that you manually upload to ShareLaTeX to include in the paper.
+
+---------------------------------------------------
+./paper
+
+Sorry, not the paper! It's a collection of old slides. Used for presentations.
+
+-----------------------------------------------------
