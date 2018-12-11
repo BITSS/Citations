@@ -36,16 +36,20 @@ egen avg_ajpscites=mean(citation) if journal=="ajps", by (year journal)
 
 *subtract that norm from actual cites
 sort year journal
-gen qje_bonus=320.5517-221.5938 //these are 2001 econ figures
+*gen qje_bonus=320.5517-221.5938 //these are 2001 econ figures
+gen qje_bonus=266.25-182.6852 //these are 2004 econ figures
 
 *ajps outcited apsr, 121.9211 to 74.8125 in 2006, but all other years are the opposite.
 *So maybe don't normalize?
-gen ajps_bonus=121.9211-74.8125
+*gen ajps_bonus=121.9211-74.8125 //2006 figures
+gen apsr_bonus=70-52.4071 //2009 figures
 
 *APPLY THE CITATION BONUS
 gen norm0cite=citation
 replace norm0cite=norm0cite+qje_bonus if journal=="aer"
-replace norm0cite=norm0cite+ajps_bonus if journal=="apsr"
+replace norm0cite=norm0cite+apsr_bonus if journal=="ajps"
+
+
 
 *************************************************
 *ECONOMICS
