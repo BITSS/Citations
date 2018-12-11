@@ -217,6 +217,7 @@ label var qje_y_avg_data_nopp`data' "QJE"
 line aer_y_avg_data_nopp`data' qje_y_avg_data_nopp`data' year, title("`t' Availability, Regular Articles with Data") ///
 	bgcolor(white) graphregion(color(white)) ///
 	ylabel(0 0.2 0.4 0.6 0.8 1) xline(2005) lpattern(solid dash)
+graph save ../output/econ_avail`data'_time_data_nopp.gph, replace
 graph export ../output/econ_avail`data'_time_data_nopp.eps, replace
 graph export ../output/econ_avail`data'_time_data_nopp.png, replace
 } //end different types of data availability

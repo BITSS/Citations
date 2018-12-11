@@ -239,6 +239,7 @@ label var apsr_y_avg`data' "APSR"
 line ajps_y_avg`data' apsr_y_avg`data' year, title("`t' Availability by Journal") ///
 	bgcolor(white) graphregion(color(white)) ///
 	ylabel(0 0.2 0.4 0.6 0.8 1) xline(2010 2012) lpattern(solid dash)
+graph save ../output/ps_avail`data'_time_all.gph, replace
 graph export ../output/ps_avail`data'_time_all.eps, replace
 graph export ../output/ps_avail`data'_time_all.png, replace
 
@@ -253,6 +254,7 @@ label var apsr_y_avg_dataarticle`data' "APSR"
 line ajps_y_avg_dataarticle`data' apsr_y_avg_dataarticle`data' year, title("`t' Availability by Journal, Data Articles") ///
 	bgcolor(white) graphregion(color(white)) ///
 	ylabel(0 0.2 0.4 0.6 0.8 1) xline(2010 2012) lpattern(solid dash)
+graph save ../output/ps_avail`data'_time_dataarticle.gph, replace
 graph export ../output/ps_avail`data'_time_dataarticle.eps, replace
 graph export ../output/ps_avail`data'_time_dataarticle.png, replace
 
