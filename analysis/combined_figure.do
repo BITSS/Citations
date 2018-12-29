@@ -85,7 +85,7 @@ forvalues X=2001/2009 {
 
 twoway rcap upper lower year, lcolor(maroon) || connected citations year, ///
 	xline(2005) bgcolor(white) graphregion(color(white)) lcolor(navy) mcolor(navy) ///
-	title("AER Citation Advantage") ///
+	title("(C) AER Citation Advantage") ///
 	ylabel(-300 -200 -100 0 100)
 graph save ../output/econ_cite_comparison.gph, replace
 graph export ../output/econ_cite_comparison.eps, replace
@@ -126,7 +126,7 @@ forvalues X=2006/2014 {
 
 twoway  rcap upper lower year, lcolor(maroon) || connected citations year, ///
 	bgcolor(white) graphregion(color(white)) xline(2010 2012) ///
-	title("AJPS Citation Advantage") lcolor(navy) mcolor(navy) ///
+	title("(D) AJPS Citation Advantage") lcolor(navy) mcolor(navy) ///
 	ylabel(-300 -200 -100 0 100)
 graph save ../output/ps_cite_comparison.gph, replace
 graph export ../output/ps_cite_comparison.eps, replace

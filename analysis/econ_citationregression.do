@@ -214,7 +214,7 @@ gen aer_y_avg_data_nopp`data'=avail_j_avg_data_nopp`data' if aer==1
 label var aer_y_avg_data_nopp`data' "AER"
 gen qje_y_avg_data_nopp`data'=avail_j_avg_data_nopp`data' if aer==0
 label var qje_y_avg_data_nopp`data' "QJE"
-line aer_y_avg_data_nopp`data' qje_y_avg_data_nopp`data' year, title("`t' Availability, Regular Articles with Data") ///
+line aer_y_avg_data_nopp`data' qje_y_avg_data_nopp`data' year, title("(A) `t' Availability, Regular Articles with Data") ///
 	bgcolor(white) graphregion(color(white)) ///
 	ylabel(0 0.2 0.4 0.6 0.8 1) xline(2005) lpattern(solid dash)
 graph save ../output/econ_avail`data'_time_data_nopp.gph, replace
