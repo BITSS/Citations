@@ -333,10 +333,19 @@ forvalues Y=0/5 {
 		replace year`Y'citation=_`=`X'+`Y''citation if year==`X'
 	}
 }
+gen cum1citation= year0citation+year1citation
+gen cum2citation=year0citation+year1citation+year2citation
 gen cum3citation=year0citation+year1citation+year2citation+year3citation
 label var cum3citation "Cumulative Citations after 3 years"
+gen cum4citation=year0citation+year1citation+year2citation+year3citation+year4citation
 gen cum5citation=year0citation+year1citation+year2citation+year3citation+year4citation+year5citation
 label var cum5citation "Cumulative Citations after 5 years"
+*FOR PS, WHICH DOESN'T HAVE 5-YEARS OF CITES, MAKE MANUALLY FOR 2014 OBS
+replace cum5citation=year0citation+year1citation+year2citation+year3citation if year==2014
+replace cum5citation=year0citation+year1citation+year2citation+year3citation +year4citation if year==2013
+replace cum4citation=year0citation+year1citation+year2citation+year3citation if year==2014
+
+
 
 *CITATION HISTOGRAMS
 *ALL

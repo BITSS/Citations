@@ -438,7 +438,7 @@ graph export ../output/both_rankXjournalXpost`X'.eps, replace
 
 *SAVE FINAL DATA
 save ../external_econ/cleaned/both_cleaned_mergedforregs.dta, replace
-
+stop
 *********************************************************
 *SUMM STAT TABLE
 *********************************************************

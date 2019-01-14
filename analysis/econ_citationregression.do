@@ -92,14 +92,19 @@ drop if year>2009 //2001-2009 is what we said we'd cover
 forvalues Y=0/5 {
 	gen year`Y'citation=.
 	label var year`Y'citation "Citations `Y' years after publication"
-	forvalues X=2006/`=2017-`Y'' {
+	forvalues X=2001/`=2017-`Y'' {
 		replace year`Y'citation=_`=`X'+`Y''citation if year==`X'
 	}
 }
+gen cum1citation=year0citation +year1citation
+gen cum2citation=year0citation+year1citation+year2citation
 gen cum3citation=year0citation+year1citation+year2citation+year3citation
 label var cum3citation "Cumulative Citations after 3 years"
+gen cum4citation=year0citation+year1citation+year2citation+year3citation+year4citation
 gen cum5citation=year0citation+year1citation+year2citation+year3citation+year4citation+year5citation
 label var cum5citation "Cumulative Citations after 5 years"
+
+
 
 *LABEL DATA
 label var year "Year"
@@ -171,7 +176,7 @@ label var laborecon "Labor Economics"
 
 *****************************************************
 save ../external_econ/cleaned/econ_mergedforregs.dta, replace
-
+stop
 ********************************************************
 *GRAPH SHARING OVER TIME
 *******************************************************
