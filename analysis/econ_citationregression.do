@@ -6,9 +6,64 @@ log using ../logs/econ_citationregression.log, replace
 ***************************************************
 *LOAD DATA
 ***************************************************
+
+*2019 JANUARY 24*
+*2009 QJE ARTICLES WERE MISSING CITATION-FLOW
+*CLEAN THAT EXTRA DATA
+
+*BULK OF THE 2009 QJE ARTICLES
+import excel ../external_econ/savedrecs.xls, cellrange(A28:EI69) firstrow
+drop V-DR CorporateAuthors Editors BookEditors PartNumber Supplement SpecialIssue ArticleNumber ConferenceTitle ConferenceDate
+local X=2001
+foreach var in DS DT DU DW DV DX DY DZ EA EB EC ED EE EF EG EH EI{
+	rename `var' _`X'citation
+	local X=`X'+1
+}
+tempfile qje2009pt1 qje2009pt2 miscellaneous qje2009all
+save `qje2009pt1'
+*A FEW THAT DON'T HAVE DOI
+clear all
+import excel ../external_econ/savedrecs2.xls, cellrange(A28:EI31) firstrow
+drop V-DR CorporateAuthors Editors BookEditors PartNumber Supplement SpecialIssue ArticleNumber ConferenceTitle ConferenceDate
+local X=2001
+foreach var in DS DT DU DW DV DX DY DZ EA EB EC ED EE EF EG EH EI{
+	rename `var' _`X'citation
+	local X=`X'+1
+}
+save `qje2009pt2'
+*A FEW MISCELLANEOUS YEARS/ARTICLES THAT WEREN'T IN PRANAYS DATA
+clear all
+import excel ../external_econ/savedrecs3.xls, cellrange(A28:EI43) firstrow
+drop V-DR CorporateAuthors Editors BookEditors PartNumber Supplement SpecialIssue ArticleNumber ConferenceTitle ConferenceDate
+local X=2001
+foreach var in DS DT DU DW DV DX DY DZ EA EB EC ED EE EF EG EH EI{
+	rename `var' _`X'citation
+	local X=`X'+1
+}
+*THESE THREE ARE SOMEHOW DUPLICATED IN MY EXTRA SEARCH
+drop if DOI=="10.1257/aer.98.1.567" | DOI=="10.1257/aer.992.343" | DOI=="10.1257/aer/98.2.224"
+
+save `miscellaneous'
+
+append using `qje2009pt1'
+append using `qje2009pt2'
+replace DOI="10.1162/qjec.2009.124.2.735" if Title=="POWER TO THE PEOPLE: EVIDENCE FROM A RANDOMIZED FIELD EXPERIMENT ON COMMUNITY-BASED MONITORING IN UGANDA"
+drop if DOI=="10.1162/qjec.2008.123.4.1329" & Title=="RETURNS TO CAPITAL IN MICROENTERPRISES: EVIDENCE FROM A FIELD EXPERIMENT"
+*THIS ARTICLE HAS AN ERRATUM (THAT'S JUST A WORTHLESS ABSTRACT) IN 2009. REAL ARTICLE FROM 2008 AND 
+*ALREADY IN DATA
+
+*Make the 2009 QJE citeflow data in line with the main citeflow data 
+rename DOI doi
+rename Authors authors
+rename SourceTitle journalname
+replace journalname="Quarterly Journal of Economics" if journalname=="QUARTERLY JOURNAL OF ECONOMICS"
+rename Title title
+rename PublicationDate publishdate
+rename TotalCitations totalcitations
+save `qje2009all'
+
 *LOAD MAIN MERGED DATA
 insheet using ../external_econ/citations_clean_data.csv, clear names
-
 
 
 ***************************************************************
@@ -51,14 +106,8 @@ rename citation_count citation
 *WAIT. IS IT WEB OF KNOWLEDGE? I THOUGHT IT WAS ELSEVEIR BUT CORRELATION IS 0.996!
 save ../external/temp.dta, replace
 import delimited using ../external/citation_counts.csv, delimiter(",") clear
+
 keep if journalname=="American Economic Review"|journalname=="Quarterly Journal of Economics"
-drop if doi=="No DOI"
-merge 1:1 doi using ../external/temp.dta
-keep if _merge!=1
-rename totalcitations wokcitation
-label var wokcitation "Citations Web of Knowledge"
-gen lnwokcitation=ln(wokcitation+1)
-label var lnwokcitation "Log Citations Web of Knowledge"
 rename citations _2001citation
 label var _2001citation "2001 WoK Citations"
 forvalues X=10/26 {
@@ -66,6 +115,25 @@ forvalues X=10/26 {
  rename v`X' _`Y'citation
  label var _`Y'citation "`Y' WoK Citations"
 }
+append using `qje2009all'
+
+drop if doi=="No DOI"
+*MUST DO THIS LINE IN ORDER TO LINK CITEFLOW DATA TO OTHER DATA
+*BUT PRANAY'S CITEFLOW HAD NO DOI FOR QJE2009--SO THAT'S WHAT WE APPENDED
+*AND ARE REPLACING WITH GARRET'S NEWER COLLECTION
+merge 1:1 doi using ../external/temp.dta
+keep if _merge!=1
+*THIS DROPS OBS IN THE WEB OF SCIENCE DATA
+*SOME GOOD ARTICLES ARE IN HERE!
+*LIKE ALWYN YOUNG GIFT OF THE DYING. BUT WOS SEEMS TO JUST HAVE A DUMB/NO DOI FOR THAT ARTICLE
+rename _merge mergeciteflow
+rename totalcitations wokcitation
+label var wokcitation "Citations Web of Knowledge"
+gen lnwokcitation=ln(wokcitation+1)
+label var lnwokcitation "Log Citations Web of Knowledge"
+
+
+
 
 *GENERATE DATES
 /*Is this print or Internet publication date? 
@@ -88,6 +156,13 @@ gen year=substr(publication_date, 1, 4)
 destring year, replace
 drop if year>2009 //2001-2009 is what we said we'd cover
 
+/*merge 1:1 doi using `qje2009all'
+rename _merge mergeqje2009
+count if mergeqje2009==3
+if r(N)!=44 {
+	this is an error merging in the 2009 QJE
+}
+*/
 *GENERATE CITATION FLOW VARIABLES
 forvalues Y=0/5 {
 	gen year`Y'citation=.
@@ -103,8 +178,6 @@ label var cum3citation "Cumulative Citations after 3 years"
 gen cum4citation=year0citation+year1citation+year2citation+year3citation+year4citation
 gen cum5citation=year0citation+year1citation+year2citation+year3citation+year4citation+year5citation
 label var cum5citation "Cumulative Citations after 5 years"
-
-
 
 *LABEL DATA
 label var year "Year"
@@ -176,7 +249,7 @@ label var laborecon "Labor Economics"
 
 *****************************************************
 save ../external_econ/cleaned/econ_mergedforregs.dta, replace
-stop
+
 ********************************************************
 *GRAPH SHARING OVER TIME
 *******************************************************
@@ -219,9 +292,10 @@ gen aer_y_avg_data_nopp`data'=avail_j_avg_data_nopp`data' if aer==1
 label var aer_y_avg_data_nopp`data' "AER"
 gen qje_y_avg_data_nopp`data'=avail_j_avg_data_nopp`data' if aer==0
 label var qje_y_avg_data_nopp`data' "QJE"
-line aer_y_avg_data_nopp`data' qje_y_avg_data_nopp`data' year, title("(A) `t' Availability, Regular Articles with Data") ///
+line aer_y_avg_data_nopp`data' qje_y_avg_data_nopp`data' year, title("(A) `t' Availability, Regular Articles with Data"/*, size(small)*/) ///
 	bgcolor(white) graphregion(color(white)) ///
-	ylabel(0 0.2 0.4 0.6 0.8 1) xline(2005) lpattern(solid dash)
+	ylabel(0 0.2 0.4 0.6 0.8 1) xline(2005) lpattern(solid dash) ///
+	xlabel(2001(2)2009)
 graph save ../output/econ_avail`data'_time_data_nopp.gph, replace
 graph export ../output/econ_avail`data'_time_data_nopp.eps, replace
 graph export ../output/econ_avail`data'_time_data_nopp.png, replace
