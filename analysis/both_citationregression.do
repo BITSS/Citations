@@ -12,7 +12,7 @@ run with poisson
 5-year citations, not total
 */
 
-
+/*
 ***************************************************
 *LOAD DATA
 ***************************************************
@@ -438,7 +438,10 @@ graph export ../output/both_rankXjournalXpost`X'.eps, replace
 
 *SAVE FINAL DATA
 save ../external_econ/cleaned/both_cleaned_mergedforregs.dta, replace
-stop
+*/
+*OPTIONAL START HERE FOR SPEED
+use ../external_econ/cleaned/both_cleaned_mergedforregs.dta, replace
+
 *********************************************************
 *SUMM STAT TABLE
 *********************************************************
@@ -570,6 +573,20 @@ regress `ln'citation avail_`data' `time' aer ajps apsr if data_type_2!=1
 		addtext(Year-Discipline FE, Yes, Sample, Data-Only) title("Naive OLS Regression")
 	outreg2 using ../output/both_naive`ln'-simp_`data'_`t'.tex, dec(2) tex label replace addstat(Mean Dep. Var., `depvarmean') ///
 		addtext(Year-Discipline FE, Yes, Sample, Data-Only) nocons keep(avail_`data' aer ajps apsr) title("Naive OLS Regression")
+	**RESIDUAL PLOT** 2019/8/18
+	if "`data'"=="data" & ("`ln'"==""|"`ln'"=="ln") { //We just want data sharing, just month FE, just Scopus Cites.	
+	**RESIDUAL PLOT** 2019/8/18
+	predict resid, resid
+	predict yhat
+	label var resid "Residuals"
+	label var yhat "Fitted Values"
+	if "`ln'"=="" scatter resid yhat, title("OLS Citations") saving(../output/residplot_ols_`ln'.gph, replace)
+	if "`ln'"=="ln" scatter resid yhat, title("OLS ln(Citations+1)") saving(../output/residplot_ols_`ln'.gph, replace)
+	drop resid yhat
+	*rvfplot, title("OLS `ln' Citations") saving(../output/rvfplot_ols_`ln'.gph, replace) 
+	
+	****
+	}	
 	}
 	
 regress `ln'citation avail_`data' `time' aer ajps apsr if mainsample==1
@@ -891,6 +908,19 @@ ivreg2 `ln'citation aer ajps apsr post2005 post2010 post2012  `time' ///
 	outreg2 using ../output/both_ivreg`ln'-simp_`data'_`t'.tex, dec(2) tex label append  ///
 		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') addtext(Months since Publication, Cubic, Sample, Data-NoPP) nocons ///
 		keep(avail_`data' aer ajps apsr post2005 post2010 post2012)	
+		
+	**RESIDUAL PLOT** 2019/8/18
+	if "`data'"=="data" & ("`ln'"==""|"`ln'"=="ln") { //We just want data sharing, just month FE, just Scopus Cites.
+	predict resid, resid
+	predict yhat
+	label var resid "Residuals"
+	label var yhat "Fitted Values"
+	if "`ln'"=="" scatter resid yhat, title("IV Citations") saving(../output/residplot_iv_`ln'.gph, replace)
+	if "`ln'"=="ln" scatter resid yhat, title("IV ln(Citations+1)") saving(../output/residplot_iv_`ln'.gph, replace)
+	drop resid yhat
+	*rvfplot, title("IV `ln' Citations") saving(../output/rvfplot_ols_`ln'.gph, replace)
+	****
+	}
 	est restore _ivreg2_avail_`data'
 	outreg2 using ../output/both_first2`ln'-simp_`data'_`t'.tex, dec(2) tex label append  ///
 		addstat(Mean Dep. Var., `depvarmean', F Stat, `F') addtext(Months since Publication, Cubic, Sample, Data-NoPP) nocons ///
@@ -1040,6 +1070,18 @@ ivreg2 `ln'citation aer ajps apsr post2005 post2010 post2012  `time' ///
 } //end ln-normal citations
 }
 }
+
+**********************COMBINED RESIDUAL PLOT************************
+graph combine ../output/residplot_iv_.gph ../output/residplot_iv_ln.gph ///
+	../output/residplot_ols_.gph ../output/residplot_ols_ln.gph, title("Residual Plots of OLS and IV Estimates") ///
+	subtitle("Main sample, data articles, data-only sharing")
+graph export ../output/residplot_combined.png, replace
+*graph combine ../output/rvfplot_iv_.gph ../output/rvfplot_iv_ln.gph ///
+*	../output/rvfplot_ols_.gph ../output/rvfplot_ols_ln.gph, title("Residual vs. Fitted Plots of OLS and IV Estimates")
+*graph export ../output/rvfplot_combined.png, replace
+stop
+
+
 ***********************************************************************
 *ALTERNATE: CUMULATIVE FLOW OF CITATIONS: 3 YEAR, 5 YEAR
 ***********************************************************************
